@@ -5,6 +5,7 @@ import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { FloatingHeader, floatingHeaderClearance } from '@/components/FloatingHeader';
 import { colors, radius, spacing } from '@/constants/theme';
 import { useRecipes } from '@/context/RecipesContext';
 import { clearAllAppData } from '@/lib/clearData';
@@ -58,17 +59,38 @@ export default function SettingsScreen() {
     }
   };
 
-  return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={{
-        paddingTop: insets.top + spacing.md,
-        paddingBottom: insets.bottom + 120,
-        paddingHorizontal: spacing.md,
-      }}
-    >
-      <AppText variant="heading" style={styles.title}>ตั้งค่า</AppText>
+  const headerClearance = floatingHeaderClearance(insets.top);
 
+  return (
+    <View style={styles.screenWrap}>
+      <FloatingHeader
+        title="ตั้งค่า"
+        actions={[
+          {
+            icon: 'information-circle-outline',
+            accessibilityLabel: 'เกี่ยวกับและเครดิต',
+            onPress: () => router.push('/about'),
+          },
+          {
+            icon: 'download-outline',
+            accessibilityLabel: 'นำเข้าจากไฟล์',
+            onPress: pickImport,
+          },
+          {
+            icon: 'archive-outline',
+            accessibilityLabel: 'สำรองข้อมูล zip',
+            onPress: exportAllZip,
+          },
+        ]}
+      />
+      <ScrollView
+        style={styles.screen}
+        contentContainerStyle={{
+          paddingTop: headerClearance,
+          paddingBottom: insets.bottom + 120,
+          paddingHorizontal: spacing.md,
+        }}
+      >
       <Section title="ส่งออกสูตร">
         <Row
           icon="archive-outline"
@@ -162,6 +184,7 @@ export default function SettingsScreen() {
         />
       </Section>
     </ScrollView>
+    </View>
   );
 }
 
@@ -198,8 +221,8 @@ function Row({
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
-  title: { marginBottom: spacing.lg },
+  screenWrap: { flex: 1, backgroundColor: colors.cream },
+  screen: { flex: 1 },
   section: { marginBottom: spacing.lg },
   sectionTitle: { marginBottom: spacing.sm, fontSize: 18 },
   card: {

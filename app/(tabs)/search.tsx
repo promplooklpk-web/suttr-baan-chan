@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import {
   FlatList,
@@ -11,6 +11,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { FloatingHeader, floatingHeaderClearance } from '@/components/FloatingHeader';
 import { EmptyState } from '@/components/EmptyState';
 import { RecipeCard } from '@/components/RecipeCard';
 import { colors, fonts, radius, spacing } from '@/constants/theme';
@@ -53,23 +54,33 @@ export default function SearchScreen() {
   };
 
   const showResults = query.trim().length > 0 || favoritesOnly || Boolean(tagFilter);
+  const headerClearance = floatingHeaderClearance(insets.top);
 
   return (
-    <View style={[styles.screen, { paddingTop: insets.top + spacing.sm }]}>
-      <View style={styles.header}>
-        <AppText variant="title">ค้นหา</AppText>
-      </View>
+    <View style={styles.screen}>
+      <FloatingHeader
+        title="ค้นหา"
+        actions={[
+          {
+            icon: favoritesOnly ? 'heart' : 'heart-outline',
+            accessibilityLabel: 'กรองสูตรโปรด',
+            active: favoritesOnly,
+            onPress: () => setFavoritesOnly((v) => !v),
+          },
+          {
+            icon: 'pricetags-outline',
+            accessibilityLabel: 'จัดการแท็ก',
+            onPress: () => router.push('/tags/index'),
+          },
+          {
+            icon: 'add',
+            accessibilityLabel: 'เพิ่มสูตร',
+            onPress: () => router.push('/recipe/edit'),
+          },
+        ]}
+      />
 
-      <View style={styles.filterRow}>
-        <Pressable
-          style={[styles.filterChip, favoritesOnly && styles.filterChipOn]}
-          onPress={() => setFavoritesOnly((v) => !v)}
-        >
-          <Ionicons name="heart" size={14} color={favoritesOnly ? colors.white : colors.orange} />
-          <AppText variant="caption" style={{ color: favoritesOnly ? colors.white : colors.ink }}>
-            สูตรโปรด
-          </AppText>
-        </Pressable>
+      <View style={[styles.filterRow, { paddingTop: headerClearance }]}>
         {tagFilter ? (
           <Pressable style={styles.filterChipOn} onPress={() => setTagFilter('')}>
             <AppText variant="caption" style={{ color: colors.white }}>#{tagFilter} ×</AppText>
@@ -175,10 +186,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.cream,
   },
-  header: {
-    paddingHorizontal: spacing.md,
-    marginBottom: spacing.md,
-  },
   filterRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -231,6 +238,7 @@ const styles = StyleSheet.create({
   suggestions: {
     paddingHorizontal: spacing.md,
     paddingBottom: 120,
+    paddingTop: spacing.sm,
   },
   block: {
     marginBottom: spacing.lg,

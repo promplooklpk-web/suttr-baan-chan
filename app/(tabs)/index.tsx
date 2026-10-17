@@ -13,6 +13,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { FloatingHeader, floatingHeaderClearance } from '@/components/FloatingHeader';
 import { CategoryChips } from '@/components/CategoryChips';
 import { EmptyState } from '@/components/EmptyState';
 import { RecipeCard } from '@/components/RecipeCard';
@@ -54,18 +55,43 @@ export default function HomeScreen() {
     return recipes.filter((r) => r.category === category);
   }, [recipes, category]);
 
+  const headerClearance = floatingHeaderClearance(insets.top);
+
   if (loading) {
     return (
-      <View style={[styles.centered, { paddingTop: insets.top }]}>
-        <ActivityIndicator size="large" color={colors.orange} />
+      <View style={styles.screen}>
+        <FloatingHeader title="สูตรบ้านฉัน" />
+        <View style={[styles.centered, { paddingTop: headerClearance }]}>
+          <ActivityIndicator size="large" color={colors.orange} />
+        </View>
       </View>
     );
   }
 
   return (
-    <View style={[styles.screen, { paddingTop: insets.top + spacing.sm }]}>
+    <View style={styles.screen}>
+      <FloatingHeader
+        title="สูตรบ้านฉัน"
+        actions={[
+          {
+            icon: 'heart-outline',
+            accessibilityLabel: 'สูตรโปรด',
+            onPress: () => router.push({ pathname: '/(tabs)/search', params: { favorites: '1' } }),
+          },
+          {
+            icon: 'add',
+            accessibilityLabel: 'เพิ่มสูตร',
+            onPress: () => router.push('/recipe/edit'),
+          },
+          {
+            icon: 'settings-outline',
+            accessibilityLabel: 'ตั้งค่า',
+            onPress: () => router.push('/(tabs)/settings'),
+          },
+        ]}
+      />
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingTop: headerClearance }]}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>

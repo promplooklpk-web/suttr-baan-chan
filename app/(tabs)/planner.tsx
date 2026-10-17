@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import {
   Modal,
@@ -10,6 +11,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { FloatingHeader, floatingHeaderClearance } from '@/components/FloatingHeader';
 import { colors, fonts, radius, spacing } from '@/constants/theme';
 import { useMealPlan } from '@/context/MealPlanContext';
 import { useRecipes } from '@/context/RecipesContext';
@@ -28,6 +30,8 @@ export default function PlannerScreen() {
   const { plan, shopping, assignMeal, changeWeek, toggleShoppingItem, rebuildShoppingList } = useMealPlan();
   const { recipes, getRecipe } = useRecipes();
   const [picker, setPicker] = useState<{ date: string; slot: MealSlot } | null>(null);
+  const [section, setSection] = useState<'plan' | 'shop'>('plan');
+  const headerClearance = floatingHeaderClearance(insets.top);
 
   const days = plan?.days ?? [];
 
@@ -37,25 +41,47 @@ export default function PlannerScreen() {
   );
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={{
-        paddingTop: insets.top + spacing.md,
-        paddingBottom: insets.bottom + 120,
-        paddingHorizontal: spacing.md,
-      }}
-    >
-      <View style={styles.weekHeader}>
-        <Pressable onPress={() => changeWeek(-1)}>
-          <Ionicons name="chevron-back" size={24} color={colors.ink} />
-        </Pressable>
-        <AppText variant="title">แพลนมื้อสัปดาห์</AppText>
-        <Pressable onPress={() => changeWeek(1)}>
-          <Ionicons name="chevron-forward" size={24} color={colors.ink} />
-        </Pressable>
-      </View>
+    <View style={styles.screen}>
+      <FloatingHeader
+        segments={[
+          { id: 'plan', label: 'แพลนมื้อ' },
+          { id: 'shop', label: 'ซื้อของ' },
+        ]}
+        activeSegmentId={section}
+        onSegmentPress={(id) => setSection(id as 'plan' | 'shop')}
+        actions={[
+          {
+            icon: 'refresh',
+            accessibilityLabel: 'รีเฟรชรายการซื้อของ',
+            onPress: () => rebuildShoppingList(),
+          },
+          {
+            icon: 'shuffle-outline',
+            accessibilityLabel: 'สุ่มเมนู',
+            onPress: () => router.push('/(tabs)/picker'),
+          },
+        ]}
+      />
+      <ScrollView
+        contentContainerStyle={{
+          paddingTop: headerClearance,
+          paddingBottom: insets.bottom + 120,
+          paddingHorizontal: spacing.md,
+        }}
+      >
+      {section === 'plan' && (
+        <View style={styles.weekHeader}>
+          <Pressable onPress={() => changeWeek(-1)}>
+            <Ionicons name="chevron-back" size={24} color={colors.ink} />
+          </Pressable>
+          <AppText variant="title">สัปดาห์นี้</AppText>
+          <Pressable onPress={() => changeWeek(1)}>
+            <Ionicons name="chevron-forward" size={24} color={colors.ink} />
+          </Pressable>
+        </View>
+      )}
 
-      {days.map((day, idx) => {
+      {section === 'plan' && days.map((day, idx) => {
         const label = DAY_LABELS[idx] ?? day.date;
         return (
           <View key={day.date} style={styles.dayCard}>
@@ -79,12 +105,10 @@ export default function PlannerScreen() {
         );
       })}
 
+      {section === 'shop' && (
       <View style={styles.shopSection}>
         <View style={styles.shopHeader}>
           <AppText variant="title">รายการซื้อของ</AppText>
-          <Pressable onPress={rebuildShoppingList}>
-            <AppText style={{ color: colors.orange }}>รีเฟรช</AppText>
-          </Pressable>
         </View>
         <AppText variant="caption" muted style={{ marginBottom: spacing.sm }}>
           {checkedCount}/{shopping.length} รายการ
@@ -107,6 +131,7 @@ export default function PlannerScreen() {
           </Pressable>
         ))}
       </View>
+      )}
 
       <Modal visible={picker != null} transparent animationType="slide">
         <View style={styles.modalBackdrop}>
@@ -144,6 +169,7 @@ export default function PlannerScreen() {
         </View>
       </Modal>
     </ScrollView>
+    </View>
   );
 }
 
@@ -173,7 +199,7 @@ const styles = StyleSheet.create({
   },
   slotLabel: { width: 56 },
   mealTitle: { flex: 1, fontFamily: fonts.medium },
-  shopSection: { marginTop: spacing.lg },
+  shopSection: { marginTop: spacing.sm },
   shopHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',

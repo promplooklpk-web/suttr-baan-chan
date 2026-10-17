@@ -12,6 +12,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { FloatingHeader, floatingHeaderClearance } from '@/components/FloatingHeader';
 import { RecipeCoverImage } from '@/components/RecipeCoverImage';
 import { colors, fonts, radius, spacing } from '@/constants/theme';
 import { useMealPlan } from '@/context/MealPlanContext';
@@ -194,8 +195,9 @@ export default function PickerScreen() {
     }
   };
 
-  const displayRecipe = phase === 'shuffling' ? shufflePreview : main;
   const empty = pool.length === 0;
+  const headerClearance = floatingHeaderClearance(insets.top);
+  const headerTitle = phase === 'shuffling' ? 'กำลังสุ่ม...' : 'กินอะไรดี';
 
   const relaxedCount = useMemo(() => {
     if (!empty || maxMinutes == null) return null;
@@ -203,18 +205,35 @@ export default function PickerScreen() {
   }, [empty, maxMinutes, recipes, category, maxCalories]);
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={{
-        paddingTop: insets.top + spacing.md,
-        paddingBottom: insets.bottom + 120,
-        paddingHorizontal: spacing.md,
-      }}
-      showsVerticalScrollIndicator={false}
-    >
-      <AppText variant="heading" style={styles.title}>
-        {phase === 'shuffling' ? 'กำลังสุ่มเมนู...' : 'วันนี้กินอะไรดี?'}
-      </AppText>
+    <View style={styles.screen}>
+      <FloatingHeader
+        title={headerTitle}
+        actions={[
+          {
+            icon: 'shuffle',
+            accessibilityLabel: 'สุ่มเมนู',
+            onPress: startShuffle,
+          },
+          {
+            icon: 'calendar-outline',
+            accessibilityLabel: 'แพลนมื้อ',
+            onPress: () => router.push('/(tabs)/planner'),
+          },
+          {
+            icon: 'settings-outline',
+            accessibilityLabel: 'ตั้งค่า',
+            onPress: () => router.push('/(tabs)/settings'),
+          },
+        ]}
+      />
+      <ScrollView
+        contentContainerStyle={{
+          paddingTop: headerClearance,
+          paddingBottom: insets.bottom + 120,
+          paddingHorizontal: spacing.md,
+        }}
+        showsVerticalScrollIndicator={false}
+      >
       {phase === 'shuffling' ? (
         <AppText muted style={styles.subtitle}>
           สุ่มจาก {pool.length} สูตร · {MEAL_LABELS[meal]}
@@ -355,6 +374,7 @@ export default function PickerScreen() {
         </AppText>
       )}
     </ScrollView>
+    </View>
   );
 }
 
@@ -517,7 +537,6 @@ function AltRow({ recipe, onPress }: { recipe: Recipe; onPress: () => void }) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
-  title: { marginBottom: spacing.xs },
   subtitle: { marginBottom: spacing.md },
   mealRow: {
     flexDirection: 'row',
