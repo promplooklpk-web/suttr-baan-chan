@@ -20,6 +20,7 @@ import { RecipeCard } from '@/components/RecipeCard';
 import { RecipeCoverImage } from '@/components/RecipeCoverImage';
 import { colors, fonts, radius, spacing } from '@/constants/theme';
 import { useRecipes } from '@/context/RecipesContext';
+import { useFridgeRecipeMatches } from '@/hooks/useFridgeRecipeMatches';
 
 function greeting(): string {
   const hour = new Date().getHours();
@@ -33,6 +34,8 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { recipes, loading } = useRecipes();
   const [category, setCategory] = useState('ทั้งหมด');
+  const [fridgeSort, setFridgeSort] = useState(false);
+  const fridgeMatches = useFridgeRecipeMatches(recipes);
 
   const favorites = useMemo(
     () => recipes.filter((r) => r.isFavorite),
@@ -46,14 +49,24 @@ export default function HomeScreen() {
   }, [recipes]);
 
   const filtered = useMemo(() => {
-    if (category === 'ทั้งหมด') return recipes;
-    if (category === 'จานเดียว') {
-      return recipes.filter(
-        (r) => r.category === 'อาหารจานเดียว' || r.category === 'จานเดียว',
+    let list = recipes;
+    if (category !== 'ทั้งหมด') {
+      if (category === 'จานเดียว') {
+        list = recipes.filter(
+          (r) => r.category === 'อาหารจานเดียว' || r.category === 'จานเดียว',
+        );
+      } else {
+        list = recipes.filter((r) => r.category === category);
+      }
+    }
+    if (fridgeSort) {
+      list = [...list].sort(
+        (a, b) =>
+          (fridgeMatches.getPercent(b.id) ?? 0) - (fridgeMatches.getPercent(a.id) ?? 0),
       );
     }
-    return recipes.filter((r) => r.category === category);
-  }, [recipes, category]);
+    return list;
+  }, [recipes, category, fridgeSort, fridgeMatches]);
 
   const headerClearance = floatingHeaderClearance(insets.top);
 
@@ -134,6 +147,16 @@ export default function HomeScreen() {
         </Pressable>
 
         <CategoryChips selected={category} onSelect={setCategory} />
+        {fridgeMatches.hasFridgeItems && (
+          <Pressable
+            style={[styles.fridgeChip, fridgeSort && styles.fridgeChipOn]}
+            onPress={() => setFridgeSort((v) => !v)}
+          >
+            <AppText variant="label" style={{ color: fridgeSort ? colors.white : colors.ink }}>
+              ทำได้จากตู้เย็น
+            </AppText>
+          </Pressable>
+        )}
 
         {recipes.length === 0 ? (
           <EmptyState
@@ -149,7 +172,13 @@ export default function HomeScreen() {
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                   <View style={styles.favRow}>
                     {favorites.map((recipe, i) => (
-                      <RecipeCard key={recipe.id} recipe={recipe} variant="compact" colorIndex={i} />
+                      <RecipeCard
+                        key={recipe.id}
+                        recipe={recipe}
+                        variant="compact"
+                        colorIndex={i}
+                        fridgeMatchPercent={fridgeMatches.getPercent(recipe.id)}
+                      />
                     ))}
                   </View>
                 </ScrollView>
@@ -171,7 +200,11 @@ export default function HomeScreen() {
                   columnWrapperStyle={styles.gridRow}
                   renderItem={({ item, index }) => (
                     <View style={styles.gridItem}>
-                      <RecipeCard recipe={item} colorIndex={index} />
+                      <RecipeCard
+                        recipe={item}
+                        colorIndex={index}
+                        fridgeMatchPercent={fridgeMatches.getPercent(item.id)}
+                      />
                     </View>
                   )}
                 />
@@ -197,6 +230,21 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 120,
+  },
+  fridgeChip: {
+    alignSelf: 'flex-start',
+    marginLeft: spacing.md,
+    marginBottom: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  fridgeChipOn: {
+    backgroundColor: colors.orange,
+    borderColor: colors.orange,
   },
   header: {
     paddingHorizontal: spacing.md,

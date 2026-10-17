@@ -16,6 +16,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { RecipeCard } from '@/components/RecipeCard';
 import { colors, fonts, radius, spacing } from '@/constants/theme';
 import { useRecipes } from '@/context/RecipesContext';
+import { useFridgeRecipeMatches } from '@/hooks/useFridgeRecipeMatches';
 
 const POPULAR_TAGS = ['เผ็ด', 'จานด่วน', 'ทำง่าย', 'ผัด', 'ต้มยำ'];
 
@@ -35,6 +36,8 @@ export default function SearchScreen() {
     }
     if (params.favorites === '1') setFavoritesOnly(true);
   }, [params.tag, params.favorites]);
+
+  const fridgeMatches = useFridgeRecipeMatches(recipes);
 
   const results = useMemo(() => {
     let list = query.trim() ? searchRecipes(query) : recipes;
@@ -172,7 +175,11 @@ export default function SearchScreen() {
           }
           renderItem={({ item, index }) => (
             <View style={styles.resultItem}>
-              <RecipeCard recipe={item} colorIndex={index} />
+              <RecipeCard
+                recipe={item}
+                colorIndex={index}
+                fridgeMatchPercent={fridgeMatches.getPercent(item.id)}
+              />
             </View>
           )}
         />

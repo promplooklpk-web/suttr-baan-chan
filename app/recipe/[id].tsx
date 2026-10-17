@@ -17,7 +17,10 @@ import { StepPhotoBlock } from '@/components/StepPhotoBlock';
 import { StepTimerChip } from '@/components/StepTimerChip';
 import { SHOW_STEP_PHOTOS } from '@/constants/featureFlags';
 import { colors, fonts, radius, spacing } from '@/constants/theme';
+import { fridgeBadgeColors } from '@/components/FridgeMatchBadge';
+import { useFridge } from '@/context/FridgeContext';
 import { useRecipes } from '@/context/RecipesContext';
+import { matchRecipeToFridge } from '@/lib/fridgeMatch';
 import {
   difficultyLabel,
   photoUri,
@@ -36,6 +39,7 @@ export default function RecipeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
   const { getRecipe, toggleFavorite, deleteRecipe } = useRecipes();
+  const { items: fridgeItems } = useFridge();
   const recipe = getRecipe(id);
   const [tab, setTab] = useState<TabKey>('ingredients');
   const [servings, setServings] = useState(recipe?.servings ?? 1);
@@ -49,6 +53,11 @@ export default function RecipeDetailScreen() {
   const factor = servings / baseServings;
 
   const uri = photoUri(recipe?.photo?.path);
+
+  const fridgeMatch = useMemo(() => {
+    if (!recipe || fridgeItems.length === 0) return null;
+    return matchRecipeToFridge(recipe, fridgeItems);
+  }, [recipe, fridgeItems]);
 
   const tabs: { key: TabKey; label: string }[] = useMemo(
     () => [
@@ -136,6 +145,22 @@ export default function RecipeDetailScreen() {
               <InfoPill icon="bar-chart-outline" label={difficultyLabel(recipe.difficulty)} />
             </View>
 
+            {fridgeMatch && (
+              <View
+                style={[
+                  styles.fridgeSummary,
+                  { backgroundColor: fridgeBadgeColors(fridgeMatch.percent).backgroundColor },
+                ]}
+              >
+                <AppText
+                  variant="label"
+                  style={{ color: fridgeBadgeColors(fridgeMatch.percent).color }}
+                >
+                  มีในตู้ {fridgeMatch.percent}% ({fridgeMatch.haveCount}/{fridgeMatch.totalCount} อย่าง)
+                </AppText>
+              </View>
+            )}
+
             <View style={styles.tabRow}>
               {tabs.map((t) => (
                 <Pressable
@@ -166,23 +191,51 @@ export default function RecipeDetailScreen() {
                     <RoundBtn label="+" onPress={() => setServings((s) => s + 1)} />
                   </View>
                 </View>
-                {recipe.ingredients.map((ing, i) => (
-                  <Pressable
-                    key={`${ing.name}-${i}`}
-                    style={styles.ingRow}
-                    onPress={() => setChecked((c) => ({ ...c, [i]: !c[i] }))}
-                  >
-                    <Ionicons
-                      name={checked[i] ? 'checkbox' : 'square-outline'}
-                      size={22}
-                      color={checked[i] ? colors.orange : colors.inkMuted}
-                    />
-                    <AppText style={styles.ingName}>{ing.name}</AppText>
-                    <AppText muted>
-                      {[scaleAmount(ing.amount, factor), ing.unit].filter(Boolean).join(' ')}
-                    </AppText>
-                  </Pressable>
-                ))}
+                {recipe.ingredients.map((ing, i) => {
+                  const fridgeLine = fridgeMatch?.details[i];
+                  const inFridge = fridgeLine?.have ?? false;
+                  return (
+                    <Pressable
+                      key={`${ing.name}-${i}`}
+                      style={styles.ingRow}
+                      onPress={() => setChecked((c) => ({ ...c, [i]: !c[i] }))}
+                    >
+                      {fridgeMatch ? (
+                        <Ionicons
+                          name={inFridge ? 'checkmark-circle' : 'close-circle'}
+                          size={22}
+                          color={inFridge ? colors.cardGreen : colors.danger}
+                        />
+                      ) : (
+                        <Ionicons
+                          name={checked[i] ? 'checkbox' : 'square-outline'}
+                          size={22}
+                          color={checked[i] ? colors.orange : colors.inkMuted}
+                        />
+                      )}
+                      <View style={styles.ingMain}>
+                        <AppText style={[styles.ingName, !inFridge && fridgeMatch && styles.ingMissing]}>
+                          {ing.name}
+                        </AppText>
+                        {fridgeMatch && !inFridge && (
+                          <AppText variant="caption" style={styles.ingFridgeHint}>
+                            {fridgeLine?.expiredInFridge ? 'หมดอายุในตู้' : 'ไม่มีในตู้'}
+                          </AppText>
+                        )}
+                      </View>
+                      <AppText muted style={styles.ingAmount}>
+                        {[scaleAmount(ing.amount, factor), ing.unit].filter(Boolean).join(' ')}
+                      </AppText>
+                      {fridgeMatch ? (
+                        <Ionicons
+                          name={checked[i] ? 'checkbox' : 'square-outline'}
+                          size={20}
+                          color={checked[i] ? colors.orange : colors.inkLight}
+                        />
+                      ) : null}
+                    </Pressable>
+                  );
+                })}
               </View>
             )}
 
@@ -331,6 +384,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderRadius: radius.lg,
     padding: spacing.md,
+    marginBottom: spacing.md,
+  },
+  fridgeSummary: {
+    borderRadius: radius.lg,
+    padding: spacing.md,
     marginBottom: spacing.lg,
   },
   infoPill: {
@@ -393,8 +451,20 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border,
   },
-  ingName: {
+  ingMain: {
     flex: 1,
+    gap: 2,
+  },
+  ingName: {},
+  ingMissing: {
+    color: colors.inkMuted,
+  },
+  ingFridgeHint: {
+    color: colors.danger,
+  },
+  ingAmount: {
+    minWidth: 56,
+    textAlign: 'right',
   },
   steps: {
     gap: spacing.md,

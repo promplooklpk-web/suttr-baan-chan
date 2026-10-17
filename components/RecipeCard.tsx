@@ -4,6 +4,7 @@ import { Link } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
+import { FridgeMatchBadge } from '@/components/FridgeMatchBadge';
 import { colors, radius, spacing } from '@/constants/theme';
 import { photoUri, totalMinutes } from '@/lib/storage';
 import type { Recipe } from '@/types/recipe';
@@ -14,12 +15,20 @@ type RecipeCardProps = {
   recipe: Recipe;
   variant?: 'grid' | 'compact';
   colorIndex?: number;
+  /** Omit or undefined to hide; 0 hides badge */
+  fridgeMatchPercent?: number;
 };
 
-export function RecipeCard({ recipe, variant = 'grid', colorIndex = 0 }: RecipeCardProps) {
+export function RecipeCard({
+  recipe,
+  variant = 'grid',
+  colorIndex = 0,
+  fridgeMatchPercent,
+}: RecipeCardProps) {
   const uri = photoUri(recipe.photo?.path);
   const minutes = totalMinutes(recipe);
   const bg = CARD_COLORS[colorIndex % CARD_COLORS.length];
+  const showFridgeBadge = fridgeMatchPercent != null && fridgeMatchPercent > 0;
 
   if (variant === 'compact') {
     return (
@@ -31,6 +40,7 @@ export function RecipeCard({ recipe, variant = 'grid', colorIndex = 0 }: RecipeC
             ) : (
               <Ionicons name="restaurant" size={28} color={colors.orange} />
             )}
+            {showFridgeBadge && <FridgeMatchBadge percent={fridgeMatchPercent} compact />}
           </View>
           <AppText variant="label" numberOfLines={2} style={styles.compactTitle}>
             {recipe.title}
@@ -59,6 +69,7 @@ export function RecipeCard({ recipe, variant = 'grid', colorIndex = 0 }: RecipeC
           ) : (
             <Ionicons name="restaurant" size={40} color={colors.orange} />
           )}
+          {showFridgeBadge && <FridgeMatchBadge percent={fridgeMatchPercent} />}
           {recipe.isFavorite && (
             <View style={styles.favBadge}>
               <Ionicons name="heart" size={14} color={colors.orange} />
