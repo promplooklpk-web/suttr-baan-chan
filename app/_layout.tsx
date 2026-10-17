@@ -10,7 +10,6 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { FridgeProvider } from '@/context/FridgeContext';
 import { MealPlanProvider } from '@/context/MealPlanContext';
@@ -48,7 +47,6 @@ export default function RootLayout() {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
     <RecipesProvider>
       <FridgeProvider>
       <MealPlanProvider>
@@ -84,6 +82,5 @@ export default function RootLayout() {
       </MealPlanProvider>
       </FridgeProvider>
     </RecipesProvider>
-    </GestureHandlerRootView>
   );
 }
