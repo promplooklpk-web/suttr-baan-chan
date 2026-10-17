@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/recipe-export.schema.json",
+  "title": "สูตรบ้านฉัน · Recipe export (recipes.json)",
+  "description": "Local-first export. A .recipe.json file holds this object directly (photos as base64 in photo.data). A .zip holds recipes.json (photos referenced by path) + images/.",
+  "type": "object",
+  "required": ["schemaVersion", "exportedAt", "app", "recipes"],
+  "properties": {
+    "schemaVersion": {"type": "integer", "const": 1},
+    "app": {"type": "string", "const": "baan-chan-recipes"},
+    "exportedAt": {"type": "string", "format": "date-time"},
+    "includesPhotos": {"type": "boolean"},
+    "format": {"type": "string", "enum": ["recipe.json", "zip"]},
+    "recipes": {"type": "array", "items": {"$ref": "#/$defs/recipe"}}
+  },
+  "$defs": {
+    "recipe": {
+      "type": "object",
+      "required": ["id", "title", "ingredients", "steps"],
+      "properties": {
+        "id": {"type": "string", "description": "UUID; used for conflict detection on import (same id = duplicate)"},
+        "title": {"type": "string"},
+        "category": {"type": "string"},
+        "tags": {"type": "array", "items": {"type": "string"}},
+        "prepMinutes": {"type": "integer", "minimum": 0},
+        "cookMinutes": {"type": "integer", "minimum": 0},
+        "servings": {"type": "integer", "minimum": 1},
+        "difficulty": {"type": "string", "enum": ["easy", "medium", "hard"]},
+        "rating": {"type": "number", "minimum": 0, "maximum": 5},
+        "isFavorite": {"type": "boolean"},
+        "notes": {"type": "string"},
+        "photo": {"$ref": "#/$defs/photo"},
+        "ingredients": {"type": "array", "items": {
+          "type": "object", "required": ["name"],
+          "properties": {"name": {"type": "string"}, "amount": {"type": "number"}, "unit": {"type": "string"}, "note": {"type": "string"}}
+        }},
+        "steps": {"type": "array", "items": {
+          "type": "object", "required": ["text"],
+          "properties": {"text": {"type": "string"}, "timerSeconds": {"type": "integer", "minimum": 0}, "photo": {"$ref": "#/$defs/photo"}}
+        }},
+        "createdAt": {"type": "string", "format": "date-time"},
+        "updatedAt": {"type": "string", "format": "date-time"}
+      }
+    },
+    "photo": {
+      "type": "object",
+      "properties": {
+        "path": {"type": "string", "description": "Relative path inside the .zip, e.g. images/3f2a.jpg"},
+        "data": {"type": "string", "contentEncoding": "base64", "description": "Embedded bytes for single-file .recipe.json"},
+        "mime": {"type": "string", "enum": ["image/jpeg", "image/png", "image/webp"]}
+      },
+      "oneOf": [{"required": ["path"]}, {"required": ["data", "mime"]}]
+    }
+  },
+  "examples": [{
+    "schemaVersion": 1, "app": "baan-chan-recipes", "exportedAt": "2026-10-17T12:00:00+07:00", "includesPhotos": true, "format": "zip",
+    "recipes": [{
+      "id": "6f1c2a3e-8d41-4b7e-9a10-2c5d7e9f0a11", "title": "ผัดกะเพราหมูสับไข่ดาว", "category": "ผัด/ทอด", "tags": ["เผ็ด", "จานด่วน"],
+      "prepMinutes": 5, "cookMinutes": 10, "servings": 1, "difficulty": "easy", "rating": 4.8, "isFavorite": true,
+      "photo": {"path": "images/6f1c2a3e.jpg", "mime": "image/jpeg"},
+      "ingredients": [{"name": "เนื้อหมูสับ", "amount": 100, "unit": "ก."}, {"name": "ใบกะเพรา", "amount": 1, "unit": "กำมือ", "note": "เด็ดสดๆ"}],
+      "steps": [{"text": "ผัดกระเทียมและพริกให้หอม", "timerSeconds": 30}, {"text": "ใส่หมูสับ ผัดให้สุก", "timerSeconds": 60}],
+      "createdAt": "2026-09-01T09:00:00+07:00", "updatedAt": "2026-10-10T18:30:00+07:00"
+    }]
+  }]
+}

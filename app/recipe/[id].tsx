@@ -1,0 +1,409 @@
+import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
+import { Stack, router, useLocalSearchParams } from 'expo-router';
+import { useMemo, useState } from 'react';
+import {
+  Alert,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { AppText } from '@/components/AppText';
+import { colors, fonts, radius, spacing } from '@/constants/theme';
+import { useRecipes } from '@/context/RecipesContext';
+import {
+  difficultyLabel,
+  photoUri,
+  totalMinutes,
+} from '@/lib/storage';
+
+type TabKey = 'ingredients' | 'steps' | 'notes';
+
+function scaleAmount(amount: number | undefined, factor: number): string {
+  if (amount == null) return '';
+  const scaled = amount * factor;
+  return Number.isInteger(scaled) ? String(scaled) : scaled.toFixed(1);
+}
+
+export default function RecipeDetailScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const insets = useSafeAreaInsets();
+  const { getRecipe, toggleFavorite, deleteRecipe } = useRecipes();
+  const recipe = getRecipe(id);
+  const [tab, setTab] = useState<TabKey>('ingredients');
+  const [servings, setServings] = useState(recipe?.servings ?? 1);
+  const [checked, setChecked] = useState<Record<number, boolean>>({});
+
+  const baseServings = recipe?.servings ?? 1;
+  const factor = servings / baseServings;
+
+  const uri = photoUri(recipe?.photo?.path);
+
+  const tabs: { key: TabKey; label: string }[] = useMemo(
+    () => [
+      { key: 'ingredients', label: 'ส่วนผสม' },
+      { key: 'steps', label: 'วิธีทำ' },
+      { key: 'notes', label: 'โน้ต' },
+    ],
+    [],
+  );
+
+  if (!recipe) {
+    return (
+      <View style={styles.missing}>
+        <AppText variant="title">ไม่พบสูตร</AppText>
+        <Pressable onPress={() => router.back()}>
+          <AppText style={{ color: colors.orange }}>กลับ</AppText>
+        </Pressable>
+      </View>
+    );
+  }
+
+  const minutes = totalMinutes(recipe);
+
+  const onDelete = () => {
+    Alert.alert('ลบสูตรนี้?', 'การลบไม่สามารถย้อนกลับได้', [
+      { text: 'ยกเลิก', style: 'cancel' },
+      {
+        text: 'ลบสูตร',
+        style: 'destructive',
+        onPress: async () => {
+          await deleteRecipe(recipe.id);
+          router.replace('/(tabs)');
+        },
+      },
+    ]);
+  };
+
+  return (
+    <>
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <View style={styles.headerActions}>
+              <Pressable onPress={() => router.push({ pathname: '/recipe/edit', params: { id: recipe.id } })}>
+                <Ionicons name="create-outline" size={24} color={colors.ink} />
+              </Pressable>
+              <Pressable onPress={() => toggleFavorite(recipe.id)}>
+                <Ionicons
+                  name={recipe.isFavorite ? 'heart' : 'heart-outline'}
+                  size={24}
+                  color={colors.orange}
+                />
+              </Pressable>
+            </View>
+          ),
+        }}
+      />
+      <View style={styles.screen}>
+        <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}>
+          <View style={styles.hero}>
+            {uri ? (
+              <Image source={{ uri }} style={styles.heroImage} contentFit="cover" />
+            ) : (
+              <View style={styles.heroPlaceholder}>
+                <Ionicons name="restaurant" size={64} color={colors.orange} />
+              </View>
+            )}
+          </View>
+
+          <View style={styles.body}>
+            <AppText variant="heading">{recipe.title}</AppText>
+            <View style={styles.subRow}>
+              {recipe.category && <AppText muted>{recipe.category}</AppText>}
+              {recipe.rating != null && (
+                <View style={styles.ratingRow}>
+                  <Ionicons name="star" size={16} color={colors.star} />
+                  <AppText muted>{recipe.rating.toFixed(1)}</AppText>
+                </View>
+              )}
+            </View>
+
+            <View style={styles.infoBar}>
+              <InfoPill icon="time-outline" label={`${minutes} นาที`} />
+              <InfoPill icon="people-outline" label={`${servings} ที่`} />
+              <InfoPill icon="bar-chart-outline" label={difficultyLabel(recipe.difficulty)} />
+            </View>
+
+            <View style={styles.tabRow}>
+              {tabs.map((t) => (
+                <Pressable
+                  key={t.key}
+                  onPress={() => setTab(t.key)}
+                  style={[styles.tabBtn, tab === t.key && styles.tabBtnActive]}
+                >
+                  <AppText
+                    variant="label"
+                    style={{ color: tab === t.key ? colors.white : colors.ink }}
+                  >
+                    {t.label}
+                  </AppText>
+                </Pressable>
+              ))}
+            </View>
+
+            {tab === 'ingredients' && (
+              <View>
+                <View style={styles.servingRow}>
+                  <AppText variant="label">จำนวนเสิร์ฟ</AppText>
+                  <View style={styles.servingControls}>
+                    <RoundBtn
+                      label="−"
+                      onPress={() => setServings((s) => Math.max(1, s - 1))}
+                    />
+                    <AppText variant="title" style={styles.servingCount}>{servings}</AppText>
+                    <RoundBtn label="+" onPress={() => setServings((s) => s + 1)} />
+                  </View>
+                </View>
+                {recipe.ingredients.map((ing, i) => (
+                  <Pressable
+                    key={`${ing.name}-${i}`}
+                    style={styles.ingRow}
+                    onPress={() => setChecked((c) => ({ ...c, [i]: !c[i] }))}
+                  >
+                    <Ionicons
+                      name={checked[i] ? 'checkbox' : 'square-outline'}
+                      size={22}
+                      color={checked[i] ? colors.orange : colors.inkMuted}
+                    />
+                    <AppText style={styles.ingName}>{ing.name}</AppText>
+                    <AppText muted>
+                      {[scaleAmount(ing.amount, factor), ing.unit].filter(Boolean).join(' ')}
+                    </AppText>
+                  </Pressable>
+                ))}
+              </View>
+            )}
+
+            {tab === 'steps' && (
+              <View style={styles.steps}>
+                {recipe.steps.map((step, i) => (
+                  <View key={i} style={styles.stepRow}>
+                    <View style={styles.stepNum}>
+                      <AppText style={styles.stepNumText}>{i + 1}</AppText>
+                    </View>
+                    <AppText style={styles.stepText}>{step.text}</AppText>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            {tab === 'notes' && (
+              <AppText muted style={styles.notes}>
+                {recipe.notes?.trim() ? recipe.notes : 'ยังไม่มีโน้ตเพิ่มเติม'}
+              </AppText>
+            )}
+
+            <Pressable onPress={onDelete} style={styles.deleteLink}>
+              <AppText style={{ color: colors.danger }}>ลบสูตร</AppText>
+            </Pressable>
+          </View>
+        </ScrollView>
+
+        <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}>
+          <Pressable
+            style={styles.cookBtn}
+            onPress={() =>
+              Alert.alert('โหมดทำอาหาร', 'ฟีเจอร์นี้จะมาในรอบถัดไป')
+            }
+          >
+            <AppText style={styles.cookBtnText}>เริ่มทำอาหาร</AppText>
+          </Pressable>
+        </View>
+      </View>
+    </>
+  );
+}
+
+function InfoPill({ icon, label }: { icon: keyof typeof Ionicons.glyphMap; label: string }) {
+  return (
+    <View style={styles.infoPill}>
+      <Ionicons name={icon} size={18} color={colors.orange} />
+      <AppText variant="caption">{label}</AppText>
+    </View>
+  );
+}
+
+function RoundBtn({ label, onPress }: { label: string; onPress: () => void }) {
+  return (
+    <Pressable onPress={onPress} style={styles.roundBtn}>
+      <AppText style={styles.roundBtnText}>{label}</AppText>
+    </Pressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: colors.cream,
+  },
+  missing: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.md,
+    backgroundColor: colors.cream,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    marginRight: spacing.sm,
+  },
+  hero: {
+    alignItems: 'center',
+    paddingTop: spacing.md,
+  },
+  heroImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+  },
+  heroPlaceholder: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  body: {
+    padding: spacing.md,
+  },
+  subRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    marginTop: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  infoBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: colors.white,
+    borderRadius: radius.lg,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  infoPill: {
+    alignItems: 'center',
+    gap: 4,
+    flex: 1,
+  },
+  tabRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  tabBtn: {
+    flex: 1,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    backgroundColor: colors.white,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  tabBtnActive: {
+    backgroundColor: colors.orange,
+    borderColor: colors.orange,
+  },
+  servingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.md,
+  },
+  servingControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  servingCount: {
+    minWidth: 32,
+    textAlign: 'center',
+  },
+  roundBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.orange,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  roundBtnText: {
+    color: colors.white,
+    fontSize: 20,
+    fontFamily: fonts.bold,
+    lineHeight: 22,
+  },
+  ingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.sm,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
+  },
+  ingName: {
+    flex: 1,
+  },
+  steps: {
+    gap: spacing.md,
+  },
+  stepRow: {
+    flexDirection: 'row',
+    gap: spacing.md,
+  },
+  stepNum: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: colors.orange,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepNumText: {
+    color: colors.white,
+    fontFamily: fonts.bold,
+    fontSize: 14,
+  },
+  stepText: {
+    flex: 1,
+    paddingTop: 2,
+  },
+  notes: {
+    lineHeight: 24,
+  },
+  deleteLink: {
+    marginTop: spacing.xl,
+    alignItems: 'center',
+  },
+  footer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.sm,
+    backgroundColor: colors.cream,
+  },
+  cookBtn: {
+    backgroundColor: colors.orange,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.md,
+    alignItems: 'center',
+  },
+  cookBtnText: {
+    color: colors.white,
+    fontFamily: fonts.semiBold,
+    fontSize: 18,
+  },
+});
