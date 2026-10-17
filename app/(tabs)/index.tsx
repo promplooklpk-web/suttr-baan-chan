@@ -36,7 +36,7 @@ export default function HomeScreen() {
   const { recipes, loading } = useRecipes();
   const [category, setCategory] = useState('ทั้งหมด');
   const [fridgeSort, setFridgeSort] = useState(false);
-  const [layoutMode, setLayoutMode] = useState<'grid' | 'list'>('grid');
+  const [layoutMode, setLayoutMode] = useState<'list' | 'compact'>('list');
   const fridgeMatches = useFridgeRecipeMatches(recipes);
 
   const favorites = useMemo(
@@ -194,18 +194,7 @@ export default function HomeScreen() {
                 </AppText>
                 <View style={styles.layoutToggle}>
                   <Pressable
-                    accessibilityLabel="แสดงเป็นตาราง"
-                    style={[styles.layoutBtn, layoutMode === 'grid' && styles.layoutBtnOn]}
-                    onPress={() => setLayoutMode('grid')}
-                  >
-                    <Ionicons
-                      name="grid-outline"
-                      size={18}
-                      color={layoutMode === 'grid' ? colors.white : colors.inkMuted}
-                    />
-                  </Pressable>
-                  <Pressable
-                    accessibilityLabel="แสดงเป็นรายการ"
+                    accessibilityLabel="แสดงแบบรายการเต็มความกว้าง"
                     style={[styles.layoutBtn, layoutMode === 'list' && styles.layoutBtnOn]}
                     onPress={() => setLayoutMode('list')}
                   >
@@ -213,6 +202,17 @@ export default function HomeScreen() {
                       name="list-outline"
                       size={20}
                       color={layoutMode === 'list' ? colors.white : colors.inkMuted}
+                    />
+                  </Pressable>
+                  <Pressable
+                    accessibilityLabel="แสดงแบบกะทัดรัด"
+                    style={[styles.layoutBtn, layoutMode === 'compact' && styles.layoutBtnOn]}
+                    onPress={() => setLayoutMode('compact')}
+                  >
+                    <Ionicons
+                      name="grid-outline"
+                      size={18}
+                      color={layoutMode === 'compact' ? colors.white : colors.inkMuted}
                     />
                   </Pressable>
                 </View>
@@ -227,15 +227,15 @@ export default function HomeScreen() {
                   key={layoutMode}
                   data={filtered}
                   keyExtractor={(item) => item.id}
-                  numColumns={layoutMode === 'grid' ? 2 : 1}
+                  numColumns={layoutMode === 'compact' ? 2 : 1}
                   scrollEnabled={false}
-                  columnWrapperStyle={layoutMode === 'grid' ? styles.gridRow : undefined}
-                  contentContainerStyle={layoutMode === 'list' ? styles.listContent : undefined}
+                  columnWrapperStyle={layoutMode === 'compact' ? styles.gridRow : undefined}
+                  contentContainerStyle={styles.listContent}
                   renderItem={({ item, index }) => (
-                    <View style={layoutMode === 'grid' ? styles.gridItem : styles.listItem}>
+                    <View style={layoutMode === 'compact' ? styles.gridItem : styles.listItem}>
                       <RecipeMenuCard
                         recipe={item}
-                        layout={layoutMode}
+                        layout={layoutMode === 'compact' ? 'compact' : 'list'}
                         colorIndex={index}
                         fridgeMatch={fridgeMatches.getMatch(item.id)}
                         showFridgeSection={fridgeMatches.hasFridgeItems}

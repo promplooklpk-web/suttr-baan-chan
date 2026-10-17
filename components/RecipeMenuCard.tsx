@@ -16,15 +16,18 @@ const CARD_COLORS = ['#E8F5E9', '#FFF3CD', '#FFE8D6', '#E3F2FD', '#F3E5F5'];
 
 type RecipeMenuCardProps = {
   recipe: Recipe;
-  layout?: 'grid' | 'list';
+  /** Full-width row with thumb left (Home default). */
+  layout?: 'list' | 'grid' | 'compact';
   colorIndex?: number;
   fridgeMatch?: RecipeFridgeMatch | null;
   showFridgeSection?: boolean;
 };
 
+const LIST_THUMB = 116;
+
 export function RecipeMenuCard({
   recipe,
-  layout = 'grid',
+  layout = 'list',
   colorIndex = 0,
   fridgeMatch,
   showFridgeSection = false,
@@ -36,14 +39,25 @@ export function RecipeMenuCard({
   const bg = CARD_COLORS[colorIndex % CARD_COLORS.length];
   const percent = fridgeMatch?.percent ?? 0;
   const showMatch = showFridgeSection && fridgeMatch != null;
-  const cardStyle = StyleSheet.flatten([styles.card, layout === 'list' && styles.cardList]);
+  const isList = layout === 'list';
+  const isCompact = layout === 'compact' || layout === 'grid';
+  const cardStyle = StyleSheet.flatten([
+    styles.card,
+    isList && styles.cardList,
+    isCompact && styles.cardCompact,
+  ]);
 
   const imageBlock = (
-    <View style={[layout === 'grid' ? styles.imageGrid : styles.imageList, { backgroundColor: bg }]}>
+    <View
+      style={[
+        isList ? styles.imageList : styles.imageGrid,
+        { backgroundColor: bg },
+      ]}
+    >
       {uri ? (
         <Image source={{ uri }} style={styles.image} contentFit="cover" />
       ) : (
-        <Ionicons name="restaurant" size={layout === 'list' ? 32 : 40} color={colors.orange} />
+        <Ionicons name="restaurant" size={isList ? 32 : 40} color={colors.orange} />
       )}
       {recipe.isFavorite && (
         <View style={styles.favBadge}>
@@ -53,9 +67,12 @@ export function RecipeMenuCard({
     </View>
   );
 
+  const primaryTag = recipe.tags?.[0];
+  const tagLabel = primaryTag ? `#${primaryTag}` : category;
+
   const body = (
-    <View style={layout === 'list' ? styles.bodyList : styles.bodyGrid}>
-      <AppText variant="label" numberOfLines={2} style={styles.title}>
+    <View style={isList ? styles.bodyList : styles.bodyGrid}>
+      <AppText variant="label" numberOfLines={2} style={isList ? styles.titleList : styles.title}>
         {recipe.title}
       </AppText>
       <View style={styles.metaRow}>
@@ -68,7 +85,7 @@ export function RecipeMenuCard({
             <AppText variant="caption" muted>{cal} kcal</AppText>
           </>
         )}
-        <AppText variant="caption" muted numberOfLines={1}> · {category}</AppText>
+        <AppText variant="caption" muted numberOfLines={1}> · {tagLabel}</AppText>
       </View>
       {showMatch && (
         <View style={styles.matchBlock}>
@@ -96,17 +113,8 @@ export function RecipeMenuCard({
   return (
     <Link href={`/recipe/${recipe.id}`} asChild>
       <LinkPressable style={cardStyle}>
-        {layout === 'list' ? (
-          <>
-            {imageBlock}
-            {body}
-          </>
-        ) : (
-          <>
-            {imageBlock}
-            {body}
-          </>
-        )}
+        {imageBlock}
+        {body}
       </LinkPressable>
     </Link>
   );
@@ -138,9 +146,16 @@ const styles = StyleSheet.create({
   },
   cardList: {
     flexDirection: 'row',
-    alignItems: 'stretch',
+    alignItems: 'center',
     flex: undefined,
     width: '100%',
+    padding: spacing.sm,
+    gap: spacing.md,
+    overflow: 'visible',
+  },
+  cardCompact: {
+    flex: 1,
+    overflow: 'hidden',
   },
   imageGrid: {
     aspectRatio: 1,
@@ -149,11 +164,13 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   imageList: {
-    width: 108,
-    minHeight: 108,
+    width: LIST_THUMB,
+    height: LIST_THUMB,
+    borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
+    flexShrink: 0,
   },
   image: {
     width: '100%',
@@ -178,13 +195,17 @@ const styles = StyleSheet.create({
   },
   bodyList: {
     flex: 1,
-    padding: spacing.md,
+    paddingRight: spacing.xs,
     justifyContent: 'center',
     gap: spacing.xs,
+    minWidth: 0,
   },
   title: {
     fontFamily: fonts.semiBold,
     minHeight: 40,
+  },
+  titleList: {
+    fontFamily: fonts.semiBold,
   },
   metaRow: {
     flexDirection: 'row',

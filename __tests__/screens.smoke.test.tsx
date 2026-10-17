@@ -20,9 +20,11 @@ describe('screen smoke tests', () => {
     jest.mocked(router.push).mockClear();
   });
 
-  it('renders Home', async () => {
-    const { findByText } = renderWithProviders(<HomeScreen />);
+  it('renders Home with full-width recipe list', async () => {
+    const { findByText, getByLabelText } = renderWithProviders(<HomeScreen />);
     await findByText('สูตรทั้งหมด');
+    expect(getByLabelText('แสดงแบบรายการเต็มความกว้าง')).toBeTruthy();
+    await findByText('ข้าวผัดไก่');
   });
 
   it('renders Search with results', async () => {

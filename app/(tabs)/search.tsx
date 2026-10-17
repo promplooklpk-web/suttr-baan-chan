@@ -212,7 +212,7 @@ export default function SearchScreen() {
               <View style={layoutMode === 'grid' ? styles.resultItem : styles.resultItemList}>
                 <RecipeMenuCard
                   recipe={item}
-                  layout={layoutMode}
+                  layout={layoutMode === 'list' ? 'list' : 'compact'}
                   colorIndex={index}
                   fridgeMatch={fridgeMatches.getMatch(item.id)}
                   showFridgeSection={fridgeMatches.hasFridgeItems}

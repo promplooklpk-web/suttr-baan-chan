@@ -5,13 +5,13 @@ import { matchRecipeToFridge } from '@/lib/fridgeMatch';
 import { seedFridgeItems, seedRecipe } from '@/__tests__/fixtures/seed';
 
 describe('RecipeMenuCard', () => {
-  it('renders grid layout without Slot style error', () => {
+  it('renders compact layout without Slot style error', () => {
     const match = matchRecipeToFridge(seedRecipe, seedFridgeItems);
     expect(() =>
       render(
         <RecipeMenuCard
           recipe={seedRecipe}
-          layout="grid"
+          layout="compact"
           fridgeMatch={match}
           showFridgeSection
         />,
