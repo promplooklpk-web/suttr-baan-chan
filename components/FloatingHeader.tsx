@@ -36,14 +36,19 @@ export function floatingHeaderClearance(topInset: number): number {
 
 function GlassCapsule({ children, style }: { children: React.ReactNode; style?: object }) {
   return (
-    <View style={[styles.capsuleOuter, style]}>
-      <BlurView
-        intensity={Platform.OS === 'ios' ? 72 : 88}
-        tint="light"
-        style={styles.capsuleBlur}
-      >
-        <View style={styles.capsuleInner}>{children}</View>
-      </BlurView>
+    <View style={[styles.capsuleShadowWrap, style]}>
+      <View style={styles.capsuleHairline}>
+        <View style={styles.capsuleBorder}>
+          <BlurView
+            intensity={Platform.OS === 'ios' ? 80 : 92}
+            tint="light"
+            style={styles.capsuleBlur}
+          >
+            <View style={styles.capsuleTint} pointerEvents="none" />
+            <View style={styles.capsuleInner}>{children}</View>
+          </BlurView>
+        </View>
+      </View>
     </View>
   );
 }
@@ -136,21 +141,34 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: spacing.sm,
   },
-  capsuleOuter: {
+  capsuleShadowWrap: {
+    borderRadius: radius.pill,
+    shadowColor: '#3A2A20',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.16,
+    shadowRadius: 14,
+    elevation: 6,
+  },
+  capsuleHairline: {
+    borderRadius: radius.pill,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(58,42,32,0.08)',
+    padding: StyleSheet.hairlineWidth,
+  },
+  capsuleBorder: {
     borderRadius: radius.pill,
     overflow: 'hidden',
-    shadowColor: '#3A2A20',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 4,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.75)',
-    backgroundColor: Platform.OS === 'android' ? 'rgba(255,255,255,0.88)' : undefined,
+    borderColor: 'rgba(255,255,255,0.9)',
+    backgroundColor: Platform.OS === 'android' ? 'rgba(255,255,255,0.82)' : undefined,
   },
   capsuleBlur: {
     borderRadius: radius.pill,
     overflow: 'hidden',
+  },
+  capsuleTint: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(255,255,255,0.42)',
   },
   capsuleInner: {
     minHeight: FLOATING_HEADER_CAPSULE_HEIGHT,
