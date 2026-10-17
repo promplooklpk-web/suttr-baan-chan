@@ -31,6 +31,13 @@ export type Recipe = {
   rating?: number;
   isFavorite?: boolean;
   notes?: string;
+  /** Estimated calories per serving (often from seed data). */
+  caloriesEstimate?: string;
+  tips?: string[];
+  sources?: string[];
+  photoCredit?: string;
+  photoSource?: string;
+  photoLicense?: string;
   photo?: RecipePhoto;
   ingredients: RecipeIngredient[];
   steps: RecipeStep[];

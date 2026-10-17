@@ -9,7 +9,7 @@ import {
 } from 'expo-file-system/legacy';
 import * as Crypto from 'expo-crypto';
 
-import { SEED_RECIPES } from '@/lib/seed';
+import { installSeedRecipes } from '@/lib/seedInstall';
 import type { Recipe, RecipeInput, RecipeStore } from '@/types/recipe';
 
 const RECIPES_FILE = 'recipes.json';
@@ -77,8 +77,9 @@ export async function initializeStorage(): Promise<Recipe[]> {
   await ensureImagesDir();
   const store = await readStore();
   if (store.recipes.length === 0) {
-    await writeStore(SEED_RECIPES);
-    return SEED_RECIPES;
+    const seeded = await installSeedRecipes();
+    await writeStore(seeded);
+    return seeded;
   }
   return store.recipes;
 }

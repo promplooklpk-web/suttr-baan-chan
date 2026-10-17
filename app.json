@@ -39,7 +39,8 @@
           "photosPermission": "แอปต้องการเข้าถึงรูปภาพเพื่อแนบรูปสูตรอาหาร"
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true

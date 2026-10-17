@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   Pressable,
@@ -12,6 +12,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { RecipeAttribution } from '@/components/RecipeAttribution';
+import { StepTimerChip } from '@/components/StepTimerChip';
 import { colors, fonts, radius, spacing } from '@/constants/theme';
 import { useRecipes } from '@/context/RecipesContext';
 import {
@@ -36,6 +38,10 @@ export default function RecipeDetailScreen() {
   const [tab, setTab] = useState<TabKey>('ingredients');
   const [servings, setServings] = useState(recipe?.servings ?? 1);
   const [checked, setChecked] = useState<Record<number, boolean>>({});
+
+  useEffect(() => {
+    if (recipe?.servings) setServings(recipe.servings);
+  }, [recipe?.id, recipe?.servings]);
 
   const baseServings = recipe?.servings ?? 1;
   const factor = servings / baseServings;
@@ -179,23 +185,55 @@ export default function RecipeDetailScreen() {
             )}
 
             {tab === 'steps' && (
-              <View style={styles.steps}>
-                {recipe.steps.map((step, i) => (
-                  <View key={i} style={styles.stepRow}>
-                    <View style={styles.stepNum}>
-                      <AppText style={styles.stepNumText}>{i + 1}</AppText>
+              <View>
+                <View style={styles.steps}>
+                  {recipe.steps.map((step, i) => (
+                    <View key={i} style={styles.stepRow}>
+                      <View style={styles.stepNum}>
+                        <AppText style={styles.stepNumText}>{i + 1}</AppText>
+                      </View>
+                      <View style={styles.stepContent}>
+                        <AppText style={styles.stepText}>{step.text}</AppText>
+                        {step.timerSeconds != null && step.timerSeconds > 0 && (
+                          <StepTimerChip timerSeconds={step.timerSeconds} />
+                        )}
+                      </View>
                     </View>
-                    <AppText style={styles.stepText}>{step.text}</AppText>
+                  ))}
+                </View>
+
+                {recipe.tips && recipe.tips.length > 0 && (
+                  <View style={styles.tipsBox}>
+                    <AppText variant="title" style={styles.tipsTitle}>เคล็ดลับ</AppText>
+                    {recipe.tips.map((tip, i) => (
+                      <View key={i} style={styles.tipRow}>
+                        <AppText style={styles.tipBullet}>•</AppText>
+                        <AppText style={styles.tipText}>{tip}</AppText>
+                      </View>
+                    ))}
                   </View>
-                ))}
+                )}
               </View>
             )}
 
             {tab === 'notes' && (
-              <AppText muted style={styles.notes}>
-                {recipe.notes?.trim() ? recipe.notes : 'ยังไม่มีโน้ตเพิ่มเติม'}
-              </AppText>
+              <View>
+                {recipe.caloriesEstimate ? (
+                  <View style={styles.calorieBox}>
+                    <AppText variant="label">พลังงานโดยประมาณ</AppText>
+                    <AppText style={styles.calorieText}>{recipe.caloriesEstimate}</AppText>
+                    <AppText variant="caption" muted style={styles.calorieHint}>
+                      ค่าประมาณจากสูตรต้นฉบับ อาจแตกต่างตามวัตถุดิบและปริมาณจริง
+                    </AppText>
+                  </View>
+                ) : null}
+                <AppText muted style={styles.notes}>
+                  {recipe.notes?.trim() ? recipe.notes : 'ยังไม่มีโน้ตเพิ่มเติม'}
+                </AppText>
+              </View>
             )}
+
+            <RecipeAttribution recipe={recipe} />
 
             <Pressable onPress={onDelete} style={styles.deleteLink}>
               <AppText style={{ color: colors.danger }}>ลบสูตร</AppText>
@@ -360,7 +398,11 @@ const styles = StyleSheet.create({
   },
   stepRow: {
     flexDirection: 'row',
+    alignItems: 'flex-start',
     gap: spacing.md,
+  },
+  stepContent: {
+    flex: 1,
   },
   stepNum: {
     width: 28,
@@ -376,8 +418,48 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   stepText: {
-    flex: 1,
     paddingTop: 2,
+    lineHeight: 24,
+  },
+  tipsBox: {
+    marginTop: spacing.lg,
+    padding: spacing.md,
+    backgroundColor: colors.white,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  tipsTitle: {
+    marginBottom: spacing.sm,
+    fontSize: 18,
+  },
+  tipRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  tipBullet: {
+    color: colors.orange,
+    fontFamily: fonts.bold,
+  },
+  tipText: {
+    flex: 1,
+    lineHeight: 22,
+  },
+  calorieBox: {
+    marginBottom: spacing.md,
+    padding: spacing.md,
+    backgroundColor: colors.white,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    gap: spacing.xs,
+  },
+  calorieText: {
+    lineHeight: 24,
+  },
+  calorieHint: {
+    marginTop: spacing.xs,
   },
   notes: {
     lineHeight: 24,
