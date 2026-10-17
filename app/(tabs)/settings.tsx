@@ -120,7 +120,7 @@ export default function SettingsScreen() {
           icon="pricetags-outline"
           label="จัดการแท็ก"
           subtitle="แก้ไข ลบ และกรองตามแท็ก"
-          onPress={() => router.push('/tags/index')}
+          onPress={() => router.push('/tags')}
         />
         <Row
           icon="heart-outline"

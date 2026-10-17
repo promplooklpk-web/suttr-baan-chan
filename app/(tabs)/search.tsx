@@ -74,7 +74,7 @@ export default function SearchScreen() {
           {
             icon: 'pricetags-outline',
             accessibilityLabel: 'จัดการแท็ก',
-            onPress: () => router.push('/tags/index'),
+            onPress: () => router.push('/tags'),
           },
           {
             icon: 'add',

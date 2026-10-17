@@ -1,5 +1,5 @@
 import { fireEvent } from '@testing-library/react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 
 import { seedRecipe } from '@/__tests__/fixtures/seed';
 import { renderWithProviders } from '@/__tests__/testProviders';
@@ -10,12 +10,14 @@ import PlannerScreen from '@/app/(tabs)/planner';
 import PickerScreen from '@/app/(tabs)/picker';
 import SettingsScreen from '@/app/(tabs)/settings';
 import RecipeDetailScreen from '@/app/recipe/[id]';
+import TagsManagementScreen from '@/app/tags/index';
 
 const mockedParams = useLocalSearchParams as unknown as jest.Mock;
 
 describe('screen smoke tests', () => {
   beforeEach(() => {
     mockedParams.mockReturnValue({});
+    jest.mocked(router.push).mockClear();
   });
 
   it('renders Home', async () => {
@@ -48,6 +50,17 @@ describe('screen smoke tests', () => {
   it('renders Settings', async () => {
     const { findByText } = renderWithProviders(<SettingsScreen />);
     await findByText('ตั้งค่า');
+  });
+
+  it('renders Tags management screen', async () => {
+    const { findByText } = renderWithProviders(<TagsManagementScreen />);
+    await findByText(/แก้ไขชื่อแท็กจะอัปเดตทุกสูตรที่ใช้แท็กนี้/);
+  });
+
+  it('navigates to /tags from Settings', async () => {
+    const { findByText } = renderWithProviders(<SettingsScreen />);
+    fireEvent.press(await findByText('จัดการแท็ก'));
+    expect(router.push).toHaveBeenCalledWith('/tags');
   });
 
   it('renders Recipe detail with fridge match section', async () => {

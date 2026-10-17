@@ -61,6 +61,7 @@ jest.mock('@/lib/storage', () => {
     ...actual,
     initializeStorage: jest.fn(async () => recipes),
     loadRecipes: jest.fn(async () => recipes),
+    saveRecipes: jest.fn(async (next: unknown) => next),
     photoUri: jest.fn(() => undefined),
   };
 });
