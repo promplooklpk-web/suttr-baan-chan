@@ -12,8 +12,9 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen name="index" options={{ title: 'หน้าแรก' }} />
-      <Tabs.Screen name="search" options={{ title: 'ค้นหา' }} />
+      <Tabs.Screen name="fridge" options={{ title: 'ตู้เย็น' }} />
       <Tabs.Screen name="picker" options={{ title: 'กินอะไรดี' }} />
+      <Tabs.Screen name="search" options={{ href: null }} />
       <Tabs.Screen name="planner" options={{ title: 'แพลนมื้อ' }} />
       <Tabs.Screen name="settings" options={{ title: 'ตั้งค่า' }} />
       <Tabs.Screen

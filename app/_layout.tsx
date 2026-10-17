@@ -10,7 +10,9 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+import { FridgeProvider } from '@/context/FridgeContext';
 import { MealPlanProvider } from '@/context/MealPlanContext';
 import { RecipesProvider } from '@/context/RecipesContext';
 import { colors } from '@/constants/theme';
@@ -46,7 +48,9 @@ export default function RootLayout() {
   }
 
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <RecipesProvider>
+      <FridgeProvider>
       <MealPlanProvider>
       <StatusBar style="dark" />
       <Stack
@@ -74,8 +78,12 @@ export default function RootLayout() {
         />
         <Stack.Screen name="tags/index" options={{ title: 'จัดการแท็ก' }} />
         <Stack.Screen name="about" options={{ title: 'เกี่ยวกับแอป' }} />
+        <Stack.Screen name="fridge/[id]" options={{ title: 'รายละเอียด' }} />
+        <Stack.Screen name="fridge/match/[recipeId]" options={{ title: 'เช็คของในตู้' }} />
       </Stack>
       </MealPlanProvider>
+      </FridgeProvider>
     </RecipesProvider>
+    </GestureHandlerRootView>
   );
 }

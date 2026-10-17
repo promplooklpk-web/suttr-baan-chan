@@ -70,6 +70,8 @@ export async function parseImportFile(
       }
       recipes.push(r);
     }
+    const { restoreExtraBackupFiles } = await import('@/lib/export/backupZip');
+    await restoreExtraBackupFiles(zip);
     return {
       ok: true,
       envelope: { ...validated.envelope, recipes, format: 'zip' },

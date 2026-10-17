@@ -11,7 +11,9 @@ import { useRecipes } from '@/context/RecipesContext';
 import { clearAllAppData } from '@/lib/clearData';
 import { useMealPlan } from '@/context/MealPlanContext';
 import { buildImportPlan } from '@/lib/export/applyImport';
-import { createExportZip, shareExportFile } from '@/lib/export/exportZip';
+import { createFullBackupZip } from '@/lib/export/backupZip';
+import { shareExportFile } from '@/lib/export/exportZip';
+import { useFridge } from '@/context/FridgeContext';
 import { shareRecipeJsonExport } from '@/lib/export/exportRecipeJson';
 import { parseImportFile } from '@/lib/export/importParse';
 import { setPendingImport } from '@/lib/export/importSession';
@@ -20,10 +22,11 @@ export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const { recipes, refresh } = useRecipes();
   const { refresh: refreshPlan } = useMealPlan();
+  const { refresh: refreshFridge } = useFridge();
 
   const exportAllZip = async () => {
     try {
-      const path = await createExportZip(recipes);
+      const path = await createFullBackupZip(recipes);
       await shareExportFile(path, 'application/zip');
     } catch (e) {
       Alert.alert('ส่งออกไม่สำเร็จ', e instanceof Error ? e.message : 'เกิดข้อผิดพลาด');
@@ -157,6 +160,7 @@ export default function SettingsScreen() {
                     await clearAllAppData();
                     await refresh();
                     await refreshPlan();
+                    await refreshFridge();
                     Alert.alert('ล้างข้อมูลแล้ว', 'โหลดสูตรตัวอย่างใหม่แล้ว');
                   },
                 },

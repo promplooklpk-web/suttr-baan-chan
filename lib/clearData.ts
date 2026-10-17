@@ -2,7 +2,7 @@ import { deleteAsync, documentDirectory, getInfoAsync } from 'expo-file-system/l
 
 import { initializeStorage } from '@/lib/storage';
 
-const FILES = ['recipes.json', 'meal-plan.json', 'shopping-list.json'];
+const FILES = ['recipes.json', 'meal-plan.json', 'shopping-list.json', 'fridge.json', 'picker-history.json'];
 
 export async function clearAllAppData(): Promise<void> {
   if (!documentDirectory) return;

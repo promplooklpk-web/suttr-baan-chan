@@ -72,6 +72,40 @@ export async function saveShoppingList(items: ShoppingItem[]): Promise<void> {
   await writeAsStringAsync(path(), JSON.stringify(store, null, 2));
 }
 
+export async function mergeIntoShoppingList(
+  entries: { name: string; amount?: number; unit?: string; sourceRecipeId?: string }[],
+): Promise<ShoppingItem[]> {
+  const prev = await loadShoppingList();
+  const map = new Map<string, ShoppingItem>();
+  for (const item of prev.items) {
+    map.set(`${item.name}|${item.unit ?? ''}`, { ...item });
+  }
+  for (const e of entries) {
+    const key = `${e.name}|${e.unit ?? ''}`;
+    const existing = map.get(key);
+    if (existing) {
+      if (e.amount != null) {
+        existing.amount = (existing.amount ?? 0) + e.amount;
+      }
+      if (e.sourceRecipeId && !existing.sourceRecipeIds.includes(e.sourceRecipeId)) {
+        existing.sourceRecipeIds.push(e.sourceRecipeId);
+      }
+    } else {
+      map.set(key, {
+        id: Crypto.randomUUID(),
+        name: e.name,
+        amount: e.amount,
+        unit: e.unit,
+        checked: false,
+        sourceRecipeIds: e.sourceRecipeId ? [e.sourceRecipeId] : [],
+      });
+    }
+  }
+  const items = [...map.values()].sort((a, b) => a.name.localeCompare(b.name, 'th'));
+  await saveShoppingList(items);
+  return items;
+}
+
 export async function syncShoppingFromPlan(
   plan: MealPlanStore,
   recipes: Recipe[],

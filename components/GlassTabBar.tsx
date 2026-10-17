@@ -5,10 +5,12 @@ import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
-import { colors, radius, spacing } from '@/constants/theme';
+import { colors, fonts, radius, spacing } from '@/constants/theme';
+import { useFridge } from '@/context/FridgeContext';
 
 const TAB_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   index: 'home',
+  fridge: 'snow',
   picker: 'shuffle',
   search: 'search',
   planner: 'calendar',
@@ -23,8 +25,9 @@ export function GlassTabBar({ state, descriptors, navigation }: {
 }) {
   const insets = useSafeAreaInsets();
   const bottom = Math.max(insets.bottom, spacing.sm);
+  const { alertCount } = useFridge();
 
-  const visibleRoutes = state.routes.filter((r) => r.name !== 'add');
+  const visibleRoutes = state.routes.filter((r) => r.name !== 'add' && r.name !== 'search');
 
   return (
     <View style={[styles.container, { paddingBottom: bottom }]} pointerEvents="box-none">
@@ -37,8 +40,8 @@ export function GlassTabBar({ state, descriptors, navigation }: {
               options.title ??
               ({
                 index: 'หน้าแรก',
+                fridge: 'ตู้เย็น',
                 picker: 'กินอะไรดี',
-                search: 'ค้นหา',
                 planner: 'แพลน',
                 settings: 'ตั้งค่า',
               }[route.name] ?? route.name);
@@ -57,13 +60,22 @@ export function GlassTabBar({ state, descriptors, navigation }: {
               }
             };
 
+            const badge = route.name === 'fridge' && alertCount > 0 ? alertCount : 0;
+
             return (
               <Pressable key={route.key} onPress={onPress} style={styles.tab}>
-                <Ionicons
-                  name={icon}
-                  size={24}
-                  color={focused ? colors.orange : colors.inkMuted}
-                />
+                <View>
+                  <Ionicons
+                    name={icon}
+                    size={24}
+                    color={focused ? colors.orange : colors.inkMuted}
+                  />
+                  {badge > 0 && (
+                    <View style={styles.badge}>
+                      <AppText style={styles.badgeText}>{badge > 9 ? '9+' : badge}</AppText>
+                    </View>
+                  )}
+                </View>
                 <AppText
                   variant="caption"
                   style={{ color: focused ? colors.orange : colors.inkMuted, fontSize: 11 }}
@@ -121,6 +133,23 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     marginTop: -28,
+  },
+  badge: {
+    position: 'absolute',
+    top: -4,
+    right: -10,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: colors.danger,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  badgeText: {
+    color: colors.white,
+    fontSize: 10,
+    fontFamily: fonts.semiBold,
   },
   addButton: {
     width: 56,
