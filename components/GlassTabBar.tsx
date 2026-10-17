@@ -10,6 +10,7 @@ import { colors, radius, spacing } from '@/constants/theme';
 const TAB_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   index: 'home',
   search: 'search',
+  settings: 'settings',
 };
 
 // Props match React Navigation tab bar; kept loose to avoid duplicate @react-navigation version types.
@@ -32,7 +33,13 @@ export function GlassTabBar({ state, descriptors, navigation }: {
             const { options } = descriptors[route.key];
             const label =
               options.title ??
-              (route.name === 'index' ? 'หน้าแรก' : route.name === 'search' ? 'ค้นหา' : route.name);
+              (route.name === 'index'
+                ? 'หน้าแรก'
+                : route.name === 'search'
+                  ? 'ค้นหา'
+                  : route.name === 'settings'
+                    ? 'ตั้งค่า'
+                    : route.name);
             const focused = state.index === routeIndex;
             const iconName = TAB_ICONS[route.name] ?? 'home';
             const icon = (focused ? iconName : `${iconName}-outline`) as keyof typeof Ionicons.glyphMap;

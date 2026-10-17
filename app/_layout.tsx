@@ -64,6 +64,8 @@ export default function RootLayout() {
           name="recipe/edit"
           options={{ title: 'เพิ่มสูตร', presentation: 'modal', headerShown: false }}
         />
+        <Stack.Screen name="export/select" options={{ title: 'ส่งออกสูตร' }} />
+        <Stack.Screen name="import/preview" options={{ title: 'นำเข้าสูตร' }} />
       </Stack>
     </RecipesProvider>
   );
