@@ -2,11 +2,12 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 
 import { buildIngredientCatalog } from '@/lib/ingredientCatalog';
 import { countAlertItems } from '@/lib/fridgeStatus';
+import { usageSubtractAmount } from '@/lib/fridgeQuantity';
 import {
   addFridgeItem,
-  applyFridgeUsage,
   deleteFridgeItem,
   loadFridgeStore,
+  subtractFridgeQuantity,
   updateFridgeItem,
 } from '@/lib/fridgeStorage';
 import { useRecipes } from '@/context/RecipesContext';
@@ -21,7 +22,8 @@ type FridgeContextValue = {
   addItem: (input: Omit<FridgeItem, 'id' | 'addedAt' | 'updatedAt'>) => Promise<FridgeItem>;
   updateItem: (id: string, patch: Partial<Omit<FridgeItem, 'id' | 'addedAt'>>) => Promise<void>;
   removeItem: (id: string) => Promise<void>;
-  useItem: (id: string, mode: 'half' | 'one' | 'all') => Promise<void>;
+  subtractAmount: (id: string, amount: number) => Promise<void>;
+  usePreset: (id: string, preset: 'half' | 'quarter' | 'all') => Promise<void>;
 };
 
 const FridgeContext = createContext<FridgeContextValue | null>(null);
@@ -59,10 +61,18 @@ export function FridgeProvider({ children }: { children: React.ReactNode }) {
     await refresh();
   }, [refresh]);
 
-  const useItem = useCallback(async (id: string, mode: 'half' | 'one' | 'all') => {
-    await applyFridgeUsage(id, mode);
+  const subtractAmount = useCallback(async (id: string, amount: number) => {
+    await subtractFridgeQuantity(id, amount);
     await refresh();
   }, [refresh]);
+
+  const usePreset = useCallback(async (id: string, preset: 'half' | 'quarter' | 'all') => {
+    const item = items.find((i) => i.id === id);
+    if (!item) return;
+    const amount = usageSubtractAmount(item, preset);
+    await subtractFridgeQuantity(id, amount);
+    await refresh();
+  }, [items, refresh]);
 
   const value = useMemo(
     () => ({
@@ -74,9 +84,10 @@ export function FridgeProvider({ children }: { children: React.ReactNode }) {
       addItem,
       updateItem,
       removeItem,
-      useItem,
+      subtractAmount,
+      usePreset,
     }),
-    [items, loading, alertCount, catalog, refresh, addItem, updateItem, removeItem, useItem],
+    [items, loading, alertCount, catalog, refresh, addItem, updateItem, removeItem, subtractAmount, usePreset],
   );
 
   return <FridgeContext.Provider value={value}>{children}</FridgeContext.Provider>;

@@ -23,6 +23,7 @@ import { useRecipes } from '@/context/RecipesContext';
 import { useMealPlan } from '@/context/MealPlanContext';
 import type { CookMatchFilter } from '@/lib/fridgeMatch';
 import { missingShoppingEntries, rankRecipeMatches } from '@/lib/fridgeMatch';
+import { stepForUnit } from '@/lib/fridgeQuantity';
 import { isFridgeItemExpired, isFridgeItemExpiringSoon } from '@/lib/fridgeStatus';
 import { PLACE_LABELS, sortFridgeItemsByExpiry } from '@/lib/fridgeStorage';
 import { mergeIntoShoppingList } from '@/lib/shoppingList';
@@ -32,7 +33,7 @@ const POPULAR = ['ไข่ไก่', 'หมูสับ', 'นมสด', '�
 
 export default function FridgeScreen() {
   const insets = useSafeAreaInsets();
-  const { items, loading, catalog, addItem, useItem, removeItem } = useFridge();
+  const { items, loading, catalog, addItem, subtractAmount, removeItem } = useFridge();
   const { recipes } = useRecipes();
   const { refresh: refreshPlan } = useMealPlan();
   const [tab, setTab] = useState<'items' | 'cook'>('items');
@@ -149,7 +150,7 @@ export default function FridgeScreen() {
                         key={item.id}
                         item={item}
                         onPress={() => router.push(`/fridge/${item.id}`)}
-                        onUse={() => useItem(item.id, 'one')}
+                        onUse={() => subtractAmount(item.id, stepForUnit(item.unit))}
                         onEdit={() => router.push(`/fridge/${item.id}`)}
                         onDelete={() => {
                           Alert.alert('ลบรายการ?', item.name, [

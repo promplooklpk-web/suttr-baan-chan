@@ -71,20 +71,15 @@ export async function deleteFridgeItem(id: string): Promise<void> {
   await saveFridgeStore(store.items.filter((i) => i.id !== id));
 }
 
-export async function applyFridgeUsage(
+export async function subtractFridgeQuantity(
   id: string,
-  mode: 'half' | 'one' | 'all',
+  subtract: number,
 ): Promise<FridgeItem | null> {
+  if (subtract <= 0) return null;
   const store = await loadFridgeStore();
   const item = store.items.find((i) => i.id === id);
   if (!item) return null;
-  if (mode === 'all') {
-    await deleteFridgeItem(id);
-    return null;
-  }
-  let quantity = item.quantity;
-  if (mode === 'half') quantity = Math.max(0, quantity / 2);
-  else quantity = Math.max(0, quantity - 1);
+  const quantity = item.quantity - subtract;
   if (quantity <= 0) {
     await deleteFridgeItem(id);
     return null;

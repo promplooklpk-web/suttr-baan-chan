@@ -3,6 +3,7 @@ import { Alert, Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { colors, fonts, radius, spacing } from '@/constants/theme';
+import { stepForUnit } from '@/lib/fridgeQuantity';
 import { formatExpiryLine, fridgeItemStatus } from '@/lib/fridgeStatus';
 import type { FridgeItem } from '@/types/fridge';
 
@@ -16,6 +17,7 @@ type Props = {
 
 /** Expo Go–safe row actions (no RNGH swipe — avoids native module mismatch). */
 export function SwipeableFridgeRow({ item, onPress, onUse, onEdit, onDelete }: Props) {
+  const step = stepForUnit(item.unit);
   const status = fridgeItemStatus(item);
   const statusColor =
     status.kind === 'expired'
@@ -28,7 +30,7 @@ export function SwipeableFridgeRow({ item, onPress, onUse, onEdit, onDelete }: P
 
   const openActions = () => {
     Alert.alert(item.name, 'เลือกการทำงาน', [
-      { text: 'ใช้ (ลด 1)', onPress: onUse },
+      { text: `ใช้ (ลด ${step} ${item.unit})`, onPress: onUse },
       { text: 'แก้ไข', onPress: onEdit },
       { text: 'ลบ', style: 'destructive', onPress: onDelete },
       { text: 'ยกเลิก', style: 'cancel' },

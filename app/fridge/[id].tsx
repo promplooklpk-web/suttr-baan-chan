@@ -1,8 +1,9 @@
-import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -12,6 +13,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { FridgeQuantityEditor } from '@/components/fridge/FridgeQuantityEditor';
+import { FridgeUseAmountPanel } from '@/components/fridge/FridgeUseAmountPanel';
 import { RecipeCoverImage } from '@/components/RecipeCoverImage';
 import { colors, fonts, radius, spacing } from '@/constants/theme';
 import { useFridge } from '@/context/FridgeContext';
@@ -19,15 +22,26 @@ import { useRecipes } from '@/context/RecipesContext';
 import { daysUntilExpiry, formatExpiryLine, fridgeItemStatus } from '@/lib/fridgeStatus';
 import { ingredientNamesMatch } from '@/lib/ingredientNormalize';
 import { PLACE_LABELS } from '@/lib/fridgeStorage';
+import type { FridgePlace } from '@/types/fridge';
 
 export default function FridgeItemDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
-  const { items, updateItem, removeItem, useItem } = useFridge();
+  const { items, updateItem, removeItem, subtractAmount } = useFridge();
   const { recipes } = useRecipes();
   const item = items.find((i) => i.id === id);
   const [note, setNote] = useState(item?.note ?? '');
-  const [qty, setQty] = useState(String(item?.quantity ?? 1));
+  const [quantity, setQuantity] = useState(item?.quantity ?? 1);
+  const [unit, setUnit] = useState(item?.unit ?? 'กรัม');
+  const [place, setPlace] = useState<FridgePlace>(item?.place ?? 'chilled');
+
+  useEffect(() => {
+    if (!item) return;
+    setNote(item.note ?? '');
+    setQuantity(item.quantity);
+    setUnit(item.unit);
+    setPlace(item.place);
+  }, [item?.id, item?.quantity, item?.unit, item?.note, item?.place]);
 
   const status = item ? fridgeItemStatus(item) : null;
   const daysLeft = item ? daysUntilExpiry(item.expiresAt) : null;
@@ -61,100 +75,118 @@ export default function FridgeItemDetailScreen() {
         : colors.cardGreen;
 
   const save = async () => {
-    const q = parseFloat(qty);
-    if (Number.isNaN(q)) return;
-    await updateItem(item.id, { note, quantity: q });
+    if (quantity <= 0) {
+      Alert.alert('จำนวนต้องมากกว่า 0');
+      return;
+    }
+    await updateItem(item.id, { note, quantity, unit, place });
     Alert.alert('บันทึกแล้ว');
   };
 
-  return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={{ padding: spacing.md, paddingBottom: insets.bottom + spacing.xl }}
-    >
-      <AppText variant="title">{item.name}</AppText>
-      <AppText variant="caption" style={{ color: barColor, marginTop: spacing.xs }}>
-        {formatExpiryLine(item)}
-      </AppText>
-      <View style={styles.barBg}>
-        <View style={[styles.barFill, { width: `${freshnessRatio * 100}%`, backgroundColor: barColor }]} />
-      </View>
-      <AppText variant="caption" muted style={{ marginBottom: spacing.lg }}>
-        {PLACE_LABELS[item.place]} · {item.quantity} {item.unit}
-      </AppText>
+  const onSubtract = async (amount: number) => {
+    await subtractAmount(item.id, amount);
+    const left = item.quantity - amount;
+    if (left <= 0) router.back();
+  };
 
-      <View style={styles.quickRow}>
-        {(
-          [
-            ['half', 'ใช้ไปครึ่งหนึ่ง'],
-            ['one', 'ใช้ไป 1 กำ'],
-            ['all', 'ใช้หมดแล้ว'],
-          ] as const
-        ).map(([mode, label]) => (
+  return (
+    <KeyboardAvoidingView
+      style={styles.flex}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={80}
+    >
+      <ScrollView
+        style={styles.screen}
+        contentContainerStyle={{ padding: spacing.md, paddingBottom: insets.bottom + spacing.xl }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <AppText variant="title">{item.name}</AppText>
+        <AppText variant="caption" style={{ color: barColor, marginTop: spacing.xs }}>
+          {formatExpiryLine(item)}
+        </AppText>
+        <View style={styles.barBg}>
+          <View style={[styles.barFill, { width: `${freshnessRatio * 100}%`, backgroundColor: barColor }]} />
+        </View>
+        <AppText variant="caption" muted style={{ marginBottom: spacing.sm }}>
+          {PLACE_LABELS[place]}
+        </AppText>
+
+        <FridgeUseAmountPanel item={{ ...item, quantity, unit }} onSubtract={onSubtract} />
+
+        <FridgeQuantityEditor
+          label="จำนวนคงเหลือ"
+          quantity={quantity}
+          unit={unit}
+          onQuantityChange={setQuantity}
+          onUnitChange={setUnit}
+        />
+
+        <AppText variant="label" style={{ marginTop: spacing.lg }}>ที่เก็บ</AppText>
+        <View style={styles.placeRow}>
+          {(['chilled', 'frozen', 'dry'] as FridgePlace[]).map((p) => (
+            <Pressable
+              key={p}
+              style={[styles.placeChip, place === p && styles.placeChipOn]}
+              onPress={() => setPlace(p)}
+            >
+              <AppText variant="caption" style={{ color: place === p ? colors.white : colors.ink }}>
+                {PLACE_LABELS[p]}
+              </AppText>
+            </Pressable>
+          ))}
+        </View>
+
+        <AppText variant="label" style={{ marginTop: spacing.md }}>โน้ต</AppText>
+        <TextInput
+          value={note}
+          onChangeText={setNote}
+          style={[styles.input, styles.note]}
+          multiline
+        />
+
+        {linkedRecipes.length > 0 && (
+          <View style={styles.recipes}>
+            <AppText variant="label" style={{ marginBottom: spacing.sm }}>ใช้ในสูตร</AppText>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {linkedRecipes.map((r) => (
+                <Pressable key={r.id} style={styles.recipeThumb} onPress={() => router.push(`/recipe/${r.id}`)}>
+                  <RecipeCoverImage recipe={r} style={styles.thumbImg} rounded={radius.md} />
+                  <AppText variant="caption" numberOfLines={2} style={styles.thumbTitle}>{r.title}</AppText>
+                </Pressable>
+              ))}
+            </ScrollView>
+          </View>
+        )}
+
+        <View style={styles.footer}>
           <Pressable
-            key={mode}
-            style={styles.quickBtn}
-            onPress={async () => {
-              await useItem(item.id, mode);
-              if (mode === 'all') router.back();
+            onPress={() => {
+              Alert.alert('ลบรายการ?', item.name, [
+                { text: 'ยกเลิก', style: 'cancel' },
+                {
+                  text: 'ลบ',
+                  style: 'destructive',
+                  onPress: async () => {
+                    await removeItem(item.id);
+                    router.back();
+                  },
+                },
+              ]);
             }}
           >
-            <AppText variant="caption" style={styles.quickText}>{label}</AppText>
+            <AppText style={{ color: colors.danger, fontFamily: fonts.semiBold }}>ลบ</AppText>
           </Pressable>
-        ))}
-      </View>
-
-      <AppText variant="label">จำนวน</AppText>
-      <TextInput
-        value={qty}
-        onChangeText={setQty}
-        keyboardType="decimal-pad"
-        style={styles.input}
-      />
-      <AppText variant="label" style={{ marginTop: spacing.md }}>โน้ต</AppText>
-      <TextInput value={note} onChangeText={setNote} style={[styles.input, styles.note]} multiline />
-
-      {linkedRecipes.length > 0 && (
-        <View style={styles.recipes}>
-          <AppText variant="label" style={{ marginBottom: spacing.sm }}>ใช้ในสูตร</AppText>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {linkedRecipes.map((r) => (
-              <Pressable key={r.id} style={styles.recipeThumb} onPress={() => router.push(`/recipe/${r.id}`)}>
-                <RecipeCoverImage recipe={r} style={styles.thumbImg} rounded={radius.md} />
-                <AppText variant="caption" numberOfLines={2} style={styles.thumbTitle}>{r.title}</AppText>
-              </Pressable>
-            ))}
-          </ScrollView>
+          <Pressable style={styles.saveBtn} onPress={save}>
+            <AppText style={styles.saveBtnText}>บันทึกการแก้ไข</AppText>
+          </Pressable>
         </View>
-      )}
-
-      <View style={styles.footer}>
-        <Pressable
-          onPress={() => {
-            Alert.alert('ลบรายการ?', item.name, [
-              { text: 'ยกเลิก', style: 'cancel' },
-              {
-                text: 'ลบ',
-                style: 'destructive',
-                onPress: async () => {
-                  await removeItem(item.id);
-                  router.back();
-                },
-              },
-            ]);
-          }}
-        >
-          <AppText style={{ color: colors.danger, fontFamily: fonts.semiBold }}>ลบ</AppText>
-        </Pressable>
-        <Pressable style={styles.saveBtn} onPress={save}>
-          <AppText style={styles.saveBtnText}>บันทึกการแก้ไข</AppText>
-        </Pressable>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  flex: { flex: 1 },
   screen: { flex: 1, backgroundColor: colors.cream },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   barBg: {
@@ -165,17 +197,16 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   barFill: { height: 8 },
-  quickRow: { flexDirection: 'row', gap: spacing.sm, marginVertical: spacing.lg },
-  quickBtn: {
-    flex: 1,
+  placeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.sm },
+  placeChip: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
     backgroundColor: colors.white,
-    borderRadius: radius.md,
-    padding: spacing.sm,
     borderWidth: 1,
     borderColor: colors.border,
-    alignItems: 'center',
   },
-  quickText: { textAlign: 'center', fontFamily: fonts.medium },
+  placeChipOn: { backgroundColor: colors.orange, borderColor: colors.orange },
   input: {
     backgroundColor: colors.white,
     borderRadius: radius.md,
