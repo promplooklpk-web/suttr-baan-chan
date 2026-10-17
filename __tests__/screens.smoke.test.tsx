@@ -39,9 +39,11 @@ describe('screen smoke tests', () => {
     await findByText('ของในตู้ 2');
   });
 
-  it('renders Planner', async () => {
-    const { findByText } = renderWithProviders(<PlannerScreen />);
-    await findByText('สัปดาห์นี้');
+  it('renders Planner with day view', async () => {
+    const { findByText, getAllByText } = renderWithProviders(<PlannerScreen />);
+    await findByText('วันนี้');
+    expect(getAllByText('เพิ่มเมนู').length).toBeGreaterThanOrEqual(1);
+    await findByText(/รวมประมาณ/);
   });
 
   it('renders Picker with hero and shuffle CTA', async () => {
