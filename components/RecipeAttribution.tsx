@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { stepPhotoMatchLabel } from '@/lib/stepPhotoLabels';
+import { SHOW_STEP_PHOTOS } from '@/constants/featureFlags';
 import { colors, radius, spacing } from '@/constants/theme';
 import type { Recipe } from '@/types/recipe';
 
@@ -14,9 +15,11 @@ export function RecipeAttribution({ recipe }: RecipeAttributionProps) {
   const hasCoverPhoto =
     recipe.photoCredit || recipe.photoLicense || recipe.photoSource;
   const hasSources = recipe.sources && recipe.sources.length > 0;
-  const stepPhotos = recipe.steps
-    .map((step, index) => ({ step, index }))
-    .filter(({ step }) => step.photo?.credit || step.photo?.license || step.photo?.source);
+  const stepPhotos = SHOW_STEP_PHOTOS
+    ? recipe.steps
+        .map((step, index) => ({ step, index }))
+        .filter(({ step }) => step.photo?.credit || step.photo?.license || step.photo?.source)
+    : [];
 
   if (!hasCoverPhoto && !hasSources && stepPhotos.length === 0) return null;
 
@@ -47,7 +50,7 @@ export function RecipeAttribution({ recipe }: RecipeAttributionProps) {
         </View>
       )}
 
-      {stepPhotos.length > 0 && (
+      {SHOW_STEP_PHOTOS && stepPhotos.length > 0 && (
         <View style={styles.block}>
           <AppText variant="caption" muted style={styles.subheading}>รูปขั้นตอน</AppText>
           {stepPhotos.map(({ step, index }) => {
