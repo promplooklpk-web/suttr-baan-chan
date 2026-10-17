@@ -16,6 +16,7 @@ import { AppText } from '@/components/AppText';
 import { CategoryChips } from '@/components/CategoryChips';
 import { EmptyState } from '@/components/EmptyState';
 import { RecipeCard } from '@/components/RecipeCard';
+import { RecipeCoverImage } from '@/components/RecipeCoverImage';
 import { colors, fonts, radius, spacing } from '@/constants/theme';
 import { useRecipes } from '@/context/RecipesContext';
 
@@ -36,6 +37,12 @@ export default function HomeScreen() {
     () => recipes.filter((r) => r.isFavorite),
     [recipes],
   );
+
+  const pickerTeaser = useMemo(() => {
+    if (recipes.length === 0) return null;
+    const shuffled = [...recipes].sort(() => Math.random() - 0.5);
+    return shuffled[0];
+  }, [recipes]);
 
   const filtered = useMemo(() => {
     if (category === 'ทั้งหมด') return recipes;
@@ -66,16 +73,32 @@ export default function HomeScreen() {
           <AppText variant="heading">วันนี้ทำอะไรกินดี?</AppText>
         </View>
 
-        <Pressable style={styles.pickerCard} onPress={() => router.push('/(tabs)/picker')}>
-          <View style={styles.pickerIcon}>
-            <Ionicons name="shuffle" size={28} color={colors.white} />
+        <View style={styles.pickerPromo}>
+          <View style={styles.pickerPromoContent}>
+            <View style={styles.newBadge}>
+              <AppText variant="caption" style={styles.newBadgeText}>ใหม่</AppText>
+            </View>
+            <AppText variant="label" style={styles.pickerPromoTitle}>วันนี้กินอะไรดี?</AppText>
+            <AppText variant="caption" style={styles.pickerPromoSub}>
+              ไม่รู้จะกินอะไร? ให้เราสุ่มจากสูตรที่คุณเก็บไว้
+            </AppText>
+            <Pressable
+              style={styles.pickerPromoBtn}
+              onPress={() => router.push({ pathname: '/(tabs)/picker', params: { autoShuffle: '1' } })}
+            >
+              <Ionicons name="shuffle" size={18} color={colors.orange} />
+              <AppText style={styles.pickerPromoBtnText}>สุ่มเลย</AppText>
+            </Pressable>
           </View>
-          <View style={styles.pickerText}>
-            <AppText variant="label">วันนี้กินอะไรดี?</AppText>
-            <AppText variant="caption" muted>สุ่มเมนูตามหมวด เวลา และแคลอรี</AppText>
-          </View>
-          <Ionicons name="chevron-forward" size={22} color={colors.inkMuted} />
-        </Pressable>
+          {pickerTeaser ? (
+            <Pressable
+              style={styles.pickerThumbWrap}
+              onPress={() => router.push('/(tabs)/picker')}
+            >
+              <RecipeCoverImage recipe={pickerTeaser} style={styles.pickerThumb} rounded={radius.lg} />
+            </Pressable>
+          ) : null}
+        </View>
 
         <Pressable style={styles.searchBar} onPress={() => router.push('/(tabs)/search')}>
           <Ionicons name="search" size={20} color={colors.inkMuted} />
@@ -153,27 +176,50 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     marginBottom: spacing.md,
   },
-  pickerCard: {
+  pickerPromo: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
     marginHorizontal: spacing.md,
     marginBottom: spacing.lg,
-    backgroundColor: colors.white,
-    borderRadius: radius.lg,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  pickerIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
     backgroundColor: colors.orange,
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderRadius: radius.xl,
+    padding: spacing.md,
+    overflow: 'hidden',
   },
-  pickerText: { flex: 1, gap: 2 },
+  pickerPromoContent: { flex: 1, gap: 4 },
+  newBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: colors.cardYellow,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    borderRadius: radius.pill,
+    marginBottom: 2,
+  },
+  newBadgeText: { fontFamily: fonts.semiBold, color: colors.ink, fontSize: 11 },
+  pickerPromoTitle: { color: colors.white, fontSize: 18 },
+  pickerPromoSub: { color: 'rgba(255,255,255,0.92)', marginBottom: spacing.sm },
+  pickerPromoBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: spacing.xs,
+    backgroundColor: colors.white,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+  },
+  pickerPromoBtnText: { fontFamily: fonts.semiBold, color: colors.orange },
+  pickerThumbWrap: {
+    width: 88,
+    height: 88,
+  },
+  pickerThumb: {
+    width: 88,
+    height: 88,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.5)',
+  },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',

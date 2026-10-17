@@ -37,7 +37,7 @@ export function GlassTabBar({ state, descriptors, navigation }: {
               options.title ??
               ({
                 index: 'หน้าแรก',
-                picker: 'สุ่ม',
+                picker: 'กินอะไรดี',
                 search: 'ค้นหา',
                 planner: 'แพลน',
                 settings: 'ตั้งค่า',
