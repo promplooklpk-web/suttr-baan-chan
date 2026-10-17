@@ -13,7 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '@/components/AppText';
 import { FloatingHeader, floatingHeaderClearance } from '@/components/FloatingHeader';
 import { EmptyState } from '@/components/EmptyState';
-import { RecipeCard } from '@/components/RecipeCard';
+import { FridgeEmptyHintChip, RecipeMenuCard } from '@/components/RecipeMenuCard';
 import { colors, fonts, radius, spacing } from '@/constants/theme';
 import { useRecipes } from '@/context/RecipesContext';
 import { useFridgeRecipeMatches } from '@/hooks/useFridgeRecipeMatches';
@@ -28,6 +28,7 @@ export default function SearchScreen() {
   const [recent, setRecent] = useState<string[]>([]);
   const [favoritesOnly, setFavoritesOnly] = useState(params.favorites === '1');
   const [tagFilter, setTagFilter] = useState(params.tag ?? '');
+  const [layoutMode, setLayoutMode] = useState<'grid' | 'list'>('grid');
 
   useEffect(() => {
     if (params.tag) {
@@ -160,29 +161,66 @@ export default function SearchScreen() {
       )}
 
       {showResults && (
-        <FlatList
-          data={results}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-          columnWrapperStyle={styles.resultRow}
-          contentContainerStyle={styles.listContent}
-          ListEmptyComponent={
-            <EmptyState
-              title="ยังไม่มีสูตรที่ตรงกัน"
-              subtitle="ลองค้นหาคำอื่น หรือเพิ่มสูตรใหม่"
-              showAdd
-            />
-          }
-          renderItem={({ item, index }) => (
-            <View style={styles.resultItem}>
-              <RecipeCard
-                recipe={item}
-                colorIndex={index}
-                fridgeMatchPercent={fridgeMatches.getPercent(item.id)}
-              />
+        <>
+          <View style={styles.resultsToolbar}>
+            <View style={styles.layoutToggle}>
+              <Pressable
+                accessibilityLabel="แสดงเป็นตาราง"
+                style={[styles.layoutBtn, layoutMode === 'grid' && styles.layoutBtnOn]}
+                onPress={() => setLayoutMode('grid')}
+              >
+                <Ionicons
+                  name="grid-outline"
+                  size={18}
+                  color={layoutMode === 'grid' ? colors.white : colors.inkMuted}
+                />
+              </Pressable>
+              <Pressable
+                accessibilityLabel="แสดงเป็นรายการ"
+                style={[styles.layoutBtn, layoutMode === 'list' && styles.layoutBtnOn]}
+                onPress={() => setLayoutMode('list')}
+              >
+                <Ionicons
+                  name="list-outline"
+                  size={20}
+                  color={layoutMode === 'list' ? colors.white : colors.inkMuted}
+                />
+              </Pressable>
             </View>
+          </View>
+          {!fridgeMatches.hasFridgeItems && results.length > 0 && (
+            <FridgeEmptyHintChip onPress={() => router.push('/(tabs)/fridge')} />
           )}
-        />
+          <FlatList
+            key={layoutMode}
+            data={results}
+            keyExtractor={(item) => item.id}
+            numColumns={layoutMode === 'grid' ? 2 : 1}
+            columnWrapperStyle={layoutMode === 'grid' ? styles.resultRow : undefined}
+            contentContainerStyle={[
+              styles.listContent,
+              layoutMode === 'list' && styles.listContentSingle,
+            ]}
+            ListEmptyComponent={
+              <EmptyState
+                title="ยังไม่มีสูตรที่ตรงกัน"
+                subtitle="ลองค้นหาคำอื่น หรือเพิ่มสูตรใหม่"
+                showAdd
+              />
+            }
+            renderItem={({ item, index }) => (
+              <View style={layoutMode === 'grid' ? styles.resultItem : styles.resultItemList}>
+                <RecipeMenuCard
+                  recipe={item}
+                  layout={layoutMode}
+                  colorIndex={index}
+                  fridgeMatch={fridgeMatches.getMatch(item.id)}
+                  showFridgeSection={fridgeMatches.hasFridgeItems}
+                />
+              </View>
+            )}
+          />
+        </>
       )}
     </View>
   );
@@ -280,15 +318,44 @@ const styles = StyleSheet.create({
   suggestItem: {
     paddingVertical: spacing.sm,
   },
+  resultsToolbar: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  layoutToggle: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+    backgroundColor: colors.white,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: 3,
+  },
+  layoutBtn: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 6,
+    borderRadius: radius.pill,
+  },
+  layoutBtnOn: {
+    backgroundColor: colors.orange,
+  },
   listContent: {
     paddingHorizontal: spacing.md,
     paddingBottom: 120,
+  },
+  listContentSingle: {
+    paddingTop: 0,
   },
   resultRow: {
     gap: spacing.md,
   },
   resultItem: {
     flex: 1,
-    marginBottom: spacing.md,
+  },
+  resultItemList: {
+    width: '100%',
+    marginBottom: 0,
   },
 });

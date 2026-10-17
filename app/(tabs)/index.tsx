@@ -17,6 +17,7 @@ import { FloatingHeader, floatingHeaderClearance } from '@/components/FloatingHe
 import { CategoryChips } from '@/components/CategoryChips';
 import { EmptyState } from '@/components/EmptyState';
 import { RecipeCard } from '@/components/RecipeCard';
+import { FridgeEmptyHintChip, RecipeMenuCard } from '@/components/RecipeMenuCard';
 import { RecipeCoverImage } from '@/components/RecipeCoverImage';
 import { colors, fonts, radius, spacing } from '@/constants/theme';
 import { useRecipes } from '@/context/RecipesContext';
@@ -35,6 +36,7 @@ export default function HomeScreen() {
   const { recipes, loading } = useRecipes();
   const [category, setCategory] = useState('ทั้งหมด');
   const [fridgeSort, setFridgeSort] = useState(false);
+  const [layoutMode, setLayoutMode] = useState<'grid' | 'list'>('grid');
   const fridgeMatches = useFridgeRecipeMatches(recipes);
 
   const favorites = useMemo(
@@ -186,24 +188,57 @@ export default function HomeScreen() {
             )}
 
             <View style={styles.section}>
-              <AppText variant="title" style={styles.sectionTitle}>
-                {category === 'ทั้งหมด' ? 'สูตรทั้งหมด' : category}
-              </AppText>
+              <View style={styles.sectionHeader}>
+                <AppText variant="title" style={styles.sectionTitleInline}>
+                  {category === 'ทั้งหมด' ? 'สูตรทั้งหมด' : category}
+                </AppText>
+                <View style={styles.layoutToggle}>
+                  <Pressable
+                    accessibilityLabel="แสดงเป็นตาราง"
+                    style={[styles.layoutBtn, layoutMode === 'grid' && styles.layoutBtnOn]}
+                    onPress={() => setLayoutMode('grid')}
+                  >
+                    <Ionicons
+                      name="grid-outline"
+                      size={18}
+                      color={layoutMode === 'grid' ? colors.white : colors.inkMuted}
+                    />
+                  </Pressable>
+                  <Pressable
+                    accessibilityLabel="แสดงเป็นรายการ"
+                    style={[styles.layoutBtn, layoutMode === 'list' && styles.layoutBtnOn]}
+                    onPress={() => setLayoutMode('list')}
+                  >
+                    <Ionicons
+                      name="list-outline"
+                      size={20}
+                      color={layoutMode === 'list' ? colors.white : colors.inkMuted}
+                    />
+                  </Pressable>
+                </View>
+              </View>
+              {!fridgeMatches.hasFridgeItems && (
+                <FridgeEmptyHintChip onPress={() => router.push('/(tabs)/fridge')} />
+              )}
               {filtered.length === 0 ? (
                 <EmptyState title="ยังไม่มีสูตรในหมวดนี้" showAdd />
               ) : (
                 <FlatList
+                  key={layoutMode}
                   data={filtered}
                   keyExtractor={(item) => item.id}
-                  numColumns={2}
+                  numColumns={layoutMode === 'grid' ? 2 : 1}
                   scrollEnabled={false}
-                  columnWrapperStyle={styles.gridRow}
+                  columnWrapperStyle={layoutMode === 'grid' ? styles.gridRow : undefined}
+                  contentContainerStyle={layoutMode === 'list' ? styles.listContent : undefined}
                   renderItem={({ item, index }) => (
-                    <View style={styles.gridItem}>
-                      <RecipeCard
+                    <View style={layoutMode === 'grid' ? styles.gridItem : styles.listItem}>
+                      <RecipeMenuCard
                         recipe={item}
+                        layout={layoutMode}
                         colorIndex={index}
-                        fridgeMatchPercent={fridgeMatches.getPercent(item.id)}
+                        fridgeMatch={fridgeMatches.getMatch(item.id)}
+                        showFridgeSection={fridgeMatches.hasFridgeItems}
                       />
                     </View>
                   )}
@@ -314,9 +349,43 @@ const styles = StyleSheet.create({
   section: {
     marginTop: spacing.md,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.md,
+  },
+  sectionTitleInline: {
+    flex: 1,
+  },
+  layoutToggle: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+    backgroundColor: colors.white,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: 3,
+  },
+  layoutBtn: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 6,
+    borderRadius: radius.pill,
+  },
+  layoutBtnOn: {
+    backgroundColor: colors.orange,
+  },
   sectionTitle: {
     paddingHorizontal: spacing.md,
     marginBottom: spacing.md,
+  },
+  listContent: {
+    paddingHorizontal: spacing.md,
+    gap: 0,
+  },
+  listItem: {
+    width: '100%',
   },
   favRow: {
     flexDirection: 'row',
