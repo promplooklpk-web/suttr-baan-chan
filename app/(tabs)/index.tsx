@@ -66,6 +66,17 @@ export default function HomeScreen() {
           <AppText variant="heading">วันนี้ทำอะไรกินดี?</AppText>
         </View>
 
+        <Pressable style={styles.pickerCard} onPress={() => router.push('/(tabs)/picker')}>
+          <View style={styles.pickerIcon}>
+            <Ionicons name="shuffle" size={28} color={colors.white} />
+          </View>
+          <View style={styles.pickerText}>
+            <AppText variant="label">วันนี้กินอะไรดี?</AppText>
+            <AppText variant="caption" muted>สุ่มเมนูตามหมวด เวลา และแคลอรี</AppText>
+          </View>
+          <Ionicons name="chevron-forward" size={22} color={colors.inkMuted} />
+        </Pressable>
+
         <Pressable style={styles.searchBar} onPress={() => router.push('/(tabs)/search')}>
           <Ionicons name="search" size={20} color={colors.inkMuted} />
           <AppText muted style={styles.searchPlaceholder}>
@@ -142,6 +153,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     marginBottom: spacing.md,
   },
+  pickerCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    marginHorizontal: spacing.md,
+    marginBottom: spacing.lg,
+    backgroundColor: colors.white,
+    borderRadius: radius.lg,
+    padding: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  pickerIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.orange,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pickerText: { flex: 1, gap: 2 },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',

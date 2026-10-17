@@ -11,6 +11,7 @@ import { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
+import { MealPlanProvider } from '@/context/MealPlanContext';
 import { RecipesProvider } from '@/context/RecipesContext';
 import { colors } from '@/constants/theme';
 
@@ -46,6 +47,7 @@ export default function RootLayout() {
 
   return (
     <RecipesProvider>
+      <MealPlanProvider>
       <StatusBar style="dark" />
       <Stack
         screenOptions={{
@@ -71,7 +73,9 @@ export default function RootLayout() {
           options={{ title: 'โหมดทำอาหาร', headerShown: false, presentation: 'fullScreenModal' }}
         />
         <Stack.Screen name="tags/index" options={{ title: 'จัดการแท็ก' }} />
+        <Stack.Screen name="about" options={{ title: 'เกี่ยวกับแอป' }} />
       </Stack>
+      </MealPlanProvider>
     </RecipesProvider>
   );
 }

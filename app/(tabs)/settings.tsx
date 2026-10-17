@@ -7,6 +7,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '@/components/AppText';
 import { colors, radius, spacing } from '@/constants/theme';
 import { useRecipes } from '@/context/RecipesContext';
+import { clearAllAppData } from '@/lib/clearData';
+import { useMealPlan } from '@/context/MealPlanContext';
 import { buildImportPlan } from '@/lib/export/applyImport';
 import { createExportZip, shareExportFile } from '@/lib/export/exportZip';
 import { shareRecipeJsonExport } from '@/lib/export/exportRecipeJson';
@@ -15,7 +17,8 @@ import { setPendingImport } from '@/lib/export/importSession';
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
-  const { recipes } = useRecipes();
+  const { recipes, refresh } = useRecipes();
+  const { refresh: refreshPlan } = useMealPlan();
 
   const exportAllZip = async () => {
     try {
@@ -102,12 +105,60 @@ export default function SettingsScreen() {
         />
       </Section>
 
+      <Section title="สำรองและกู้คืน">
+        <Row
+          icon="cloud-upload-outline"
+          label="สำรองข้อมูลทั้งหมด"
+          subtitle="ส่งออก .zip (สูตร + รูป)"
+          onPress={exportAllZip}
+        />
+        <Row
+          icon="cloud-download-outline"
+          label="กู้คืนจากไฟล์สำรอง"
+          subtitle="นำเข้า .zip / .recipe.json"
+          onPress={pickImport}
+        />
+        <Row
+          icon="trash-outline"
+          label="ล้างข้อมูลทั้งหมด"
+          subtitle="สูตร แพลนมื้อ รายการซื้อของ — แล้วโหลด seed ใหม่"
+          onPress={() => {
+            Alert.alert(
+              'ล้างข้อมูลทั้งหมด?',
+              'การกระทำนี้ไม่สามารถย้อนกลับได้',
+              [
+                { text: 'ยกเลิก', style: 'cancel' },
+                {
+                  text: 'ล้าง',
+                  style: 'destructive',
+                  onPress: async () => {
+                    await clearAllAppData();
+                    await refresh();
+                    await refreshPlan();
+                    Alert.alert('ล้างข้อมูลแล้ว', 'โหลดสูตรตัวอย่างใหม่แล้ว');
+                  },
+                },
+              ],
+            );
+          }}
+        />
+      </Section>
+
       <Section title="นำเข้าสูตร">
         <Row
           icon="download-outline"
           label="นำเข้าจากไฟล์"
           subtitle=".zip หรือ .recipe.json"
           onPress={pickImport}
+        />
+      </Section>
+
+      <Section title="เกี่ยวกับ">
+        <Row
+          icon="information-circle-outline"
+          label="เกี่ยวกับและเครดิต"
+          subtitle="ลิขสิทธิ์รูปตัวอย่าง"
+          onPress={() => router.push('/about')}
         />
       </Section>
     </ScrollView>
