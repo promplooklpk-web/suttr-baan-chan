@@ -44,9 +44,11 @@ describe('screen smoke tests', () => {
     await findByText('สัปดาห์นี้');
   });
 
-  it('renders Picker', async () => {
-    const { findByText } = renderWithProviders(<PickerScreen />);
+  it('renders Picker with hero and shuffle CTA', async () => {
+    const { findByText, getByLabelText } = renderWithProviders(<PickerScreen />);
     await findByText('กินอะไรดี');
+    await findByText('สุ่มเมนู');
+    expect(getByLabelText('ตัวกรอง')).toBeTruthy();
   });
 
   it('renders Settings', async () => {
