@@ -37,7 +37,7 @@ export const fonts = {
 
 export const CATEGORIES = [
   'ทั้งหมด',
-  'อาหารจานเดียว',
+  'จานเดียว',
   'ต้ม/แกง',
   'ผัด/ทอด',
   'ขนม',

@@ -1,9 +1,20 @@
 export type RecipeDifficulty = 'easy' | 'medium' | 'hard';
 
+export type StepPhotoMatch =
+  | 'technique'
+  | 'ingredient'
+  | 'serving-example'
+  | 'similar-recipe';
+
 export type RecipePhoto = {
   path?: string;
   data?: string;
   mime?: 'image/jpeg' | 'image/png' | 'image/webp';
+  credit?: string;
+  source?: string;
+  license?: string;
+  licenseUrl?: string;
+  match?: StepPhotoMatch;
 };
 
 export type RecipeIngredient = {

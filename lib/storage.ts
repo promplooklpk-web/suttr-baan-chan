@@ -9,12 +9,17 @@ import {
 } from 'expo-file-system/legacy';
 import * as Crypto from 'expo-crypto';
 
-import { installSeedRecipes } from '@/lib/seedInstall';
+import {
+  collectRecipeImagePaths,
+  installCleanSeedRecipes,
+  installOnedishSeedRecipes,
+} from '@/lib/seedInstall';
 import {
   CURRENT_SEED_VERSION,
   getEffectiveSeedVersion,
   isCleanSeedRecipeId,
   isLegacyRound1SeedId,
+  isOnedishSeedRecipeId,
 } from '@/lib/seedVersion';
 import type { Recipe, RecipeInput, RecipeStore } from '@/types/recipe';
 
@@ -80,34 +85,81 @@ async function writeStore(recipes: Recipe[], seedVersion = CURRENT_SEED_VERSION)
   await writeAsStringAsync(recipesPath(), JSON.stringify(store, null, 2));
 }
 
-async function removeRecipePhotosForIds(recipes: Recipe[], ids: Set<string>): Promise<void> {
-  for (const recipe of recipes) {
-    if (ids.has(recipe.id) && recipe.photo?.path) {
-      await deleteRecipePhoto(recipe.photo.path);
-    }
+export async function deleteRecipePhoto(relativePath?: string): Promise<void> {
+  if (!relativePath || !documentDirectory) return;
+  const full = `${documentDirectory}${relativePath}`;
+  const info = await getInfoAsync(full);
+  if (info.exists) {
+    await deleteAsync(full, { idempotent: true });
   }
 }
 
-async function migrateSeedPack(store: RecipeStore): Promise<Recipe[]> {
-  const legacyIds = new Set(store.recipes.filter((r) => isLegacyRound1SeedId(r.id)).map((r) => r.id));
-  if (legacyIds.size > 0) {
-    await removeRecipePhotosForIds(store.recipes, legacyIds);
+async function deleteAllRecipeImages(recipe: Recipe): Promise<void> {
+  for (const path of collectRecipeImagePaths(recipe)) {
+    await deleteRecipePhoto(path);
   }
+}
 
-  let kept = store.recipes.filter((r) => !isLegacyRound1SeedId(r.id));
+function mergeSeedRecipes(clean: Recipe[], onedish: Recipe[], userRecipes: Recipe[]): Recipe[] {
+  return [...clean, ...onedish, ...userRecipes];
+}
 
-  const cleanIdsPresent = new Set(
-    kept.filter((r) => isCleanSeedRecipeId(r.id)).map((r) => r.id),
+function partitionRecipes(recipes: Recipe[]) {
+  const clean = recipes.filter((r) => isCleanSeedRecipeId(r.id));
+  const onedish = recipes.filter((r) => isOnedishSeedRecipeId(r.id));
+  const user = recipes.filter(
+    (r) => !isCleanSeedRecipeId(r.id) && !isOnedishSeedRecipeId(r.id) && !isLegacyRound1SeedId(r.id),
   );
-  if (cleanIdsPresent.size > 0) {
-    await removeRecipePhotosForIds(kept, cleanIdsPresent);
-    kept = kept.filter((r) => !isCleanSeedRecipeId(r.id));
+  return { clean, onedish, user };
+}
+
+async function migrateToVersion2(recipes: Recipe[]): Promise<Recipe[]> {
+  for (const recipe of recipes) {
+    if (isLegacyRound1SeedId(recipe.id)) {
+      await deleteAllRecipeImages(recipe);
+    }
   }
 
-  const newSeeds = await installSeedRecipes();
-  const merged = [...newSeeds, ...kept];
-  await writeStore(merged, CURRENT_SEED_VERSION);
-  return merged;
+  let { clean, user } = partitionRecipes(recipes.filter((r) => !isLegacyRound1SeedId(r.id)));
+
+  if (clean.length > 0) {
+    for (const recipe of clean) {
+      await deleteAllRecipeImages(recipe);
+    }
+    clean = [];
+  }
+
+  const newClean = await installCleanSeedRecipes();
+  return mergeSeedRecipes(newClean, [], user);
+}
+
+async function migrateToVersion3(recipes: Recipe[]): Promise<Recipe[]> {
+  const { clean, onedish, user } = partitionRecipes(recipes);
+
+  for (const recipe of onedish) {
+    await deleteAllRecipeImages(recipe);
+  }
+
+  const newOnedish = await installOnedishSeedRecipes();
+  return mergeSeedRecipes(clean, newOnedish, user);
+}
+
+async function migrateSeedData(store: RecipeStore): Promise<Recipe[]> {
+  let recipes = store.recipes;
+  let version = getEffectiveSeedVersion(store);
+
+  if (version < 2) {
+    recipes = await migrateToVersion2(recipes);
+    version = 2;
+  }
+
+  if (version < 3) {
+    recipes = await migrateToVersion3(recipes);
+    version = 3;
+  }
+
+  await writeStore(recipes, CURRENT_SEED_VERSION);
+  return recipes;
 }
 
 export async function initializeStorage(): Promise<Recipe[]> {
@@ -116,7 +168,7 @@ export async function initializeStorage(): Promise<Recipe[]> {
   const effectiveVersion = getEffectiveSeedVersion(store);
 
   if (effectiveVersion < CURRENT_SEED_VERSION) {
-    return migrateSeedPack(store);
+    return migrateSeedData(store);
   }
 
   if (store.seedVersion !== CURRENT_SEED_VERSION) {
@@ -151,15 +203,6 @@ export async function copyPhotoToStorage(
   const dest = `${documentDirectory}${relative}`;
   await copyAsync({ from: sourceUri, to: dest });
   return relative;
-}
-
-export async function deleteRecipePhoto(relativePath?: string): Promise<void> {
-  if (!relativePath || !documentDirectory) return;
-  const full = `${documentDirectory}${relativePath}`;
-  const info = await getInfoAsync(full);
-  if (info.exists) {
-    await deleteAsync(full, { idempotent: true });
-  }
 }
 
 export function photoUri(relativePath?: string): string | undefined {
@@ -201,8 +244,8 @@ export async function updateRecipe(id: string, patch: Partial<RecipeInput>): Pro
 export async function deleteRecipe(id: string): Promise<void> {
   const recipes = await loadRecipes();
   const recipe = recipes.find((r) => r.id === id);
-  if (recipe?.photo?.path) {
-    await deleteRecipePhoto(recipe.photo.path);
+  if (recipe) {
+    await deleteAllRecipeImages(recipe);
   }
   const next = recipes.filter((r) => r.id !== id);
   await saveRecipes(next);

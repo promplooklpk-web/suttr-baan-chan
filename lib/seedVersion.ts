@@ -1,4 +1,5 @@
-import seedExport from '@/assets/seed/clean-recipes.json';
+import cleanExport from '@/assets/seed/clean-recipes.json';
+import onedishExport from '@/assets/seed/onedish/recipes.json';
 import type { RecipeStore } from '@/types/recipe';
 
 /** Round 1 placeholder recipes (replaced in seed v2). */
@@ -9,10 +10,14 @@ export const LEGACY_ROUND1_SEED_IDS = new Set([
   'c3d4e5f6-a7b8-4901-c234-56789abcdef0',
 ]);
 
-export const CURRENT_SEED_VERSION = 2;
+export const CURRENT_SEED_VERSION = 3;
 
 export const CLEAN_SEED_RECIPE_IDS = new Set(
-  (seedExport as { recipes: { id: string }[] }).recipes.map((r) => r.id),
+  (cleanExport as { recipes: { id: string }[] }).recipes.map((r) => r.id),
+);
+
+export const ONEDISH_SEED_RECIPE_IDS = new Set(
+  (onedishExport as { recipes: { id: string }[] }).recipes.map((r) => r.id),
 );
 
 export function isLegacyRound1SeedId(id: string): boolean {
@@ -21,6 +26,14 @@ export function isLegacyRound1SeedId(id: string): boolean {
 
 export function isCleanSeedRecipeId(id: string): boolean {
   return CLEAN_SEED_RECIPE_IDS.has(id);
+}
+
+export function isOnedishSeedRecipeId(id: string): boolean {
+  return ONEDISH_SEED_RECIPE_IDS.has(id);
+}
+
+export function isBundledSeedRecipeId(id: string): boolean {
+  return isCleanSeedRecipeId(id) || isOnedishSeedRecipeId(id);
 }
 
 /**
@@ -36,8 +49,11 @@ export function getEffectiveSeedVersion(store: RecipeStore): number {
   if (store.recipes.some((r) => isLegacyRound1SeedId(r.id))) {
     return 1;
   }
-  if (store.recipes.some((r) => isCleanSeedRecipeId(r.id))) {
+  if (store.recipes.some((r) => isOnedishSeedRecipeId(r.id))) {
     return CURRENT_SEED_VERSION;
+  }
+  if (store.recipes.some((r) => isCleanSeedRecipeId(r.id))) {
+    return 2;
   }
   return CURRENT_SEED_VERSION;
 }

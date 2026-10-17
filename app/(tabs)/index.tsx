@@ -39,6 +39,11 @@ export default function HomeScreen() {
 
   const filtered = useMemo(() => {
     if (category === 'ทั้งหมด') return recipes;
+    if (category === 'จานเดียว') {
+      return recipes.filter(
+        (r) => r.category === 'อาหารจานเดียว' || r.category === 'จานเดียว',
+      );
+    }
     return recipes.filter((r) => r.category === category);
   }, [recipes, category]);
 

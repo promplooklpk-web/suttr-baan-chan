@@ -1,0 +1,54 @@
+# Image credits (all from Wikimedia Commons)
+
+- ข้าวผัดอกไก่ — images/khao-pad-gai-cover.jpg — Andy Li — CC0 — https://commons.wikimedia.org/wiki/File:Khao_Pad_(Rosa%27s_Fried_Rice)_with_Chicken_-_Rosa%27s_Thai_2025-07-22.jpg
+- ข้าวผัดอกไก่ — images/khao-pad-gai-step-slice.jpg — kakyusei — CC0 — https://commons.wikimedia.org/wiki/File:Raw_chicken_slices.jpg
+- ข้าวผัดอกไก่ — images/khao-pad-gai-step-garlic.jpg — Betsssssy — CC BY 2.0 — https://commons.wikimedia.org/wiki/File:Chopping_garlic-01.jpg
+- ข้าวผัดอกไก่ — images/khao-pad-gai-step-egg.jpg — Mark Bonica — CC BY 2.0 — https://commons.wikimedia.org/wiki/File:Pre-omelet_eggs.jpg
+- ข้าวผัดอกไก่ — images/khao-pad-gai-step-wok.jpg — Jvdc (Wikimedia Commons uploader) — CC BY-SA 2.0 — https://commons.wikimedia.org/wiki/File:Wok_Cooking.jpg
+- ข้าวกะเพราไก่ไม่ใช้น้ำมัน — images/kra-pao-gai-cover.jpg — PattayaPatrol — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:DFC_0804_A_plate_of_steamed_white_rice_topped_with_a_runny_fried_egg_served_alongside_stir-fried_minced_chicken_with_basil_and_sliced_cucumber.jpg
+- ข้าวกะเพราไก่ไม่ใช้น้ำมัน — images/kra-pao-gai-step-chili.jpg — Eric Polk — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Thai_chilis.jpg
+- ข้าวกะเพราไก่ไม่ใช้น้ำมัน — images/kra-pao-gai-step-garlic.jpg — Betsssssy — CC BY 2.0 — https://commons.wikimedia.org/wiki/File:Chopping_garlic-01.jpg
+- ข้าวกะเพราไก่ไม่ใช้น้ำมัน — images/kra-pao-gai-step-chicken.jpg — kakyusei — CC0 — https://commons.wikimedia.org/wiki/File:Raw_chicken_slices.jpg
+- ข้าวกะเพราไก่ไม่ใช้น้ำมัน — images/kra-pao-gai-step-wok.jpg — Jvdc (Wikimedia Commons uploader) — CC BY-SA 2.0 — https://commons.wikimedia.org/wiki/File:Wok_Cooking.jpg
+- ข้าวต้มเห็ดหน่อไม้ไก่สับ — images/khao-tom-cover.jpg — Vian Chen — CC BY 4.0 — https://commons.wikimedia.org/wiki/File:Bamboo_Shoot_Savory_Congee_Recipe_13.jpg
+- ข้าวต้มเห็ดหน่อไม้ไก่สับ — images/khao-tom-step-rice.jpg — Vian Chen — CC BY 4.0 — https://commons.wikimedia.org/wiki/File:Bamboo_Shoot_Savory_Congee_Recipe_3.jpg
+- ข้าวต้มเห็ดหน่อไม้ไก่สับ — images/khao-tom-step-slice.jpg — Vian Chen — CC BY 4.0 — https://commons.wikimedia.org/wiki/File:Bamboo_Shoot_Savory_Congee_Recipe_1.jpg
+- ข้าวต้มเห็ดหน่อไม้ไก่สับ — images/khao-tom-step-herbs.jpg — Vian Chen — CC BY 4.0 — https://commons.wikimedia.org/wiki/File:Bamboo_Shoot_Savory_Congee_Recipe_8.jpg
+- ข้าวต้มเห็ดหน่อไม้ไก่สับ — images/khao-tom-step-simmer.jpg — Vian Chen — CC BY 4.0 — https://commons.wikimedia.org/wiki/File:Bamboo_Shoot_Savory_Congee_Recipe_11.jpg
+- ข้าวต้มเห็ดหน่อไม้ไก่สับ — images/khao-tom-step-simmer2.jpg — Vian Chen — CC BY 4.0 — https://commons.wikimedia.org/wiki/File:Bamboo_Shoot_Savory_Congee_Recipe_13.jpg
+- ก๋วยเตี๋ยวน้ำใสไก่ฉีก — images/kuaitiao-nam-sai-cover.jpg — Sharon Hahn Darlin — CC BY 2.0 — https://commons.wikimedia.org/wiki/File:Common_local_Thai_food._50%E0%B8%BF_(baht)_%3D_$1.50_(pork)_noodle_soup_in_Phuket,_Thailand.jpg
+- ก๋วยเตี๋ยวน้ำใสไก่ฉีก — images/kuaitiao-nam-sai-step-chicken.jpg — Jvdc (Wikimedia Commons uploader) — CC BY-SA 2.0 — https://commons.wikimedia.org/wiki/File:Poached_chicken.jpg
+- ก๋วยเตี๋ยวน้ำใสไก่ฉีก — images/kuaitiao-nam-sai-step-noodle.jpg — Fandwisdoywci — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:HK_Boiling_hot_water_n_noodle_August_2018_IX2_pot_06.jpg
+- ก๋วยเตี๋ยวน้ำใสไก่ฉีก — images/kuaitiao-nam-sai-step-sprouts.jpg — pics_pd — CC0 — https://commons.wikimedia.org/wiki/File:Mung_bean_sprouts,_close-up.jpg
+- ก๋วยเตี๋ยวน้ำใสไก่ฉีก — images/kuaitiao-nam-sai-step-scallion.jpg — 褒忠國中 雲端網 — CC BY 2.0 — https://commons.wikimedia.org/wiki/File:Chopped_scallions_2014-09-26.jpg
+- ข้าวไข่เจียวผักไม่ทอดลอยน้ำมัน — images/khao-khai-jiao-pak-cover.jpg — Bitterschoko — CC0 — https://commons.wikimedia.org/wiki/File:Khao_khaichiao_(omelette_with_rice),_Bangkok,_2018-05-15.jpg
+- ข้าวไข่เจียวผักไม่ทอดลอยน้ำมัน — images/khao-khai-jiao-pak-step-egg.jpg — Mark Bonica — CC BY 2.0 — https://commons.wikimedia.org/wiki/File:Pre-omelet_eggs.jpg
+- ข้าวไข่เจียวผักไม่ทอดลอยน้ำมัน — images/khao-khai-jiao-pak-step-carrot.jpg — W.carter — CC0 — https://commons.wikimedia.org/wiki/File:Preparing_and_slicing_carrots.jpg
+- ข้าวไข่เจียวผักไม่ทอดลอยน้ำมัน — images/khao-khai-jiao-pak-step-scallion.jpg — 褒忠國中 雲端網 — CC BY 2.0 — https://commons.wikimedia.org/wiki/File:Chopped_scallions_2014-09-26.jpg
+- ข้าวไข่เจียวผักไม่ทอดลอยน้ำมัน — images/khao-khai-jiao-pak-step-pan.jpg — Nundhaa — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Chicken_Egg_Omlette_Loaded_with_Onions_in_the_making.JPG
+- ข้าวหน้าไก่เทอริยากิ — images/teriyaki-gai-rice-cover.jpg — Wide Awake! — CC BY 4.0 — https://commons.wikimedia.org/wiki/File:Teriyaki_Chicken_Rice_Bowl_from_Botejyu_(2024-12-21).jpg
+- ข้าวหน้าไก่เทอริยากิ — images/teriyaki-gai-rice-step-rice.jpg — SnapMeUp — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Rice_in_Electric_Cooker.jpg
+- ข้าวหน้าไก่เทอริยากิ — images/teriyaki-gai-rice-step-chicken.jpg — kakyusei — CC0 — https://commons.wikimedia.org/wiki/File:Raw_chicken_slices.jpg
+- ข้าวหน้าไก่เทอริยากิ — images/teriyaki-gai-rice-step-sauce.jpg — David J — CC BY 2.0 — https://commons.wikimedia.org/wiki/File:Teriyaki_sauce.jpg
+- ข้าวหน้าไก่เทอริยากิ — images/teriyaki-gai-rice-step-cucumber.jpg — Jeremy Keith from Brighton & Hove, United Kingdom — CC BY 2.0 — https://commons.wikimedia.org/wiki/File:Slicing_cucumber_(5442160654).jpg
+- ราดหน้าไก่คะน้าเส้นใหญ่ลวก — images/rad-na-cover.jpg — Takeaway — CC BY-SA 3.0 — https://commons.wikimedia.org/wiki/File:Kuai-tiao_rat_na_mu.JPG
+- ราดหน้าไก่คะน้าเส้นใหญ่ลวก — images/rad-na-step-kale.jpg — Nthaci — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Gai_lan.jpg
+- ราดหน้าไก่คะน้าเส้นใหญ่ลวก — images/rad-na-step-slurry.jpg — Picasa author kalaya — CC BY-SA 3.0 — https://commons.wikimedia.org/wiki/File:Cornstarch_mixed_with_water.jpg
+- ราดหน้าไก่คะน้าเส้นใหญ่ลวก — images/rad-na-step-garlic.jpg — Betsssssy — CC BY 2.0 — https://commons.wikimedia.org/wiki/File:Chopping_garlic-01.jpg
+- ราดหน้าไก่คะน้าเส้นใหญ่ลวก — images/rad-na-step-wok.jpg — Jvdc (Wikimedia Commons uploader) — CC BY-SA 2.0 — https://commons.wikimedia.org/wiki/File:Wok_Cooking.jpg
+- สุกี้น้ำไก่วุ้นเส้น — images/suki-nam-cover.jpg — Vyacheslav Argenberg — CC BY 4.0 — https://commons.wikimedia.org/wiki/File:Thai_suki,_Thai_hot_pot_ingredients,_Bangkok,_Thailand.jpg
+- สุกี้น้ำไก่วุ้นเส้น — images/suki-nam-step-cabbage.jpg — Fumikas Sagisavas — CC0 — https://commons.wikimedia.org/wiki/File:Chinese_cabbages.jpg
+- สุกี้น้ำไก่วุ้นเส้น — images/suki-nam-step-mushroom.jpg — Fumikas Sagisavas — CC0 — https://commons.wikimedia.org/wiki/File:Fresh_shiitake_mushrooms.jpg
+- สุกี้น้ำไก่วุ้นเส้น — images/suki-nam-step-boil.jpg — GRAN — CC BY 3.0 — https://commons.wikimedia.org/wiki/File:Boiling_water.jpg
+- สุกี้น้ำไก่วุ้นเส้น — images/suki-nam-step-table.jpg — Vyacheslav Argenberg — CC BY 4.0 — https://commons.wikimedia.org/wiki/File:Thai_suki,_Thai_hot_pot_preparation,_Dining_in_Bangkok,_Thailand.jpg
+- ข้าวผัดปูเนื้อปูไข่ฟู — images/khao-pad-pu-cover.jpg — Suiren2022 — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Crab_fried_rice.jpg
+- ข้าวผัดปูเนื้อปูไข่ฟู — images/khao-pad-pu-step-crab.jpg — François Nguyen — CC BY 2.0 — https://commons.wikimedia.org/wiki/File:Crab_legs_meat.jpg
+- ข้าวผัดปูเนื้อปูไข่ฟู — images/khao-pad-pu-step-egg.jpg — Mark Bonica — CC BY 2.0 — https://commons.wikimedia.org/wiki/File:Pre-omelet_eggs.jpg
+- ข้าวผัดปูเนื้อปูไข่ฟู — images/khao-pad-pu-step-scallion.jpg — 褒忠國中 雲端網 — CC BY 2.0 — https://commons.wikimedia.org/wiki/File:Chopped_scallions_2014-09-26.jpg
+- ข้าวผัดปูเนื้อปูไข่ฟู — images/khao-pad-pu-step-wok.jpg — Jvdc (Wikimedia Commons uploader) — CC BY-SA 2.0 — https://commons.wikimedia.org/wiki/File:Wok_Cooking.jpg
+- ข้าวมันไก่ลวก (อกไก่ น้ำมันน้อย) — images/khao-man-gai-luak-cover.jpg — Simon Tsu — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:Khao_Man_Gai_at_Nong%27s_Khao_Man_Gai.jpg
+- ข้าวมันไก่ลวก (อกไก่ น้ำมันน้อย) — images/khao-man-gai-luak-step-rice.jpg — Obsidian Soul — CC0 — https://commons.wikimedia.org/wiki/File:Rice_wash_(Philippines)_01.jpg
+- ข้าวมันไก่ลวก (อกไก่ น้ำมันน้อย) — images/khao-man-gai-luak-step-garlic.jpg — Fumikas Sagisavas — CC0 — https://commons.wikimedia.org/wiki/File:Peeled_garlic_cloves.jpg
+- ข้าวมันไก่ลวก (อกไก่ น้ำมันน้อย) — images/khao-man-gai-luak-step-poach.jpg — Jvdc (Wikimedia Commons uploader) — CC BY-SA 2.0 — https://commons.wikimedia.org/wiki/File:Poached_chicken.jpg
+- ข้าวมันไก่ลวก (อกไก่ น้ำมันน้อย) — images/khao-man-gai-luak-step-sliced.jpg — N509FZ — CC BY-SA 4.0 — https://commons.wikimedia.org/wiki/File:White_cut_chicken_at_Xiaoshaoxing,_Shanghai_(20191113183809).jpg
+- ข้าวมันไก่ลวก (อกไก่ น้ำมันน้อย) — images/khao-man-gai-luak-step-cucumber.jpg — Jeremy Keith from Brighton & Hove, United Kingdom — CC BY 2.0 — https://commons.wikimedia.org/wiki/File:Slicing_cucumber_(5442160654).jpg

@@ -13,6 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { RecipeAttribution } from '@/components/RecipeAttribution';
+import { StepPhotoBlock } from '@/components/StepPhotoBlock';
 import { StepTimerChip } from '@/components/StepTimerChip';
 import { colors, fonts, radius, spacing } from '@/constants/theme';
 import { useRecipes } from '@/context/RecipesContext';
@@ -197,6 +198,7 @@ export default function RecipeDetailScreen() {
                         {step.timerSeconds != null && step.timerSeconds > 0 && (
                           <StepTimerChip timerSeconds={step.timerSeconds} />
                         )}
+                        {step.photo?.path ? <StepPhotoBlock photo={step.photo} /> : null}
                       </View>
                     </View>
                   ))}

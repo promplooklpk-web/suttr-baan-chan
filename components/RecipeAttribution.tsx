@@ -2,6 +2,7 @@ import * as Linking from 'expo-linking';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
+import { stepPhotoMatchLabel } from '@/lib/stepPhotoLabels';
 import { colors, radius, spacing } from '@/constants/theme';
 import type { Recipe } from '@/types/recipe';
 
@@ -10,11 +11,14 @@ type RecipeAttributionProps = {
 };
 
 export function RecipeAttribution({ recipe }: RecipeAttributionProps) {
-  const hasPhoto =
+  const hasCoverPhoto =
     recipe.photoCredit || recipe.photoLicense || recipe.photoSource;
   const hasSources = recipe.sources && recipe.sources.length > 0;
+  const stepPhotos = recipe.steps
+    .map((step, index) => ({ step, index }))
+    .filter(({ step }) => step.photo?.credit || step.photo?.license || step.photo?.source);
 
-  if (!hasPhoto && !hasSources) return null;
+  if (!hasCoverPhoto && !hasSources && stepPhotos.length === 0) return null;
 
   const openUrl = (url: string) => {
     Linking.openURL(url).catch(() => undefined);
@@ -24,8 +28,9 @@ export function RecipeAttribution({ recipe }: RecipeAttributionProps) {
     <View style={styles.box}>
       <AppText variant="label" style={styles.title}>แหล่งข้อมูลและเครดิตรูป</AppText>
 
-      {hasPhoto && (
+      {hasCoverPhoto && (
         <View style={styles.block}>
+          <AppText variant="caption" muted style={styles.subheading}>รูปหน้าปก</AppText>
           {recipe.photoCredit ? (
             <AppText variant="caption" muted>เครดิตรูป: {recipe.photoCredit}</AppText>
           ) : null}
@@ -39,6 +44,35 @@ export function RecipeAttribution({ recipe }: RecipeAttributionProps) {
               </AppText>
             </Pressable>
           ) : null}
+        </View>
+      )}
+
+      {stepPhotos.length > 0 && (
+        <View style={styles.block}>
+          <AppText variant="caption" muted style={styles.subheading}>รูปขั้นตอน</AppText>
+          {stepPhotos.map(({ step, index }) => {
+            const photo = step.photo!;
+            return (
+              <View key={index} style={styles.stepCredit}>
+                <AppText variant="caption" muted>
+                  ขั้นที่ {index + 1} ({stepPhotoMatchLabel(photo.match)})
+                </AppText>
+                {photo.credit ? (
+                  <AppText variant="caption" muted>เครดิต: {photo.credit}</AppText>
+                ) : null}
+                {photo.license ? (
+                  <AppText variant="caption" muted>สัญญาอนุญาต: {photo.license}</AppText>
+                ) : null}
+                {photo.source ? (
+                  <Pressable onPress={() => openUrl(photo.source!)}>
+                    <AppText variant="caption" style={styles.link} numberOfLines={2}>
+                      แหล่งรูปภาพ
+                    </AppText>
+                  </Pressable>
+                ) : null}
+              </View>
+            );
+          })}
         </View>
       )}
 
@@ -71,6 +105,16 @@ const styles = StyleSheet.create({
   block: {
     gap: 4,
     marginBottom: spacing.sm,
+  },
+  subheading: {
+    fontFamily: 'Sarabun_600SemiBold',
+    marginBottom: 2,
+  },
+  stepCredit: {
+    marginBottom: spacing.sm,
+    paddingBottom: spacing.sm,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
   },
   sourcesLabel: {
     marginBottom: 2,
