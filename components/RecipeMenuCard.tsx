@@ -4,6 +4,7 @@ import { Link } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
+import { LinkPressable } from '@/components/LinkPressable';
 import { colors, fonts, radius, spacing } from '@/constants/theme';
 import { categoryChipLabel, parseRecipeCalories } from '@/lib/recipeMedia';
 import { formatMissingIngredients, fridgeProgressColor } from '@/lib/fridgeMatchDisplay';
@@ -35,6 +36,7 @@ export function RecipeMenuCard({
   const bg = CARD_COLORS[colorIndex % CARD_COLORS.length];
   const percent = fridgeMatch?.percent ?? 0;
   const showMatch = showFridgeSection && fridgeMatch != null;
+  const cardStyle = StyleSheet.flatten([styles.card, layout === 'list' && styles.cardList]);
 
   const imageBlock = (
     <View style={[layout === 'grid' ? styles.imageGrid : styles.imageList, { backgroundColor: bg }]}>
@@ -93,7 +95,7 @@ export function RecipeMenuCard({
 
   return (
     <Link href={`/recipe/${recipe.id}`} asChild>
-      <Pressable style={[styles.card, layout === 'list' && styles.cardList]}>
+      <LinkPressable style={cardStyle}>
         {layout === 'list' ? (
           <>
             {imageBlock}
@@ -105,7 +107,7 @@ export function RecipeMenuCard({
             {body}
           </>
         )}
-      </Pressable>
+      </LinkPressable>
     </Link>
   );
 }

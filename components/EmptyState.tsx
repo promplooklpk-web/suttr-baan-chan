@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
+import { LinkPressable } from '@/components/LinkPressable';
 import { colors, radius, spacing } from '@/constants/theme';
 
 type EmptyStateProps = {
@@ -23,10 +24,10 @@ export function EmptyState({ title, subtitle, showAdd }: EmptyStateProps) {
       ) : null}
       {showAdd && (
         <Link href="/recipe/edit" asChild>
-          <Pressable style={styles.button}>
+          <LinkPressable style={styles.button}>
             <Ionicons name="add" size={20} color={colors.white} />
             <AppText style={styles.buttonText}>เพิ่มสูตรใหม่</AppText>
-          </Pressable>
+          </LinkPressable>
         </Link>
       )}
     </View>

@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { Link } from 'expo-router';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
+import { LinkPressable } from '@/components/LinkPressable';
 import { FridgeMatchBadge } from '@/components/FridgeMatchBadge';
 import { colors, radius, spacing } from '@/constants/theme';
 import { photoUri, totalMinutes } from '@/lib/storage';
@@ -33,7 +34,7 @@ export function RecipeCard({
   if (variant === 'compact') {
     return (
       <Link href={`/recipe/${recipe.id}`} asChild>
-        <Pressable style={styles.compactCard}>
+        <LinkPressable style={styles.compactCard}>
           <View style={[styles.compactThumb, { backgroundColor: bg }]}>
             {uri ? (
               <Image source={{ uri }} style={styles.compactImage} contentFit="cover" />
@@ -55,14 +56,14 @@ export function RecipeCard({
               </>
             )}
           </View>
-        </Pressable>
+        </LinkPressable>
       </Link>
     );
   }
 
   return (
     <Link href={`/recipe/${recipe.id}`} asChild>
-      <Pressable style={styles.gridCard}>
+      <LinkPressable style={styles.gridCard}>
         <View style={[styles.gridImageWrap, { backgroundColor: bg }]}>
           {uri ? (
             <Image source={{ uri }} style={styles.gridImage} contentFit="cover" />
@@ -89,7 +90,7 @@ export function RecipeCard({
             </>
           )}
         </View>
-      </Pressable>
+      </LinkPressable>
     </Link>
   );
 }
