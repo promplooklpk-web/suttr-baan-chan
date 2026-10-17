@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   capsuleTint: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(255,255,255,0.42)',
   },
   capsuleInner: {
