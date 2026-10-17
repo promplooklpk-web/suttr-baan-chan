@@ -10,6 +10,12 @@ import {
 import * as Crypto from 'expo-crypto';
 
 import { installSeedRecipes } from '@/lib/seedInstall';
+import {
+  CURRENT_SEED_VERSION,
+  getEffectiveSeedVersion,
+  isCleanSeedRecipeId,
+  isLegacyRound1SeedId,
+} from '@/lib/seedVersion';
 import type { Recipe, RecipeInput, RecipeStore } from '@/types/recipe';
 
 const RECIPES_FILE = 'recipes.json';
@@ -67,20 +73,56 @@ async function readStore(): Promise<RecipeStore> {
   return parsed;
 }
 
-async function writeStore(recipes: Recipe[]): Promise<void> {
+async function writeStore(recipes: Recipe[], seedVersion = CURRENT_SEED_VERSION): Promise<void> {
   const store = emptyStore(recipes);
   store.exportedAt = new Date().toISOString();
+  store.seedVersion = seedVersion;
   await writeAsStringAsync(recipesPath(), JSON.stringify(store, null, 2));
+}
+
+async function removeRecipePhotosForIds(recipes: Recipe[], ids: Set<string>): Promise<void> {
+  for (const recipe of recipes) {
+    if (ids.has(recipe.id) && recipe.photo?.path) {
+      await deleteRecipePhoto(recipe.photo.path);
+    }
+  }
+}
+
+async function migrateSeedPack(store: RecipeStore): Promise<Recipe[]> {
+  const legacyIds = new Set(store.recipes.filter((r) => isLegacyRound1SeedId(r.id)).map((r) => r.id));
+  if (legacyIds.size > 0) {
+    await removeRecipePhotosForIds(store.recipes, legacyIds);
+  }
+
+  let kept = store.recipes.filter((r) => !isLegacyRound1SeedId(r.id));
+
+  const cleanIdsPresent = new Set(
+    kept.filter((r) => isCleanSeedRecipeId(r.id)).map((r) => r.id),
+  );
+  if (cleanIdsPresent.size > 0) {
+    await removeRecipePhotosForIds(kept, cleanIdsPresent);
+    kept = kept.filter((r) => !isCleanSeedRecipeId(r.id));
+  }
+
+  const newSeeds = await installSeedRecipes();
+  const merged = [...newSeeds, ...kept];
+  await writeStore(merged, CURRENT_SEED_VERSION);
+  return merged;
 }
 
 export async function initializeStorage(): Promise<Recipe[]> {
   await ensureImagesDir();
   const store = await readStore();
-  if (store.recipes.length === 0) {
-    const seeded = await installSeedRecipes();
-    await writeStore(seeded);
-    return seeded;
+  const effectiveVersion = getEffectiveSeedVersion(store);
+
+  if (effectiveVersion < CURRENT_SEED_VERSION) {
+    return migrateSeedPack(store);
   }
+
+  if (store.seedVersion !== CURRENT_SEED_VERSION) {
+    await writeStore(store.recipes, CURRENT_SEED_VERSION);
+  }
+
   return store.recipes;
 }
 

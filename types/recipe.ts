@@ -51,6 +51,8 @@ export type RecipeStore = {
   exportedAt: string;
   includesPhotos?: boolean;
   format?: 'recipe.json' | 'zip';
+  /** Bundled seed pack version; bump when seed data changes. */
+  seedVersion?: number;
   recipes: Recipe[];
 };
 
