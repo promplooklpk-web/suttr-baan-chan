@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useMemo, useState } from 'react';
+import { useLocalSearchParams } from 'expo-router';
+import { useEffect, useMemo, useState } from 'react';
 import {
   FlatList,
   Pressable,
@@ -19,11 +20,27 @@ const POPULAR_TAGS = ['เผ็ด', 'จานด่วน', 'ทำง่า�
 
 export default function SearchScreen() {
   const insets = useSafeAreaInsets();
+  const params = useLocalSearchParams<{ tag?: string; favorites?: string }>();
   const { recipes, searchRecipes } = useRecipes();
   const [query, setQuery] = useState('');
   const [recent, setRecent] = useState<string[]>([]);
+  const [favoritesOnly, setFavoritesOnly] = useState(params.favorites === '1');
+  const [tagFilter, setTagFilter] = useState(params.tag ?? '');
 
-  const results = useMemo(() => searchRecipes(query), [query, searchRecipes]);
+  useEffect(() => {
+    if (params.tag) {
+      setTagFilter(params.tag);
+      setQuery(params.tag);
+    }
+    if (params.favorites === '1') setFavoritesOnly(true);
+  }, [params.tag, params.favorites]);
+
+  const results = useMemo(() => {
+    let list = query.trim() ? searchRecipes(query) : recipes;
+    if (favoritesOnly) list = list.filter((r) => r.isFavorite);
+    if (tagFilter) list = list.filter((r) => r.tags?.includes(tagFilter));
+    return list;
+  }, [query, searchRecipes, recipes, favoritesOnly, tagFilter]);
 
   const onSubmit = () => {
     const q = query.trim();
@@ -35,12 +52,29 @@ export default function SearchScreen() {
     setRecent((prev) => prev.filter((x) => x !== item));
   };
 
-  const showResults = query.trim().length > 0;
+  const showResults = query.trim().length > 0 || favoritesOnly || Boolean(tagFilter);
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top + spacing.sm }]}>
       <View style={styles.header}>
         <AppText variant="title">ค้นหา</AppText>
+      </View>
+
+      <View style={styles.filterRow}>
+        <Pressable
+          style={[styles.filterChip, favoritesOnly && styles.filterChipOn]}
+          onPress={() => setFavoritesOnly((v) => !v)}
+        >
+          <Ionicons name="heart" size={14} color={favoritesOnly ? colors.white : colors.orange} />
+          <AppText variant="caption" style={{ color: favoritesOnly ? colors.white : colors.ink }}>
+            สูตรโปรด
+          </AppText>
+        </Pressable>
+        {tagFilter ? (
+          <Pressable style={styles.filterChipOn} onPress={() => setTagFilter('')}>
+            <AppText variant="caption" style={{ color: colors.white }}>#{tagFilter} ×</AppText>
+          </Pressable>
+        ) : null}
       </View>
 
       <View style={styles.searchBar}>
@@ -144,6 +178,35 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: spacing.md,
     marginBottom: spacing.md,
+  },
+  filterRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  filterChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  filterChipOn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    backgroundColor: colors.orange,
+    borderWidth: 1,
+    borderColor: colors.orange,
   },
   searchBar: {
     flexDirection: 'row',

@@ -7,19 +7,24 @@ import { formatTimerSeconds } from '@/lib/format';
 
 type StepTimerChipProps = {
   timerSeconds: number;
+  onComplete?: () => void;
 };
 
-export function StepTimerChip({ timerSeconds }: StepTimerChipProps) {
+export function StepTimerChip({ timerSeconds, onComplete }: StepTimerChipProps) {
   const [remaining, setRemaining] = useState<number | null>(null);
   const active = remaining !== null;
 
   useEffect(() => {
     if (remaining === null || remaining <= 0) return;
     const id = setInterval(() => {
-      setRemaining((r) => (r !== null && r > 0 ? r - 1 : 0));
+      setRemaining((r) => {
+        if (r === null || r <= 0) return 0;
+        if (r === 1) onComplete?.();
+        return r - 1;
+      });
     }, 1000);
     return () => clearInterval(id);
-  }, [remaining]);
+  }, [remaining, onComplete]);
 
   const display = remaining !== null ? remaining : timerSeconds;
   const label = active && remaining === 0 ? 'หมดเวลา' : formatTimerSeconds(display);

@@ -87,6 +87,21 @@ export default function SettingsScreen() {
         />
       </Section>
 
+      <Section title="สูตรและแท็ก">
+        <Row
+          icon="pricetags-outline"
+          label="จัดการแท็ก"
+          subtitle="แก้ไข ลบ และกรองตามแท็ก"
+          onPress={() => router.push('/tags/index')}
+        />
+        <Row
+          icon="heart-outline"
+          label="สูตรโปรด"
+          subtitle="ดูในแท็บค้นหา (กรองโปรด)"
+          onPress={() => router.push({ pathname: '/(tabs)/search', params: { favorites: '1' } })}
+        />
+      </Section>
+
       <Section title="นำเข้าสูตร">
         <Row
           icon="download-outline"

@@ -249,9 +249,7 @@ export default function RecipeDetailScreen() {
         <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}>
           <Pressable
             style={styles.cookBtn}
-            onPress={() =>
-              Alert.alert('โหมดทำอาหาร', 'ฟีเจอร์นี้จะมาในรอบถัดไป')
-            }
+            onPress={() => router.push(`/recipe/cook/${recipe.id}`)}
           >
             <AppText style={styles.cookBtnText}>เริ่มทำอาหาร</AppText>
           </Pressable>

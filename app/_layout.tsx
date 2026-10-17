@@ -66,6 +66,11 @@ export default function RootLayout() {
         />
         <Stack.Screen name="export/select" options={{ title: 'ส่งออกสูตร' }} />
         <Stack.Screen name="import/preview" options={{ title: 'นำเข้าสูตร' }} />
+        <Stack.Screen
+          name="recipe/cook/[id]"
+          options={{ title: 'โหมดทำอาหาร', headerShown: false, presentation: 'fullScreenModal' }}
+        />
+        <Stack.Screen name="tags/index" options={{ title: 'จัดการแท็ก' }} />
       </Stack>
     </RecipesProvider>
   );

@@ -1,0 +1,129 @@
+import { router } from 'expo-router';
+import { useMemo, useState } from 'react';
+import {
+  Alert,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { AppText } from '@/components/AppText';
+import { colors, fonts, radius, spacing } from '@/constants/theme';
+import { useRecipes } from '@/context/RecipesContext';
+import { collectAllTags, removeTag, renameTag } from '@/lib/tags';
+import { saveRecipes } from '@/lib/storage';
+
+export default function TagsManagementScreen() {
+  const insets = useSafeAreaInsets();
+  const { recipes, refresh } = useRecipes();
+  const tags = useMemo(() => collectAllTags(recipes), [recipes]);
+  const [editing, setEditing] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState('');
+
+  const startEdit = (tag: string) => {
+    setEditing(tag);
+    setEditValue(tag);
+  };
+
+  const saveEdit = async () => {
+    if (!editing) return;
+    const next = renameTag(recipes, editing, editValue);
+    await saveRecipes(next);
+    await refresh();
+    setEditing(null);
+  };
+
+  const deleteTag = (tag: string) => {
+    Alert.alert('ลบแท็ก', `ลบแท็ก "${tag}" จากทุกสูตร?`, [
+      { text: 'ยกเลิก', style: 'cancel' },
+      {
+        text: 'ลบ',
+        style: 'destructive',
+        onPress: async () => {
+          const next = removeTag(recipes, tag);
+          await saveRecipes(next);
+          await refresh();
+        },
+      },
+    ]);
+  };
+
+  return (
+    <FlatList
+      style={styles.screen}
+      contentContainerStyle={{
+        paddingTop: spacing.md,
+        paddingBottom: insets.bottom + spacing.xl,
+        paddingHorizontal: spacing.md,
+      }}
+      data={tags}
+      keyExtractor={(t) => t}
+      ListHeaderComponent={
+        <AppText variant="caption" muted style={styles.hint}>
+          แก้ไขชื่อแท็กจะอัปเดตทุกสูตรที่ใช้แท็กนี้ แตะแท็กเพื่อกรองในหน้าค้นหา
+        </AppText>
+      }
+      ListEmptyComponent={<AppText muted>ยังไม่มีแท็ก</AppText>}
+      renderItem={({ item }) => (
+        <View style={styles.card}>
+          {editing === item ? (
+            <View style={styles.editRow}>
+              <TextInput
+                value={editValue}
+                onChangeText={setEditValue}
+                style={styles.input}
+                autoFocus
+              />
+              <Pressable onPress={saveEdit}>
+                <AppText style={{ color: colors.orange }}>บันทึก</AppText>
+              </Pressable>
+            </View>
+          ) : (
+            <View style={styles.row}>
+              <Pressable
+                style={styles.tagPress}
+                onPress={() => router.push({ pathname: '/(tabs)/search', params: { tag: item } })}
+              >
+                <AppText variant="label">#{item}</AppText>
+              </Pressable>
+              <Pressable onPress={() => startEdit(item)}>
+                <AppText style={{ color: colors.orange }}>แก้ไข</AppText>
+              </Pressable>
+              <Pressable onPress={() => deleteTag(item)}>
+                <AppText style={{ color: colors.danger }}>ลบ</AppText>
+              </Pressable>
+            </View>
+          )}
+        </View>
+      )}
+    />
+  );
+}
+
+const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: colors.cream },
+  hint: { marginBottom: spacing.md },
+  card: {
+    backgroundColor: colors.white,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  tagPress: { flex: 1 },
+  editRow: { flexDirection: 'row', gap: spacing.sm, alignItems: 'center' },
+  input: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    fontFamily: fonts.regular,
+    fontSize: 16,
+  },
+});
