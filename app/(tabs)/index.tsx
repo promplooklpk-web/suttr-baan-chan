@@ -13,7 +13,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
-import { FloatingHeader, floatingHeaderClearance } from '@/components/FloatingHeader';
+import { HomeTopBar, homeTopBarClearance } from '@/components/HomeTopBar';
 import { CategoryChips } from '@/components/CategoryChips';
 import { EmptyState } from '@/components/EmptyState';
 import { RecipeCard } from '@/components/RecipeCard';
@@ -75,12 +75,12 @@ export default function HomeScreen() {
     return list;
   }, [recipes, category, fridgeSort, fridgeMatches]);
 
-  const headerClearance = floatingHeaderClearance(insets.top);
+  const headerClearance = homeTopBarClearance(insets.top);
 
   if (loading) {
     return (
       <View style={styles.screen}>
-        <FloatingHeader title="สูตรบ้านฉัน" />
+        <HomeTopBar greeting={greeting()} title="สูตรบ้านฉัน" />
         <View style={[styles.centered, { paddingTop: headerClearance }]}>
           <ActivityIndicator size="large" color={colors.orange} />
         </View>
@@ -90,67 +90,31 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.screen}>
-      <FloatingHeader
-        title="สูตรบ้านฉัน"
-        actions={[
-          {
-            icon: 'heart-outline',
-            accessibilityLabel: 'สูตรโปรด',
-            onPress: () => router.push({ pathname: '/(tabs)/search', params: { favorites: '1' } }),
-          },
-          {
-            icon: 'add',
-            accessibilityLabel: 'เพิ่มสูตร',
-            onPress: () => router.push('/recipe/edit'),
-          },
-          {
-            icon: 'settings-outline',
-            accessibilityLabel: 'ตั้งค่า',
-            onPress: () => router.push('/(tabs)/settings'),
-          },
-        ]}
-      />
+      <HomeTopBar greeting={greeting()} title="สูตรบ้านฉัน" />
       <ScrollView
         contentContainerStyle={[styles.scrollContent, { paddingTop: headerClearance }]}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <AppText variant="caption" muted>{greeting()}</AppText>
-          <AppText variant="heading">วันนี้ทำอะไรกินดี?</AppText>
+          <AppText variant="heading" style={styles.pageTitle}>สูตรของฉัน</AppText>
+          <AppText variant="caption" muted>{recipes.length} สูตร</AppText>
         </View>
 
-        <View style={styles.pickerPromo}>
+        <Pressable
+          style={styles.pickerPromo}
+          onPress={() => router.push({ pathname: '/(tabs)/picker', params: { autoShuffle: '1' } })}
+        >
           <View style={styles.pickerPromoContent}>
-            <View style={styles.newBadge}>
-              <AppText variant="caption" style={styles.newBadgeText}>ใหม่</AppText>
-            </View>
             <AppText variant="label" style={styles.pickerPromoTitle}>วันนี้กินอะไรดี?</AppText>
-            <AppText variant="caption" style={styles.pickerPromoSub}>
-              ไม่รู้จะกินอะไร? ให้เราสุ่มจากสูตรที่คุณเก็บไว้
+            <AppText variant="caption" muted>
+              สุ่มเมนูจากสูตรที่เก็บไว้
             </AppText>
-            <Pressable
-              style={styles.pickerPromoBtn}
-              onPress={() => router.push({ pathname: '/(tabs)/picker', params: { autoShuffle: '1' } })}
-            >
-              <Ionicons name="shuffle" size={18} color={colors.orange} />
-              <AppText style={styles.pickerPromoBtnText}>สุ่มเลย</AppText>
-            </Pressable>
           </View>
           {pickerTeaser ? (
-            <Pressable
-              style={styles.pickerThumbWrap}
-              onPress={() => router.push('/(tabs)/picker')}
-            >
-              <RecipeCoverImage recipe={pickerTeaser} style={styles.pickerThumb} rounded={radius.lg} />
-            </Pressable>
-          ) : null}
-        </View>
-
-        <Pressable style={styles.searchBar} onPress={() => router.push('/(tabs)/search')}>
-          <Ionicons name="search" size={20} color={colors.inkMuted} />
-          <AppText muted style={styles.searchPlaceholder}>
-            ค้นหาจากชื่อสูตร ส่วนผสม แท็ก
-          </AppText>
+            <RecipeCoverImage recipe={pickerTeaser} style={styles.pickerThumb} rounded={radius.md} />
+          ) : (
+            <Ionicons name="shuffle" size={22} color={colors.orange} />
+          )}
         </Pressable>
 
         <CategoryChips selected={category} onSelect={setCategory} />
@@ -195,7 +159,7 @@ export default function HomeScreen() {
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
                 <AppText variant="title" style={styles.sectionTitleInline}>
-                  {category === 'ทั้งหมด' ? 'สูตรทั้งหมด' : category}
+                  {category === 'ทั้งหมด' ? 'สูตรของฉัน' : category}
                 </AppText>
                 <View style={styles.layoutToggle}>
                   <Pressable
@@ -289,6 +253,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   header: {
     paddingHorizontal: spacing.md,
     marginBottom: spacing.md,
+    gap: 4,
+  },
+  pageTitle: {
+    fontSize: 28,
+    lineHeight: 34,
   },
   pickerPromo: {
     flexDirection: 'row',
@@ -296,60 +265,17 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     gap: spacing.md,
     marginHorizontal: spacing.md,
     marginBottom: spacing.lg,
-    backgroundColor: colors.orange,
+    backgroundColor: colors.white,
     borderRadius: radius.xl,
-    padding: spacing.md,
-    overflow: 'hidden',
-  },
-  pickerPromoContent: { flex: 1, gap: 4 },
-  newBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: colors.cardYellow,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-    borderRadius: radius.pill,
-    marginBottom: 2,
-  },
-  newBadgeText: { fontFamily: fonts.semiBold, color: colors.ink, fontSize: 11 },
-  pickerPromoTitle: { color: colors.white, fontSize: 18 },
-  pickerPromoSub: { color: 'rgba(255,255,255,0.92)', marginBottom: spacing.sm },
-  pickerPromoBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    gap: spacing.xs,
-    backgroundColor: colors.white,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.pill,
-  },
-  pickerPromoBtnText: { fontFamily: fonts.semiBold, color: colors.orange },
-  pickerThumbWrap: {
-    width: 88,
-    height: 88,
-  },
-  pickerThumb: {
-    width: 88,
-    height: 88,
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.5)',
-  },
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginHorizontal: spacing.md,
-    marginBottom: spacing.md,
-    backgroundColor: colors.white,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
     borderWidth: 1,
     borderColor: colors.border,
+    padding: spacing.md,
   },
-  searchPlaceholder: {
-    flex: 1,
-    fontFamily: fonts.regular,
+  pickerPromoContent: { flex: 1, gap: 4 },
+  pickerPromoTitle: { fontSize: 17 },
+  pickerThumb: {
+    width: 56,
+    height: 56,
   },
   section: {
     marginTop: spacing.md,

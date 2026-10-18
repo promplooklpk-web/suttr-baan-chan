@@ -18,7 +18,9 @@ import {
   PickerFilterSheet,
   type PickerCategoryFilter,
 } from '@/components/picker/PickerFilterSheet';
+import { PhotoGradientOverlay } from '@/components/PhotoGradientOverlay';
 import { RecipeCoverImage } from '@/components/RecipeCoverImage';
+import { accentGlow } from '@/lib/design';
 import { fonts, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
@@ -58,6 +60,14 @@ function defaultMealSlot(): MealSlot {
 
 function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+function greeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 11) return 'สวัสดีตอนเช้า';
+  if (hour < 15) return 'สวัสดีตอนเที่ยง';
+  if (hour < 18) return 'สวัสดีตอนบ่าย';
+  return 'สวัสดีตอนเย็น';
 }
 
 function matchesCategory(recipe: Recipe, filter: PickerCategoryFilter): boolean {
@@ -290,16 +300,23 @@ export default function PickerScreen() {
         }}
         showsVerticalScrollIndicator={false}
       >
+        <AppText variant="caption" muted>{greeting()}</AppText>
+        <AppText variant="heading" style={styles.pageTitle}>วันนี้กินอะไรดี?</AppText>
+
         <View style={styles.mealSegment}>
           {(['breakfast', 'lunch', 'dinner'] as MealSlot[]).map((slot) => (
             <Pressable
               key={slot}
               onPress={() => setMeal(slot)}
-              style={[styles.mealSegBtn, meal === slot && styles.mealSegBtnOn]}
+              style={[
+                styles.mealSegBtn,
+                meal === slot && styles.mealSegBtnOn,
+                meal === slot && accentGlow(colors),
+              ]}
             >
               <AppText
                 variant="label"
-                style={{ color: meal === slot ? colors.white : colors.ink, fontSize: 14 }}
+                style={{ color: meal === slot ? colors.onAccent : colors.inkMuted, fontSize: 14 }}
               >
                 {MEAL_SHORT[slot]}
               </AppText>
@@ -353,14 +370,14 @@ export default function PickerScreen() {
             </Animated.View>
 
             <Pressable
-              style={styles.shufflePrimary}
+              style={[styles.shufflePrimary, accentGlow(colors, true)]}
               onPress={onPrimaryPress}
               accessibilityLabel={phase === 'shuffling' ? 'หยุดสุ่ม' : 'สุ่มเมนู'}
             >
               <Ionicons
                 name={phase === 'shuffling' ? 'hand-left-outline' : 'dice-outline'}
                 size={24}
-                color={colors.white}
+                color={colors.onAccent}
               />
               <AppText style={styles.shufflePrimaryText}>
                 {phase === 'shuffling' ? 'แตะเพื่อหยุด' : phase === 'result' ? 'สุ่มใหม่' : 'สุ่มเมนู'}
@@ -450,9 +467,13 @@ function HeroCard({
   return (
     <View style={styles.heroCard}>
       <View style={styles.heroImageWrap}>
-        <RecipeCoverImage recipe={recipe} style={styles.heroImage} rounded={radius.lg} />
-        <View style={styles.heroOverlayTop} pointerEvents="none" />
-        <View style={styles.heroOverlayBottom} pointerEvents="none" />
+        <RecipeCoverImage recipe={recipe} style={styles.heroImage} rounded={0} />
+        <PhotoGradientOverlay variant="hero" />
+        <View style={styles.heroTitleOverlay} pointerEvents="none">
+          <AppText variant="title" style={styles.heroTitleOnImage} numberOfLines={2}>
+            {recipe.title}
+          </AppText>
+        </View>
         <Pressable style={styles.favBtn} onPress={onFavorite}>
           <Ionicons
             name={recipe.isFavorite ? 'heart' : 'heart-outline'}
@@ -467,9 +488,6 @@ function HeroCard({
         )}
       </View>
       <View style={styles.heroBody}>
-        <AppText variant="title" numberOfLines={2} style={styles.heroTitle}>
-          {recipe.title}
-        </AppText>
         <View style={styles.metaChips}>
           <MetaChip icon="time-outline" label={`${mins} น.`} />
           {cal != null && <MetaChip icon="flame-outline" label={`${cal} kcal`} />}
@@ -521,9 +539,10 @@ function MetaChip({ icon, label }: { icon?: keyof typeof Ionicons.glyphMap; labe
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
+  pageTitle: { fontSize: 26, marginBottom: spacing.md, lineHeight: 34 },
   mealSegment: {
     flexDirection: 'row',
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface2,
     borderRadius: radius.pill,
     borderWidth: 1,
     borderColor: colors.border,
@@ -581,17 +600,16 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     position: 'relative',
   },
   heroImage: { width: '100%', height: '100%' },
-  heroOverlayTop: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(58,42,32,0.12)',
-  },
-  heroOverlayBottom: {
+  heroTitleOverlay: {
     position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: '55%',
-    backgroundColor: 'rgba(58,42,32,0.5)',
+    left: spacing.md,
+    right: spacing.md,
+    bottom: spacing.md,
+  },
+  heroTitleOnImage: {
+    color: colors.ink,
+    fontSize: 22,
+    textAlign: 'center',
   },
   favBtn: {
     position: 'absolute',
@@ -613,7 +631,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: 6,
     borderRadius: radius.pill,
   },
-  shufflingBadgeText: { color: colors.white, fontFamily: fonts.semiBold },
+  shufflingBadgeText: { color: colors.onAccent, fontFamily: fonts.semiBold },
   heroBody: { padding: spacing.md, gap: spacing.sm },
   heroTitle: { fontFamily: fonts.semiBold },
   metaChips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
@@ -676,7 +694,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
   },
-  shufflePrimaryText: { color: colors.white, fontFamily: fonts.semiBold, fontSize: 18 },
+  shufflePrimaryText: { color: colors.onAccent, fontFamily: fonts.semiBold, fontSize: 18 },
   previewHint: { textAlign: 'center', marginBottom: spacing.xs },
   poolHint: { textAlign: 'center', marginBottom: spacing.md },
   emptyCard: {

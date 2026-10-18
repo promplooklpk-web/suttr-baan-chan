@@ -20,13 +20,16 @@ import { useFridge } from '@/context/FridgeContext';
 import { shareRecipeJsonExport } from '@/lib/export/exportRecipeJson';
 import { parseImportFile } from '@/lib/export/importParse';
 import { setPendingImport } from '@/lib/export/importSession';
+import { SegmentPills } from '@/components/SegmentPills';
 import type { ThemePreference } from '@/lib/themeStorage';
+import { fonts } from '@/constants/theme';
 
 export default function SettingsScreen() {
   const styles = useThemedStyles(createStyles);
   const { preference, setPreference } = useTheme();
   const insets = useSafeAreaInsets();
   const { recipes, refresh } = useRecipes();
+  const { items: fridgeItems } = useFridge();
   const { refresh: refreshPlan } = useMealPlan();
   const { refresh: refreshFridge } = useFridge();
 
@@ -100,25 +103,34 @@ export default function SettingsScreen() {
           paddingHorizontal: spacing.md,
         }}
       >
+      <View style={styles.settingsHero}>
+        <AppText variant="caption" muted>บัญชีและแอป</AppText>
+        <AppText variant="heading" style={styles.settingsTitle}>ตั้งค่า</AppText>
+      </View>
+
+      <View style={styles.statsRow}>
+        <View style={styles.statCard}>
+          <AppText style={styles.statNumberAccent}>{recipes.length}</AppText>
+          <AppText variant="caption" muted>สูตรของฉัน</AppText>
+        </View>
+        <View style={styles.statCard}>
+          <AppText style={styles.statNumber}>{fridgeItems.length}</AppText>
+          <AppText variant="caption" muted>ของในตู้เย็น</AppText>
+        </View>
+      </View>
+
       <Section title="ธีม">
-        <ThemeOption
-          label="ระบบ"
-          subtitle="ตามการตั้งค่าอุปกรณ์ (ค่าเริ่มต้น)"
-          selected={preference === 'system'}
-          onPress={() => setPreference('system')}
-        />
-        <ThemeOption
-          label="สว่าง"
-          subtitle="โทนสว่างตลอด"
-          selected={preference === 'light'}
-          onPress={() => setPreference('light')}
-        />
-        <ThemeOption
-          label="มืด"
-          subtitle="โทนมืดตลอด"
-          selected={preference === 'dark'}
-          onPress={() => setPreference('dark')}
-        />
+        <View style={styles.themeSegmentPad}>
+          <SegmentPills
+            options={[
+              { id: 'light', label: 'สว่าง' },
+              { id: 'dark', label: 'มืด' },
+              { id: 'system', label: 'ตามระบบ' },
+            ]}
+            value={preference}
+            onChange={(id) => setPreference(id as ThemePreference)}
+          />
+        </View>
       </Section>
 
       <Section title="ส่งออกสูตร">
@@ -229,34 +241,6 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function ThemeOption({
-  label,
-  subtitle,
-  selected,
-  onPress,
-}: {
-  label: string;
-  subtitle: string;
-  selected: boolean;
-  onPress: () => void;
-}) {
-  const styles = useThemedStyles(createStyles);
-  const { colors } = useTheme();
-  return (
-    <Pressable style={styles.row} onPress={onPress}>
-      <Ionicons
-        name={selected ? 'radio-button-on' : 'radio-button-off'}
-        size={22}
-        color={selected ? colors.orange : colors.inkMuted}
-      />
-      <View style={styles.rowText}>
-        <AppText variant="label">{label}</AppText>
-        <AppText variant="caption" muted>{subtitle}</AppText>
-      </View>
-    </Pressable>
-  );
-}
-
 function Row({
   icon,
   label,
@@ -285,11 +269,26 @@ function Row({
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screenWrap: { flex: 1, backgroundColor: colors.cream },
   screen: { flex: 1 },
+  settingsHero: { marginBottom: spacing.lg, gap: 4 },
+  settingsTitle: { fontSize: 28, lineHeight: 34 },
+  statsRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.lg },
+  statCard: {
+    flex: 1,
+    backgroundColor: colors.white,
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.md,
+    gap: 4,
+  },
+  statNumber: { fontFamily: fonts.bold, fontSize: 28, color: colors.ink },
+  statNumberAccent: { fontFamily: fonts.bold, fontSize: 28, color: colors.orange },
+  themeSegmentPad: { padding: spacing.md },
   section: { marginBottom: spacing.lg },
   sectionTitle: { marginBottom: spacing.sm, fontSize: 18 },
   card: {
     backgroundColor: colors.white,
-    borderRadius: radius.lg,
+    borderRadius: radius.xl,
     borderWidth: 1,
     borderColor: colors.border,
     overflow: 'hidden',

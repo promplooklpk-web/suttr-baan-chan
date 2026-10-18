@@ -21,15 +21,15 @@ describe('screen smoke tests', () => {
   });
 
   it('renders Home in dark theme', async () => {
-    const { findByText } = renderWithProviders(<HomeScreen />, { colorScheme: 'dark' });
-    await findByText('สูตรทั้งหมด');
+    const { findByText, findAllByText } = renderWithProviders(<HomeScreen />, { colorScheme: 'dark' });
     await findByText('ข้าวผัดไก่');
+    expect((await findAllByText('สูตรของฉัน')).length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders Settings theme controls in dark theme', async () => {
     const { findByText } = renderWithProviders(<SettingsScreen />, { colorScheme: 'dark' });
     await findByText('ธีม');
-    await findByText('มืด');
+    await findByText('ตามระบบ');
   });
 
   it('renders Picker in dark theme', async () => {
@@ -39,10 +39,10 @@ describe('screen smoke tests', () => {
   });
 
   it('renders Home with full-width recipe list', async () => {
-    const { findByText, getByLabelText } = renderWithProviders(<HomeScreen />);
-    await findByText('สูตรทั้งหมด');
-    expect(getByLabelText('แสดงแบบรายการเต็มความกว้าง')).toBeTruthy();
+    const { findByText, getByLabelText, findAllByText } = renderWithProviders(<HomeScreen />);
     await findByText('ข้าวผัดไก่');
+    expect((await findAllByText('สูตรของฉัน')).length).toBeGreaterThanOrEqual(1);
+    expect(getByLabelText('แสดงแบบรายการเต็มความกว้าง')).toBeTruthy();
   });
 
   it('renders Search with results', async () => {
@@ -57,11 +57,23 @@ describe('screen smoke tests', () => {
     await findByText('ของในตู้ 2');
   });
 
+  it('renders Fridge in dark theme', async () => {
+    const { findByText } = renderWithProviders(<FridgeScreen />, { colorScheme: 'dark' });
+    await findByText('ตู้เย็นของฉัน');
+    await findByText(/ของในตู้/);
+  });
+
   it('renders Planner with day view', async () => {
     const { findByText, getAllByText } = renderWithProviders(<PlannerScreen />);
     await findByText('วันนี้');
     expect(getAllByText('เพิ่มเมนู').length).toBeGreaterThanOrEqual(1);
     await findByText(/รวมประมาณ/);
+  });
+
+  it('renders Planner in dark theme', async () => {
+    const { findByText } = renderWithProviders(<PlannerScreen />, { colorScheme: 'dark' });
+    await findByText('วันนี้');
+    await findByText('แพลนมื้อ');
   });
 
   it('renders Picker with hero and shuffle CTA', async () => {
@@ -73,7 +85,8 @@ describe('screen smoke tests', () => {
 
   it('renders Settings', async () => {
     const { findByText } = renderWithProviders(<SettingsScreen />);
-    await findByText('ตั้งค่า');
+    await findByText('บัญชีและแอป');
+    await findByText('สูตรของฉัน');
   });
 
   it('renders Tags management screen', async () => {
@@ -92,5 +105,12 @@ describe('screen smoke tests', () => {
     const { findByText } = renderWithProviders(<RecipeDetailScreen />);
     await findByText(seedRecipe.title);
     await findByText('ส่วนผสม');
+  });
+
+  it('renders Recipe detail in dark theme', async () => {
+    mockedParams.mockReturnValue({ id: seedRecipe.id });
+    const { findByText } = renderWithProviders(<RecipeDetailScreen />, { colorScheme: 'dark' });
+    await findByText(seedRecipe.title);
+    await findByText('เริ่มทำอาหาร');
   });
 });

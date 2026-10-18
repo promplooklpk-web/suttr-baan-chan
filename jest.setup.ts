@@ -98,7 +98,7 @@ jest.mock('@/lib/shoppingList', () => {
 });
 
 jest.mock('@/lib/themeStorage', () => ({
-  loadThemePreference: jest.fn(async () => 'system' as const),
+  loadThemePreference: jest.fn(async () => 'dark' as const),
   saveThemePreference: jest.fn(async () => undefined),
 }));
 

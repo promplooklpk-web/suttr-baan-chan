@@ -5,10 +5,12 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { LinkPressable } from '@/components/LinkPressable';
+import { PhotoGradientOverlay } from '@/components/PhotoGradientOverlay';
 import { fonts, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
+import { CARD_RADIUS, matchProgressGlow, surfaceCard } from '@/lib/design';
 import { categoryChipLabel, parseRecipeCalories } from '@/lib/recipeMedia';
 import { formatMissingIngredients, fridgeProgressColor } from '@/lib/fridgeMatchDisplay';
 import { photoUri, totalMinutes } from '@/lib/storage';
@@ -17,14 +19,13 @@ import type { Recipe } from '@/types/recipe';
 
 type RecipeMenuCardProps = {
   recipe: Recipe;
-  /** Full-width row with thumb left (Home default). */
   layout?: 'list' | 'grid' | 'compact';
   colorIndex?: number;
   fridgeMatch?: RecipeFridgeMatch | null;
   showFridgeSection?: boolean;
 };
 
-const LIST_THUMB = 116;
+const LIST_THUMB = 108;
 
 export function RecipeMenuCard({
   recipe,
@@ -44,6 +45,10 @@ export function RecipeMenuCard({
   const showMatch = showFridgeSection && fridgeMatch != null;
   const isList = layout === 'list';
   const isCompact = layout === 'compact' || layout === 'grid';
+  const progressColor = fridgeProgressColor(percent, colors);
+  const percentColor =
+    percent >= 100 ? colors.cardGreen : percent >= 50 ? colors.orange : colors.cardYellow;
+
   const cardStyle = StyleSheet.flatten([
     styles.card,
     isList && styles.cardList,
@@ -58,15 +63,20 @@ export function RecipeMenuCard({
       ]}
     >
       {uri ? (
-        <Image source={{ uri }} style={styles.image} contentFit="cover" />
+        <>
+          <Image source={{ uri }} style={styles.image} contentFit="cover" />
+          {isCompact && <PhotoGradientOverlay variant="card" />}
+        </>
       ) : (
         <Ionicons name="restaurant" size={isList ? 32 : 40} color={colors.orange} />
       )}
-      {recipe.isFavorite && (
-        <View style={styles.favBadge}>
-          <Ionicons name="heart" size={14} color={colors.orange} />
-        </View>
-      )}
+      <Pressable style={styles.heartBtn} accessibilityLabel="โปรด">
+        <Ionicons
+          name={recipe.isFavorite ? 'heart' : 'heart-outline'}
+          size={16}
+          color={recipe.isFavorite ? colors.orange : colors.ink}
+        />
+      </Pressable>
     </View>
   );
 
@@ -75,39 +85,49 @@ export function RecipeMenuCard({
 
   const body = (
     <View style={isList ? styles.bodyList : styles.bodyGrid}>
-      <AppText variant="label" numberOfLines={2} style={isList ? styles.titleList : styles.title}>
-        {recipe.title}
-      </AppText>
+      <View style={styles.titleRow}>
+        <AppText variant="label" numberOfLines={2} style={[isList ? styles.titleList : styles.title, styles.titleFlex]}>
+          {recipe.title}
+        </AppText>
+        {showMatch && (
+          <AppText variant="label" style={[styles.percentBadge, { color: percentColor }]}>
+            {percent}%
+          </AppText>
+        )}
+      </View>
       <View style={styles.metaRow}>
-        <Ionicons name="time-outline" size={13} color={colors.inkMuted} />
+        <Ionicons name="time-outline" size={13} color={colors.orange} />
         <AppText variant="caption" muted>{minutes} น.</AppText>
         {cal != null && (
           <>
             <AppText variant="caption" muted> · </AppText>
-            <Ionicons name="flame-outline" size={13} color={colors.inkMuted} />
+            <Ionicons name="flame-outline" size={13} color={colors.orange} />
             <AppText variant="caption" muted>{cal} kcal</AppText>
           </>
         )}
-        <AppText variant="caption" muted numberOfLines={1}> · {tagLabel}</AppText>
+        {!isList && (
+          <AppText variant="caption" muted numberOfLines={1}> · {tagLabel}</AppText>
+        )}
       </View>
       {showMatch && (
         <View style={styles.matchBlock}>
           <View style={styles.matchLabelRow}>
-            <AppText variant="caption" style={styles.matchLabel}>
-              มีในตู้ {percent}%
+            <AppText variant="caption" style={[styles.matchLabel, { color: percentColor }]}>
+              {percent >= 100 ? 'มีครบแล้ว' : formatMissingIngredients(fridgeMatch!.missing)}
+            </AppText>
+            <AppText variant="caption" muted>
+              {fridgeMatch!.haveCount}/{fridgeMatch!.totalCount}
             </AppText>
           </View>
           <View style={styles.progressBg}>
             <View
               style={[
                 styles.progressFill,
-                { width: `${percent}%`, backgroundColor: fridgeProgressColor(percent, colors) },
+                { width: `${percent}%`, backgroundColor: progressColor },
+                percent >= 100 && matchProgressGlow(colors.cardGreen),
               ]}
             />
           </View>
-          <AppText variant="caption" muted numberOfLines={1} style={styles.missingLine}>
-            {formatMissingIngredients(fridgeMatch!.missing)}
-          </AppText>
         </View>
       )}
     </View>
@@ -128,7 +148,7 @@ export function FridgeEmptyHintChip({ onPress }: { onPress?: () => void }) {
   const { colors } = useTheme();
   return (
     <Pressable style={styles.hintChip} onPress={onPress}>
-      <Ionicons name="snow-outline" size={16} color={colors.inkMuted} />
+      <Ionicons name="snow-outline" size={16} color={colors.orange} />
       <AppText variant="caption" muted>เพิ่มของในตู้เย็นเพื่อดู %</AppText>
     </Pressable>
   );
@@ -137,30 +157,23 @@ export function FridgeEmptyHintChip({ onPress }: { onPress?: () => void }) {
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   card: {
     flex: 1,
-    backgroundColor: colors.white,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
+    ...surfaceCard(colors),
     overflow: 'hidden',
     marginBottom: spacing.md,
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    elevation: 3,
   },
   cardList: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'stretch',
     flex: undefined,
     width: '100%',
-    padding: spacing.sm,
+    padding: spacing.md,
     gap: spacing.md,
     overflow: 'visible',
   },
   cardCompact: {
     flex: 1,
     overflow: 'hidden',
+    padding: 0,
   },
   imageGrid: {
     aspectRatio: 1,
@@ -170,7 +183,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   imageList: {
     width: LIST_THUMB,
-    height: LIST_THUMB,
+    minHeight: LIST_THUMB,
     borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
@@ -181,36 +194,48 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  favBadge: {
+  heartBtn: {
     position: 'absolute',
     top: spacing.sm,
-    right: spacing.sm,
-    backgroundColor: colors.white,
-    borderRadius: radius.pill,
-    padding: 6,
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    left: spacing.sm,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: 'rgba(14,13,12,0.55)',
+    borderWidth: 1,
+    borderColor: colors.glassBorder,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   bodyGrid: {
-    padding: spacing.sm,
-    paddingTop: spacing.md,
+    padding: spacing.md,
     gap: spacing.xs,
   },
   bodyList: {
     flex: 1,
-    paddingRight: spacing.xs,
     justifyContent: 'center',
     gap: spacing.xs,
     minWidth: 0,
   },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+  },
+  titleFlex: { flex: 1 },
   title: {
     fontFamily: fonts.semiBold,
+    fontSize: 17,
     minHeight: 40,
   },
   titleList: {
     fontFamily: fonts.semiBold,
+    fontSize: 17,
+    lineHeight: 24,
+  },
+  percentBadge: {
+    fontFamily: fonts.bold,
+    fontSize: 15,
   },
   metaRow: {
     flexDirection: 'row',
@@ -219,29 +244,28 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     gap: 2,
   },
   matchBlock: {
-    marginTop: spacing.sm,
-    gap: 4,
+    marginTop: spacing.xs,
+    gap: 6,
   },
   matchLabelRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: spacing.sm,
   },
   matchLabel: {
-    fontFamily: fonts.semiBold,
-    color: colors.ink,
+    fontFamily: fonts.medium,
+    flex: 1,
   },
   progressBg: {
-    height: 5,
-    backgroundColor: colors.border,
-    borderRadius: 3,
+    height: 6,
+    backgroundColor: colors.surface2,
+    borderRadius: CARD_RADIUS,
     overflow: 'hidden',
   },
   progressFill: {
-    height: 5,
-    borderRadius: 3,
-  },
-  missingLine: {
-    fontSize: 11,
+    height: 6,
+    borderRadius: CARD_RADIUS,
   },
   hintChip: {
     flexDirection: 'row',
@@ -253,7 +277,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: radius.pill,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface2,
     borderWidth: 1,
     borderColor: colors.border,
   },

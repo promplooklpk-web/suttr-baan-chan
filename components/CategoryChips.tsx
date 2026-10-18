@@ -5,6 +5,7 @@ import { CATEGORIES, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
+import { accentGlow } from '@/lib/design';
 
 type CategoryChipsProps = {
   selected: string;
@@ -26,11 +27,11 @@ export function CategoryChips({ selected, onSelect }: CategoryChipsProps) {
           <Pressable
             key={cat}
             onPress={() => onSelect(cat)}
-            style={[styles.chip, active && styles.chipActive]}
+            style={[styles.chip, active && styles.chipActive, active && accentGlow(colors)]}
           >
             <AppText
               variant="label"
-              style={{ color: active ? colors.white : colors.ink }}
+              style={{ color: active ? colors.onAccent : colors.inkMuted, fontSize: 14 }}
             >
               {cat}
             </AppText>
@@ -48,10 +49,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingBottom: spacing.sm,
   },
   chip: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: 10,
     borderRadius: radius.pill,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface2,
     borderWidth: 1,
     borderColor: colors.border,
   },

@@ -12,6 +12,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { PhotoGradientOverlay } from '@/components/PhotoGradientOverlay';
+import { accentGlow } from '@/lib/design';
 import { RecipeAttribution } from '@/components/RecipeAttribution';
 import { StepPhotoBlock } from '@/components/StepPhotoBlock';
 import { StepTimerChip } from '@/components/StepTimerChip';
@@ -130,6 +132,7 @@ export default function RecipeDetailScreen() {
                 <Ionicons name="restaurant" size={64} color={colors.orange} />
               </View>
             )}
+            <PhotoGradientOverlay variant="hero" />
           </View>
 
           <View style={styles.body}>
@@ -306,7 +309,7 @@ export default function RecipeDetailScreen() {
 
         <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}>
           <Pressable
-            style={styles.cookBtn}
+            style={[styles.cookBtn, accentGlow(colors, true)]}
             onPress={() => router.push(`/recipe/cook/${recipe.id}`)}
           >
             <AppText style={styles.cookBtnText}>เริ่มทำอาหาร</AppText>
@@ -355,24 +358,30 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginRight: spacing.sm,
   },
   hero: {
-    alignItems: 'center',
-    paddingTop: spacing.md,
+    width: '100%',
+    height: 280,
+    position: 'relative',
+    overflow: 'hidden',
   },
   heroImage: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
+    width: '100%',
+    height: '100%',
   },
   heroPlaceholder: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: colors.white,
+    width: '100%',
+    height: '100%',
+    backgroundColor: colors.surface2,
     alignItems: 'center',
     justifyContent: 'center',
   },
   body: {
+    marginTop: -24,
     padding: spacing.md,
+    backgroundColor: colors.white,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   subRow: {
     flexDirection: 'row',
@@ -565,7 +574,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
   },
   cookBtnText: {
-    color: colors.white,
+    color: colors.onAccent,
     fontFamily: fonts.semiBold,
     fontSize: 18,
   },

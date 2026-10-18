@@ -46,7 +46,7 @@ type ThemeProviderProps = {
 
 export function ThemeProvider({
   children,
-  initialPreference = 'system',
+  initialPreference = 'dark',
   forcedColorScheme,
 }: ThemeProviderProps) {
   const systemScheme = useSystemColorScheme();

@@ -20,15 +20,15 @@ export async function loadThemePreference(): Promise<ThemePreference> {
   try {
     const path = themePath();
     const info = await getInfoAsync(path);
-    if (!info.exists) return 'system';
+    if (!info.exists) return 'dark';
     const raw = await readAsStringAsync(path);
     const parsed = JSON.parse(raw) as { preference?: ThemePreference };
     if (parsed.preference === 'light' || parsed.preference === 'dark' || parsed.preference === 'system') {
       return parsed.preference;
     }
-    return 'system';
+    return 'dark';
   } catch {
-    return 'system';
+    return 'dark';
   }
 }
 

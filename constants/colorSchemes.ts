@@ -25,6 +25,8 @@ export type ThemeColors = {
   imagePlaceholder: string;
   cardAccentTints: string[];
   overlayBottom: string;
+  overlayTop: string;
+  overlayDeep: string;
   textOnStatus: string;
 };
 
@@ -51,7 +53,9 @@ export const lightColors: ThemeColors = {
   warningBanner: '#FFF3CD',
   imagePlaceholder: '#FFE8D6',
   cardAccentTints: ['#E8F5E9', '#FFF3CD', '#FFE8D6', '#E3F2FD', '#F3E5F5'],
-  overlayBottom: 'rgba(58,42,32,0.55)',
+  overlayBottom: 'rgba(58,42,32,0.45)',
+  overlayTop: 'rgba(58,42,32,0.2)',
+  overlayDeep: 'rgba(58,42,32,0.65)',
   textOnStatus: '#FFFFFF',
 };
 
@@ -78,6 +82,8 @@ export const darkColors: ThemeColors = {
   warningBanner: 'rgba(255,181,71,0.18)',
   imagePlaceholder: '#211C16',
   cardAccentTints: ['#1A2A1E', '#2A2418', '#2A1E14', '#1A2228', '#241A28'],
-  overlayBottom: 'rgba(14,13,12,0.75)',
+  overlayBottom: 'rgba(14,13,12,0.72)',
+  overlayTop: 'rgba(14,13,12,0.38)',
+  overlayDeep: 'rgba(14,13,12,0.92)',
   textOnStatus: '#FFFFFF',
 };

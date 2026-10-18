@@ -9,6 +9,7 @@ import { fonts, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
+import { accentGlow } from '@/lib/design';
 import { useFridge } from '@/context/FridgeContext';
 
 const TAB_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
@@ -69,7 +70,7 @@ export function GlassTabBar({ state, descriptors, navigation }: {
 
             return (
               <Pressable key={route.key} onPress={onPress} style={styles.tab}>
-                <View>
+                <View style={focused ? accentGlow(colors, false) : undefined}>
                   <Ionicons
                     name={icon}
                     size={24}
@@ -94,7 +95,7 @@ export function GlassTabBar({ state, descriptors, navigation }: {
           <View style={styles.addSlot}>
             <Pressable
               onPress={() => router.push('/recipe/edit')}
-              style={styles.addButton}
+              style={[styles.addButton, accentGlow(colors, true)]}
               accessibilityLabel="เพิ่มสูตร"
             >
               <Ionicons name="add" size={32} color={colors.onAccent} />

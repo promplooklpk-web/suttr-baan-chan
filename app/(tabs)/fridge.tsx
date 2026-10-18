@@ -16,6 +16,7 @@ import { AppText } from '@/components/AppText';
 import { AddFridgeSheet } from '@/components/fridge/AddFridgeSheet';
 import { SwipeableFridgeRow } from '@/components/fridge/SwipeableFridgeRow';
 import { FloatingHeader, floatingHeaderClearance } from '@/components/FloatingHeader';
+import { SegmentPills } from '@/components/SegmentPills';
 import { RecipeCoverImage } from '@/components/RecipeCoverImage';
 import { fonts, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
@@ -87,12 +88,6 @@ export default function FridgeScreen() {
   return (
     <View style={styles.screen}>
       <FloatingHeader
-        segments={[
-          { id: 'items', label: `ของในตู้ ${items.length}` },
-          { id: 'cook', label: `ทำอะไรได้บ้าง ${matches.length}` },
-        ]}
-        activeSegmentId={tab}
-        onSegmentPress={(id) => setTab(id as 'items' | 'cook')}
         actions={[
           {
             icon: 'add',
@@ -111,8 +106,22 @@ export default function FridgeScreen() {
           contentContainerStyle={{
             paddingTop: headerClearance,
             paddingBottom: insets.bottom + 120,
+            paddingHorizontal: spacing.md,
           }}
         >
+          <AppText variant="caption" muted>
+            วันนี้ {new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+          </AppText>
+          <AppText variant="heading" style={styles.pageTitle}>ตู้เย็นของฉัน</AppText>
+          <SegmentPills
+            options={[
+              { id: 'items', label: `ของในตู้ ${items.length}` },
+              { id: 'cook', label: `ทำอะไรได้บ้าง ${matches.length}` },
+            ]}
+            value={tab}
+            onChange={(id) => setTab(id)}
+          />
+          <View style={styles.segmentSpacer} />
           {items.length === 0 ? (
             <View style={styles.empty}>
               <Ionicons name="snow-outline" size={64} color={colors.inkMuted} />
@@ -179,6 +188,19 @@ export default function FridgeScreen() {
             paddingHorizontal: spacing.md,
           }}
         >
+          <AppText variant="caption" muted>
+            วันนี้ {new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+          </AppText>
+          <AppText variant="heading" style={styles.pageTitle}>ตู้เย็นของฉัน</AppText>
+          <SegmentPills
+            options={[
+              { id: 'items', label: `ของในตู้ ${items.length}` },
+              { id: 'cook', label: `ทำอะไรได้บ้าง ${matches.length}` },
+            ]}
+            value={tab}
+            onChange={(id) => setTab(id)}
+          />
+          <View style={styles.segmentSpacer} />
           <View style={styles.filterRow}>
             {(
               [
@@ -277,6 +299,8 @@ export default function FridgeScreen() {
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
+  pageTitle: { fontSize: 28, marginBottom: spacing.md, lineHeight: 34 },
+  segmentSpacer: { height: spacing.md },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   banner: {
     marginHorizontal: spacing.md,
@@ -330,7 +354,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   matchCard: {
     backgroundColor: colors.white,
-    borderRadius: radius.lg,
+    borderRadius: radius.xl,
     padding: spacing.md,
     marginBottom: spacing.md,
     borderWidth: 1,
