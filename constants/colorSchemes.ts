@@ -28,6 +28,11 @@ export type ThemeColors = {
   overlayTop: string;
   overlayDeep: string;
   textOnStatus: string;
+  tabBarFill: string;
+  tabBarBorder: string;
+  tabBarActivePill: string;
+  tabBarShadow: string;
+  modalScrim: string;
 };
 
 export const lightColors: ThemeColors = {
@@ -57,6 +62,11 @@ export const lightColors: ThemeColors = {
   overlayTop: 'rgba(58,42,32,0.2)',
   overlayDeep: 'rgba(58,42,32,0.65)',
   textOnStatus: '#FFFFFF',
+  tabBarFill: 'rgba(255, 255, 255, 0.92)',
+  tabBarBorder: 'rgba(58, 42, 32, 0.1)',
+  tabBarActivePill: 'rgba(255, 122, 61, 0.16)',
+  tabBarShadow: 'rgba(58, 42, 32, 0.22)',
+  modalScrim: 'rgba(58, 42, 32, 0.45)',
 };
 
 export const darkColors: ThemeColors = {
@@ -86,4 +96,9 @@ export const darkColors: ThemeColors = {
   overlayTop: 'rgba(14,13,12,0.38)',
   overlayDeep: 'rgba(14,13,12,0.92)',
   textOnStatus: '#FFFFFF',
+  tabBarFill: 'rgba(23, 20, 15, 0.72)',
+  tabBarBorder: 'rgba(255, 255, 255, 0.14)',
+  tabBarActivePill: 'rgba(240, 128, 64, 0.28)',
+  tabBarShadow: 'rgba(0, 0, 0, 0.55)',
+  modalScrim: 'rgba(14, 13, 12, 0.72)',
 };

@@ -268,8 +268,6 @@ export default function PickerScreen() {
 
   const empty = pool.length === 0;
   const headerClearance = floatingHeaderClearance(insets.top);
-  const headerTitle = phase === 'shuffling' ? 'กำลังสุ่ม...' : 'กินอะไรดี';
-
   const onPrimaryPress = () => {
     if (phase === 'shuffling') stopShuffle();
     else startShuffle();
@@ -278,7 +276,6 @@ export default function PickerScreen() {
   return (
     <View style={styles.screen}>
       <FloatingHeader
-        title={headerTitle}
         actions={[
           {
             icon: 'calendar-outline',

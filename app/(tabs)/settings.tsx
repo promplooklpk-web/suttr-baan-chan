@@ -76,7 +76,6 @@ export default function SettingsScreen() {
   return (
     <View style={styles.screenWrap}>
       <FloatingHeader
-        title="ตั้งค่า"
         actions={[
           {
             icon: 'information-circle-outline',

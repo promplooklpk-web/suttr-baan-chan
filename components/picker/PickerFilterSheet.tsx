@@ -131,7 +131,7 @@ export function PickerFilterSheet({
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(58,42,32,0.35)',
+    backgroundColor: colors.modalScrim,
   },
   sheet: {
     backgroundColor: colors.white,
@@ -153,7 +153,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: radius.pill,
-    backgroundColor: colors.cream,
+    backgroundColor: colors.surface2,
     borderWidth: 1,
     borderColor: colors.border,
   },

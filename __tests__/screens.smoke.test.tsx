@@ -34,7 +34,7 @@ describe('screen smoke tests', () => {
 
   it('renders Picker in dark theme', async () => {
     const { findByText } = renderWithProviders(<PickerScreen />, { colorScheme: 'dark' });
-    await findByText('กินอะไรดี');
+    await findByText('วันนี้กินอะไรดี?');
     await findByText('สุ่มเมนู');
   });
 
@@ -78,7 +78,7 @@ describe('screen smoke tests', () => {
 
   it('renders Picker with hero and shuffle CTA', async () => {
     const { findByText, getByLabelText } = renderWithProviders(<PickerScreen />);
-    await findByText('กินอะไรดี');
+    await findByText('วันนี้กินอะไรดี?');
     await findByText('สุ่มเมนู');
     expect(getByLabelText('ตัวกรอง')).toBeTruthy();
   });

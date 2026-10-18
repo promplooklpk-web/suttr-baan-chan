@@ -68,7 +68,6 @@ export default function SearchScreen() {
   return (
     <View style={styles.screen}>
       <FloatingHeader
-        title="ค้นหา"
         actions={[
           {
             icon: favoritesOnly ? 'heart' : 'heart-outline',
@@ -89,7 +88,10 @@ export default function SearchScreen() {
         ]}
       />
 
-      <View style={[styles.filterRow, { paddingTop: headerClearance }]}>
+      <View style={[styles.pageHeader, { paddingTop: headerClearance }]}>
+        <AppText variant="heading" style={styles.pageTitle}>ค้นหา</AppText>
+      </View>
+      <View style={styles.filterRow}>
         {tagFilter ? (
           <Pressable style={styles.filterChipOn} onPress={() => setTagFilter('')}>
             <AppText variant="caption" style={{ color: colors.white }}>#{tagFilter} ×</AppText>
@@ -237,6 +239,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     flex: 1,
     backgroundColor: colors.cream,
   },
+  pageHeader: {
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  pageTitle: { fontSize: 28, lineHeight: 34 },
   filterRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',

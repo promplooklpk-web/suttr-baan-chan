@@ -225,10 +225,10 @@ export function AddFridgeSheet({ visible, onClose, catalog, initialName, onSubmi
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   modalWrap: { flex: 1, justifyContent: 'flex-end' },
-  backdrop: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.35)' },
+  backdrop: { ...StyleSheet.absoluteFill, backgroundColor: colors.modalScrim },
   sheet: {
     maxHeight: '92%',
-    backgroundColor: colors.cream,
+    backgroundColor: colors.white,
     borderTopLeftRadius: radius.xl,
     borderTopRightRadius: radius.xl,
     padding: spacing.lg,

@@ -69,6 +69,7 @@ export function FloatingHeader({
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const hasSegments = segments != null && segments.length > 0;
+  const showTitle = Boolean(title?.trim());
 
   return (
     <View
@@ -76,6 +77,7 @@ export function FloatingHeader({
       pointerEvents="box-none"
     >
       <View style={styles.row} pointerEvents="box-none">
+        {(hasSegments || showTitle) ? (
         <GlassCapsule style={styles.leftCapsule}>
           {hasSegments ? (
             <View style={styles.segmentRow}>
@@ -100,14 +102,15 @@ export function FloatingHeader({
                 );
               })}
             </View>
-          ) : (
+          ) : showTitle ? (
             <View style={styles.titlePill}>
               <AppText variant="label" style={styles.titleText} numberOfLines={1}>
-                {title ?? ''}
+                {title}
               </AppText>
             </View>
-          )}
+          ) : null}
         </GlassCapsule>
+        ) : null}
 
         {actions.length > 0 ? (
           <GlassCapsule style={styles.rightCapsule}>
@@ -204,24 +207,27 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.pill,
   },
   segmentPillActive: {
-    backgroundColor: colors.orange,
+    backgroundColor: colors.tabBarActivePill,
   },
   segmentText: {
     color: colors.ink,
     fontSize: 15,
   },
   segmentTextActive: {
-    color: colors.onAccent,
+    color: colors.orange,
+    fontFamily: fonts.semiBold,
   },
   titlePill: {
-    backgroundColor: colors.orange,
+    backgroundColor: colors.surface2,
     borderRadius: radius.pill,
     paddingHorizontal: spacing.md,
     paddingVertical: 10,
     alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   titleText: {
-    color: colors.onAccent,
+    color: colors.ink,
     fontSize: 15,
     fontFamily: fonts.semiBold,
   },
