@@ -509,21 +509,21 @@ function HeroCard({
             แนะนำสำหรับ{mealBadge}
           </AppText>
         </View>
-        <View style={styles.heroMetaPill} pointerEvents="none">
-          <Ionicons name="time-outline" size={13} color={colors.ink} />
-          <AppText variant="caption">{mins} นาที</AppText>
-          {cal != null && (
-            <>
-              <AppText variant="caption" muted> · </AppText>
-              <Ionicons name="flame-outline" size={13} color={colors.orange} />
-              <AppText variant="caption">{cal} kcal</AppText>
-            </>
-          )}
-        </View>
-        <View style={styles.heroTitleOverlay} pointerEvents="none">
+        <View style={styles.heroBottomOverlay} pointerEvents="none">
           <AppText variant="title" style={styles.heroTitleOnImage} numberOfLines={2}>
             {recipe.title}
           </AppText>
+          <View style={styles.heroMetaLine}>
+            <Ionicons name="time-outline" size={14} color="#FFFFFF" />
+            <AppText variant="caption" style={styles.heroMetaText}>{mins} นาที</AppText>
+            {cal != null && (
+              <>
+                <AppText variant="caption" style={styles.heroMetaText}> · </AppText>
+                <Ionicons name="flame-outline" size={14} color={colors.orange} />
+                <AppText variant="caption" style={styles.heroMetaText}>{cal} kcal</AppText>
+              </>
+            )}
+          </View>
         </View>
         <Pressable style={styles.favBtn} onPress={onFavorite}>
           <Ionicons
@@ -619,20 +619,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderColor: colors.glassBorder,
   },
   heroBadgeText: { color: colors.ink, fontSize: 11 },
-  heroMetaPill: {
-    position: 'absolute',
-    bottom: spacing.md,
-    left: spacing.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(14,13,12,0.65)',
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 6,
-    borderWidth: 1,
-    borderColor: colors.glassBorder,
-  },
   mealSegment: {
     flexDirection: 'row',
     backgroundColor: colors.surface2,
@@ -713,16 +699,32 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     position: 'relative',
   },
   heroImage: { width: '100%', height: '100%' },
-  heroTitleOverlay: {
+  heroBottomOverlay: {
     position: 'absolute',
-    left: spacing.md,
-    right: spacing.md,
-    bottom: spacing.md,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.md,
+    paddingTop: spacing.xl,
+    gap: 6,
   },
   heroTitleOnImage: {
-    color: colors.ink,
-    fontSize: 22,
-    textAlign: 'center',
+    color: '#FFFFFF',
+    fontSize: 20,
+    lineHeight: 26,
+    fontFamily: fonts.semiBold,
+    textAlign: 'left',
+  },
+  heroMetaLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 2,
+  },
+  heroMetaText: {
+    color: 'rgba(255,255,255,0.92)',
+    fontSize: 12,
   },
   favBtn: {
     position: 'absolute',

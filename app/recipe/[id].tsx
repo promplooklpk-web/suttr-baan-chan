@@ -24,15 +24,12 @@ import { fonts, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
-import { fridgeBadgeColors } from '@/components/FridgeMatchBadge';
 import { useFridge } from '@/context/FridgeContext';
 import { useRecipes } from '@/context/RecipesContext';
 import { matchRecipeToFridge } from '@/lib/fridgeMatch';
-import { matchPercentColor } from '@/lib/fridgeMatchDisplay';
+import { fridgeProgressColor, matchPercentColor } from '@/lib/fridgeMatchDisplay';
 import { parseRecipeCalories } from '@/lib/recipeMedia';
 import { photoUri, totalMinutes } from '@/lib/storage';
-
-type TabKey = 'ingredients' | 'steps' | 'notes';
 
 function scaleAmount(amount: number | undefined, factor: number): string {
   if (amount == null) return '';
@@ -48,7 +45,6 @@ export default function RecipeDetailScreen() {
   const { getRecipe, toggleFavorite, deleteRecipe } = useRecipes();
   const { items: fridgeItems } = useFridge();
   const recipe = getRecipe(id);
-  const [tab, setTab] = useState<TabKey>('ingredients');
   const [servings, setServings] = useState(recipe?.servings ?? 1);
   const [checked, setChecked] = useState<Record<number, boolean>>({});
 
@@ -65,15 +61,6 @@ export default function RecipeDetailScreen() {
     if (!recipe || fridgeItems.length === 0) return null;
     return matchRecipeToFridge(recipe, fridgeItems);
   }, [recipe, fridgeItems]);
-
-  const tabs: { key: TabKey; label: string }[] = useMemo(
-    () => [
-      { key: 'ingredients', label: 'ส่วนผสม' },
-      { key: 'steps', label: 'วิธีทำ' },
-      { key: 'notes', label: 'โน้ต' },
-    ],
-    [],
-  );
 
   const tagChips = useMemo(() => {
     if (!recipe) return [];
@@ -185,48 +172,38 @@ export default function RecipeDetailScreen() {
             </View>
 
             {fridgeMatch && (
-              <View
-                style={[
-                  styles.fridgeSummary,
-                  { backgroundColor: fridgeBadgeColors(fridgeMatch.percent, colors).backgroundColor },
-                ]}
-              >
-                <AppText
-                  variant="label"
-                  style={{ color: fridgeBadgeColors(fridgeMatch.percent, colors).color }}
-                >
-                  มีในตู้ {fridgeMatch.percent}% ({fridgeMatch.haveCount}/{fridgeMatch.totalCount} อย่าง)
-                </AppText>
+              <View style={styles.fridgeMatchCard}>
+                <View style={styles.fridgeMatchTop}>
+                  <AppText variant="label" style={styles.fridgeMatchPercent}>
+                    มีในตู้ {fridgeMatch.percent}%
+                  </AppText>
+                  <AppText variant="caption" muted>
+                    {fridgeMatch.haveCount}/{fridgeMatch.totalCount} อย่าง
+                  </AppText>
+                </View>
+                <View style={styles.fridgeMatchBarBg}>
+                  <View
+                    style={[
+                      styles.fridgeMatchBarFill,
+                      {
+                        width: `${fridgeMatch.percent}%`,
+                        backgroundColor: fridgeProgressColor(fridgeMatch.percent, colors),
+                      },
+                    ]}
+                  />
+                </View>
               </View>
             )}
 
-            <View style={styles.tabRow}>
-              {tabs.map((t) => (
-                <Pressable
-                  key={t.key}
-                  onPress={() => setTab(t.key)}
-                  style={[styles.tabBtn, tab === t.key && styles.tabBtnActive]}
-                >
-                  <AppText
-                    variant="label"
-                    style={{ color: tab === t.key ? colors.white : colors.ink }}
-                  >
-                    {t.label}
-                  </AppText>
-                </Pressable>
-              ))}
-            </View>
-
-            {tab === 'ingredients' && (
-              <View>
+            <View style={styles.sectionBlock}>
+              <View style={styles.ingSectionHead}>
+                <AppText variant="title">ส่วนผสม</AppText>
                 {fridgeMatch && (
-                  <View style={styles.ingSectionHead}>
-                    <AppText variant="title">ส่วนผสม</AppText>
-                    <AppText variant="label" style={{ color: colors.orange }}>
-                      มี {fridgeMatch.haveCount} จาก {fridgeMatch.totalCount} อย่าง
-                    </AppText>
-                  </View>
+                  <AppText variant="label" style={{ color: colors.orange }}>
+                    มี {fridgeMatch.haveCount} จาก {fridgeMatch.totalCount} อย่าง
+                  </AppText>
                 )}
+              </View>
                 <View style={styles.servingRow}>
                   <AppText variant="label">จำนวนเสิร์ฟ</AppText>
                   <View style={styles.servingControls}>
@@ -238,14 +215,7 @@ export default function RecipeDetailScreen() {
                     <RoundBtn label="+" onPress={() => setServings((s) => s + 1)} />
                   </View>
                 </View>
-                {fridgeMatch && (
-                  <View style={styles.ingTableHeader}>
-                    <AppText variant="caption" muted style={styles.ingColName}>รายการ</AppText>
-                    <AppText variant="caption" muted style={styles.ingColStatus}>ในตู้</AppText>
-                    <AppText variant="caption" muted style={styles.ingColAmt}>ปริมาณ</AppText>
-                  </View>
-                )}
-                <View style={fridgeMatch ? styles.ingTable : undefined}>
+                <View style={styles.ingTable}>
                 {recipe.ingredients.map((ing, i) => {
                   const fridgeLine = fridgeMatch?.details[i];
                   const inFridge = fridgeLine?.have ?? false;
@@ -281,22 +251,14 @@ export default function RecipeDetailScreen() {
                       <AppText muted style={styles.ingAmount}>
                         {[scaleAmount(ing.amount, factor), ing.unit].filter(Boolean).join(' ')}
                       </AppText>
-                      {fridgeMatch ? (
-                        <Ionicons
-                          name={checked[i] ? 'checkbox' : 'square-outline'}
-                          size={20}
-                          color={checked[i] ? colors.orange : colors.inkLight}
-                        />
-                      ) : null}
                     </Pressable>
                   );
                 })}
                 </View>
-              </View>
-            )}
+            </View>
 
-            {tab === 'steps' && (
-              <View>
+            <View style={styles.sectionBlock}>
+              <AppText variant="title" style={styles.stepsSectionTitle}>วิธีทำ</AppText>
                 <View style={styles.steps}>
                   {recipe.steps.map((step, i) => (
                     <View key={i} style={styles.stepRow}>
@@ -327,23 +289,17 @@ export default function RecipeDetailScreen() {
                     ))}
                   </View>
                 )}
-              </View>
-            )}
+            </View>
 
-            {tab === 'notes' && (
-              <View>
+            {(recipe.notes?.trim() || recipe.caloriesEstimate) && (
+              <View style={styles.sectionBlock}>
+                <AppText variant="title" style={styles.stepsSectionTitle}>โน้ต</AppText>
                 {recipe.caloriesEstimate ? (
-                  <View style={styles.calorieBox}>
-                    <AppText variant="label">พลังงานโดยประมาณ</AppText>
-                    <AppText style={styles.calorieText}>{recipe.caloriesEstimate}</AppText>
-                    <AppText variant="caption" muted style={styles.calorieHint}>
-                      ค่าประมาณจากสูตรต้นฉบับ อาจแตกต่างตามวัตถุดิบและปริมาณจริง
-                    </AppText>
-                  </View>
+                  <AppText muted style={styles.notes}>{recipe.caloriesEstimate}</AppText>
                 ) : null}
-                <AppText muted style={styles.notes}>
-                  {recipe.notes?.trim() ? recipe.notes : 'ยังไม่มีโน้ตเพิ่มเติม'}
-                </AppText>
+                {recipe.notes?.trim() ? (
+                  <AppText muted style={styles.notes}>{recipe.notes}</AppText>
+                ) : null}
               </View>
             )}
 
@@ -554,10 +510,40 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.md,
     marginBottom: spacing.md,
   },
-  fridgeSummary: {
+  fridgeMatchCard: {
+    backgroundColor: colors.surface2,
     borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.cardYellow,
     padding: spacing.md,
     marginBottom: spacing.lg,
+    gap: spacing.sm,
+  },
+  fridgeMatchTop: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+  },
+  fridgeMatchPercent: {
+    color: colors.cardYellow,
+    fontFamily: fonts.bold,
+    fontSize: 18,
+  },
+  fridgeMatchBarBg: {
+    height: 4,
+    backgroundColor: colors.border,
+    borderRadius: radius.pill,
+    overflow: 'hidden',
+  },
+  fridgeMatchBarFill: {
+    height: 4,
+    borderRadius: radius.pill,
+  },
+  sectionBlock: {
+    marginBottom: spacing.lg,
+  },
+  stepsSectionTitle: {
+    marginBottom: spacing.md,
   },
   infoPill: {
     flex: 1,
@@ -582,24 +568,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     gap: 4,
     flex: 1,
-  },
-  tabRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    marginBottom: spacing.md,
-  },
-  tabBtn: {
-    flex: 1,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.pill,
-    backgroundColor: colors.white,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  tabBtnActive: {
-    backgroundColor: colors.orange,
-    borderColor: colors.orange,
   },
   servingRow: {
     flexDirection: 'row',
@@ -638,17 +606,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     overflow: 'hidden',
     marginBottom: spacing.md,
   },
-  ingTableHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.sm,
-    paddingBottom: 4,
-    gap: spacing.sm,
-  },
-  ingColName: { flex: 1 },
-  ingColStatus: { width: 56, textAlign: 'center' },
-  ingColAmt: { width: 72, textAlign: 'right' },
   ingRow: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -4,6 +4,7 @@ import {
   loadMealPlan,
   setMealForDate,
   shiftMealPlanWeek,
+  toggleMealDone as toggleMealDoneStorage,
 } from '@/lib/mealPlanStorage';
 import { loadShoppingList, saveShoppingList, syncShoppingFromPlan } from '@/lib/shoppingList';
 import { useRecipes } from '@/context/RecipesContext';
@@ -15,6 +16,7 @@ type MealPlanContextValue = {
   loading: boolean;
   refresh: () => Promise<void>;
   assignMeal: (date: string, slot: MealSlot, recipeId?: string) => Promise<void>;
+  toggleMealDone: (date: string, slot: MealSlot) => Promise<void>;
   changeWeek: (offset: number) => Promise<void>;
   toggleShoppingItem: (id: string) => Promise<void>;
   rebuildShoppingList: () => Promise<void>;
@@ -46,6 +48,11 @@ export function MealPlanProvider({ children }: { children: React.ReactNode }) {
     setShopping(items);
   }, [recipes]);
 
+  const toggleMealDone = useCallback(async (date: string, slot: MealSlot) => {
+    const next = await toggleMealDoneStorage(date, slot);
+    setPlan(next);
+  }, []);
+
   const changeWeek = useCallback(async (offset: number) => {
     const next = await shiftMealPlanWeek(offset);
     setPlan(next);
@@ -72,11 +79,12 @@ export function MealPlanProvider({ children }: { children: React.ReactNode }) {
       loading,
       refresh,
       assignMeal,
+      toggleMealDone,
       changeWeek,
       toggleShoppingItem,
       rebuildShoppingList,
     }),
-    [plan, shopping, loading, refresh, assignMeal, changeWeek, toggleShoppingItem, rebuildShoppingList],
+    [plan, shopping, loading, refresh, assignMeal, toggleMealDone, changeWeek, toggleShoppingItem, rebuildShoppingList],
   );
 
   return <MealPlanContext.Provider value={value}>{children}</MealPlanContext.Provider>;

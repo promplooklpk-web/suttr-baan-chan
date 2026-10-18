@@ -38,6 +38,12 @@ const SLOT_LABELS: Record<MealSlot, string> = {
   dinner: 'เย็น',
 };
 
+const SLOT_TIMES: Record<MealSlot, string> = {
+  breakfast: '07:30',
+  lunch: '12:30',
+  dinner: '18:30',
+};
+
 const SLOT_ICONS: Record<MealSlot, keyof typeof Ionicons.glyphMap> = {
   breakfast: 'sunny-outline',
   lunch: 'restaurant-outline',
@@ -79,7 +85,7 @@ export default function PlannerScreen() {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { plan, shopping, assignMeal, changeWeek, toggleShoppingItem, rebuildShoppingList } =
+  const { plan, shopping, assignMeal, toggleMealDone, changeWeek, toggleShoppingItem, rebuildShoppingList } =
     useMealPlan();
   const { recipes, getRecipe } = useRecipes();
   const { items: fridgeItems } = useFridge();
@@ -344,15 +350,26 @@ export default function PlannerScreen() {
                   const recipe = rid ? getRecipe(rid) : undefined;
                   return (
                     <View key={slot} style={styles.slotSection}>
-                      <View style={styles.slotHeading}>
-                        <View style={styles.timelineDot} />
-                        <Ionicons name={SLOT_ICONS[slot]} size={18} color={colors.orange} />
-                        <AppText variant="label">{SLOT_LABELS[slot]}</AppText>
+                      <View style={styles.slotHeadingRow}>
+                        <View style={styles.slotHeading}>
+                          <View style={styles.timelineDot} />
+                          <Ionicons name={SLOT_ICONS[slot]} size={18} color={colors.orange} />
+                          <AppText variant="label">
+                            {SLOT_LABELS[slot]} {SLOT_TIMES[slot]}
+                          </AppText>
+                        </View>
+                        {recipe && parseRecipeCalories(recipe) != null && (
+                          <AppText variant="caption" muted>
+                            {parseRecipeCalories(recipe)} kcal
+                          </AppText>
+                        )}
                       </View>
                       {recipe ? (
                         <FilledMealCard
                           recipe={recipe}
                           fridgeItems={fridgeItems}
+                          done={selectedDay.done?.[slot] === true}
+                          onToggleDone={() => toggleMealDone(selectedDay.date, slot)}
                           onPress={() => router.push(`/recipe/${recipe.id}`)}
                           onMenu={() => openMealMenu(selectedDay.date, slot, recipe.id)}
                         />
@@ -460,11 +477,15 @@ function isTodaySelected(date: string, today: string): boolean {
 function FilledMealCard({
   recipe,
   fridgeItems,
+  done,
+  onToggleDone,
   onPress,
   onMenu,
 }: {
   recipe: Recipe;
   fridgeItems: Parameters<typeof matchRecipeToFridge>[1];
+  done: boolean;
+  onToggleDone: () => void;
   onPress: () => void;
   onMenu: () => void;
 }) {
@@ -499,9 +520,21 @@ function FilledMealCard({
           )}
         </View>
       </Pressable>
-      <Pressable onPress={onMenu} hitSlop={10} accessibilityLabel="เมนูมื้อนี้">
-        <Ionicons name="ellipsis-horizontal" size={22} color={colors.inkMuted} />
-      </Pressable>
+      <View style={styles.filledActions}>
+        <Pressable onPress={onMenu} hitSlop={10} accessibilityLabel="เมนูมื้อนี้">
+          <Ionicons name="ellipsis-horizontal" size={20} color={colors.inkMuted} />
+        </Pressable>
+        <Pressable
+          onPress={onToggleDone}
+          hitSlop={8}
+          accessibilityLabel={done ? 'ทำมื้อนี้แล้ว' : 'ยังไม่ทำมื้อนี้'}
+          style={[styles.doneCircle, done && styles.doneCircleOn]}
+        >
+          {done ? (
+            <Ionicons name="checkmark" size={18} color={colors.white} />
+          ) : null}
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -656,11 +689,35 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   todayPillText: { fontFamily: fonts.semiBold, color: colors.ink },
   slotSection: { marginBottom: spacing.md },
+  slotHeadingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.sm,
+  },
   slotHeading: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
-    marginBottom: spacing.sm,
+  },
+  filledActions: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    paddingRight: spacing.xs,
+  },
+  doneCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  doneCircleOn: {
+    backgroundColor: colors.cardGreen,
+    borderColor: colors.cardGreen,
   },
   filledCard: {
     flexDirection: 'row',

@@ -44,7 +44,8 @@ export async function loadMealPlan(): Promise<MealPlanStore> {
     const days = buildWeekDays();
     days.forEach((d, i) => {
       d.meals = { breakfast: ids[i % ids.length], lunch: ids[(i + 3) % ids.length] };
-      if (i % 2 === 0) d.meals.dinner = ids[(i + 5) % ids.length];
+      if (i % 2 === 0 && i > 0) d.meals.dinner = ids[(i + 5) % ids.length];
+      if (i === 0) d.done = { breakfast: true };
     });
     return { weekStart: days[0].date, days };
   }
@@ -75,9 +76,33 @@ export async function setMealForDate(
   const days = store.days.map((d) => {
     if (d.date !== date) return d;
     const meals = { ...d.meals };
+    const done = { ...(d.done ?? {}) };
     if (recipeId) meals[slot] = recipeId;
-    else delete meals[slot];
-    return { ...d, meals };
+    else {
+      delete meals[slot];
+      delete done[slot];
+    }
+    return { ...d, meals, done };
+  });
+  const next = { ...store, days };
+  await saveMealPlan(next);
+  return next;
+}
+
+export async function toggleMealDone(
+  date: string,
+  slot: MealSlot,
+  done?: boolean,
+): Promise<MealPlanStore> {
+  const store = await loadMealPlan();
+  const days = store.days.map((d) => {
+    if (d.date !== date) return d;
+    if (!d.meals[slot]) return d;
+    const nextDone = { ...(d.done ?? {}) };
+    const value = done ?? !nextDone[slot];
+    if (value) nextDone[slot] = true;
+    else delete nextDone[slot];
+    return { ...d, done: nextDone };
   });
   const next = { ...store, days };
   await saveMealPlan(next);
