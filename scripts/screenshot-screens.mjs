@@ -14,14 +14,15 @@ import { chromium, devices } from '@playwright/test';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..');
 const distDir = path.join(root, 'dist');
-const outDir = path.join(root, 'artifacts', 'screenshots');
+const outDir = process.env.SHOT_DIR ?? path.join(root, 'artifacts', 'screenshots');
+// Export first with: EXPO_PUBLIC_WEB_SEED=1 npx expo export --platform web (seeds 20 recipes in memory on web)
 
 const ROUTES = [
   { name: 'home', path: '/' },
   { name: 'fridge', path: '/fridge' },
   { name: 'picker', path: '/picker' },
   { name: 'planner', path: '/planner' },
-  { name: 'settings', path: '/settings' },
+  { name: 'recipe', path: '/recipe/6da6201a-3a01-4726-aa9a-5bcfc5c8d8c7' },
 ];
 
 function serveStatic(dir, port) {
@@ -84,9 +85,11 @@ async function main() {
   const base = `http://127.0.0.1:${port}`;
 
   const iphone = devices['iPhone 14'];
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });
   const context = await browser.newContext({
     ...iphone,
+    viewport: { width: 393, height: 852 },
+    deviceScaleFactor: 1, // DSF 3 mobile emulation produced tile-seam artifacts on large photos
     colorScheme: 'dark',
   });
 
@@ -96,7 +99,7 @@ async function main() {
     if (route.name === 'home') {
       await page
         .waitForFunction(
-          () => document.body?.innerText?.includes('ข้าวผัดไก่') || document.body?.innerText?.includes('ยังไม่มีสูตร'),
+          () => document.querySelectorAll('img').length > 3 || document.body?.innerText?.includes('ยังไม่มีสูตร'),
           { timeout: 45_000 },
         )
         .catch(() => undefined);

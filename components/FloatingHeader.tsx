@@ -192,6 +192,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   rightCapsule: {
     flexShrink: 0,
+    // keep actions on the right even when there is no left capsule
+    marginLeft: 'auto',
   },
   segmentRow: {
     flexDirection: 'row',
