@@ -6,7 +6,7 @@ import {
 } from 'expo-file-system/legacy';
 import * as Crypto from 'expo-crypto';
 
-import { WEB_SEED_ENABLED, webSeedFridge } from '@/lib/webSeed';
+import { webSeedEnabled, webSeedFridge } from '@/lib/webSeed';
 import type { FridgeItem, FridgePlace, FridgeStore } from '@/types/fridge';
 
 export const FRIDGE_FILE = 'fridge.json';
@@ -17,7 +17,7 @@ function path(): string {
 }
 
 export async function loadFridgeStore(): Promise<FridgeStore> {
-  if (WEB_SEED_ENABLED) {
+  if (webSeedEnabled()) {
     const { installCleanSeedRecipes } = await import('@/lib/seedInstall');
     return { items: webSeedFridge(await installCleanSeedRecipes()), updatedAt: new Date().toISOString() };
   }

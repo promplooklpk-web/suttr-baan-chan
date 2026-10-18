@@ -8,11 +8,20 @@ import type { Recipe } from '@/types/recipe';
 
 /**
  * Debug-only: on web there is no document directory, so storage is empty.
- * Build/serve the web bundle with EXPO_PUBLIC_WEB_SEED=1 to load the bundled seed
- * recipes (with photos) plus a sample fridge in memory. Used by `npm run screenshots`.
+ * Enable via EXPO_PUBLIC_WEB_SEED=1 at export time, ?webSeed=1 in the URL,
+ * or window.__WEB_SEED__ before the app boots (screenshot script).
  */
-export const WEB_SEED_ENABLED =
-  Platform.OS === 'web' && process.env.EXPO_PUBLIC_WEB_SEED === '1';
+export function webSeedEnabled(): boolean {
+  if (Platform.OS !== 'web') return false;
+  if (process.env.EXPO_PUBLIC_WEB_SEED === '1') return true;
+  const g = globalThis as {
+    location?: { search?: string };
+    __WEB_SEED__?: boolean;
+  };
+  if (g.__WEB_SEED__) return true;
+  if (g.location?.search?.includes('webSeed=1')) return true;
+  return false;
+}
 
 export function webSeedPhotoUri(relativePath?: string): string | undefined {
   if (!relativePath) return undefined;
@@ -36,7 +45,7 @@ export function webSeedFridge(recipes: Recipe[]): FridgeItem[] {
         quantity: 1000,
         unit: ing.unit ?? 'กรัม',
         place: 'chilled',
-        expiresAt: new Date(Date.now() + ((ri + ii) % 5 === 0 ? 2 : 10) * day).toISOString(),
+        expiresAt: new Date(Date.now() + ((ri + ii) % 5 === 0 ? -1 : (ri + ii) % 5 + 1) * day).toISOString(),
         addedAt: now,
         updatedAt: now,
       });

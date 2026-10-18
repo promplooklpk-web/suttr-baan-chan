@@ -21,7 +21,7 @@ import {
   isLegacyRound1SeedId,
   isOnedishSeedRecipeId,
 } from '@/lib/seedVersion';
-import { WEB_SEED_ENABLED, webSeedPhotoUri } from '@/lib/webSeed';
+import { webSeedEnabled, webSeedPhotoUri } from '@/lib/webSeed';
 import type { Recipe, RecipeInput, RecipeStore } from '@/types/recipe';
 
 const RECIPES_FILE = 'recipes.json';
@@ -168,7 +168,7 @@ async function loadWebSeedRecipes(): Promise<Recipe[]> {
 }
 
 export async function initializeStorage(): Promise<Recipe[]> {
-  if (WEB_SEED_ENABLED) return loadWebSeedRecipes();
+  if (webSeedEnabled()) return loadWebSeedRecipes();
   await ensureImagesDir();
   const store = await readStore();
   const effectiveVersion = getEffectiveSeedVersion(store);
@@ -185,7 +185,7 @@ export async function initializeStorage(): Promise<Recipe[]> {
 }
 
 export async function loadRecipes(): Promise<Recipe[]> {
-  if (WEB_SEED_ENABLED) return loadWebSeedRecipes();
+  if (webSeedEnabled()) return loadWebSeedRecipes();
   await ensureImagesDir();
   const store = await readStore();
   return store.recipes;
@@ -213,7 +213,7 @@ export async function copyPhotoToStorage(
 }
 
 export function photoUri(relativePath?: string): string | undefined {
-  if (WEB_SEED_ENABLED) return webSeedPhotoUri(relativePath);
+  if (webSeedEnabled()) return webSeedPhotoUri(relativePath);
   if (!relativePath || !documentDirectory) return undefined;
   return `${documentDirectory}${relativePath}`;
 }

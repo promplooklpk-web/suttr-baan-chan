@@ -13,7 +13,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
-import { FloatingHeader, floatingHeaderClearance } from '@/components/FloatingHeader';
+import { floatingHeaderClearance } from '@/components/FloatingHeader';
+import { ScreenShell } from '@/components/ScreenShell';
 import {
   PickerFilterSheet,
   type PickerCategoryFilter,
@@ -287,21 +288,7 @@ export default function PickerScreen() {
   };
 
   return (
-    <View style={styles.screen}>
-      <FloatingHeader
-        actions={[
-          {
-            icon: 'calendar-outline',
-            accessibilityLabel: 'แพลนมื้อ',
-            onPress: () => router.push('/(tabs)/planner'),
-          },
-          {
-            icon: 'settings-outline',
-            accessibilityLabel: 'ตั้งค่า',
-            onPress: () => router.push('/(tabs)/settings'),
-          },
-        ]}
-      />
+    <ScreenShell>
       <ScrollView
         contentContainerStyle={{
           paddingTop: headerClearance,
@@ -310,8 +297,19 @@ export default function PickerScreen() {
         }}
         showsVerticalScrollIndicator={false}
       >
-        <AppText variant="caption" muted>{greeting()}</AppText>
-        <AppText variant="heading" style={styles.pageTitle}>วันนี้กินอะไรดี?</AppText>
+        <View style={styles.titleRow}>
+          <View style={styles.titleCol}>
+            <AppText variant="caption" muted>{greeting()}</AppText>
+            <AppText variant="heading" style={styles.pageTitle}>วันนี้กินอะไรดี?</AppText>
+          </View>
+          <Pressable
+            style={styles.diceBtn}
+            onPress={onPrimaryPress}
+            accessibilityLabel="สุ่มเมนู"
+          >
+            <Ionicons name="dice-outline" size={22} color={colors.ink} />
+          </Pressable>
+        </View>
 
         <View style={styles.mealSegment}>
           {(['breakfast', 'lunch', 'dinner'] as MealSlot[]).map((slot) => (
@@ -450,7 +448,7 @@ export default function PickerScreen() {
           setFilterOpen(false);
         }}
       />
-    </View>
+    </ScreenShell>
   );
 }
 
@@ -481,11 +479,30 @@ function HeroCard({
   const match = fridgeItems.length > 0 ? matchRecipeToFridge(recipe, fridgeItems) : null;
   const percent = match?.percent ?? 0;
 
+  const mealBadge =
+    meal === 'breakfast' ? 'มื้อเช้า' : meal === 'lunch' ? 'มื้อกลางวัน' : 'มื้อเย็น';
+
   return (
-    <View style={styles.heroCard}>
+    <View style={[styles.heroCard, accentGlow(colors)]}>
       <View style={styles.heroImageWrap}>
         <RecipeCoverImage recipe={recipe} style={styles.heroImage} rounded={0} />
         <PhotoGradientOverlay variant="hero" />
+        <View style={styles.heroBadge}>
+          <AppText variant="caption" style={styles.heroBadgeText}>
+            แนะนำสำหรับ{mealBadge}
+          </AppText>
+        </View>
+        <View style={styles.heroMetaPill} pointerEvents="none">
+          <Ionicons name="time-outline" size={13} color={colors.ink} />
+          <AppText variant="caption">{mins} นาที</AppText>
+          {cal != null && (
+            <>
+              <AppText variant="caption" muted> · </AppText>
+              <Ionicons name="flame-outline" size={13} color={colors.orange} />
+              <AppText variant="caption">{cal} kcal</AppText>
+            </>
+          )}
+        </View>
         <View style={styles.heroTitleOverlay} pointerEvents="none">
           <AppText variant="title" style={styles.heroTitleOnImage} numberOfLines={2}>
             {recipe.title}
@@ -555,8 +572,50 @@ function MetaChip({ icon, label }: { icon?: keyof typeof Ionicons.glyphMap; labe
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
-  pageTitle: { fontSize: 26, marginBottom: spacing.md, lineHeight: 34 },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    marginBottom: spacing.md,
+  },
+  titleCol: { flex: 1, gap: 2 },
+  diceBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    backgroundColor: colors.surface2,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pageTitle: { fontSize: 26, lineHeight: 34 },
+  heroBadge: {
+    position: 'absolute',
+    top: spacing.md,
+    left: spacing.md,
+    backgroundColor: 'rgba(14,13,12,0.55)',
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: colors.glassBorder,
+  },
+  heroBadgeText: { color: colors.ink, fontSize: 11 },
+  heroMetaPill: {
+    position: 'absolute',
+    bottom: spacing.md,
+    left: spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(14,13,12,0.65)',
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 6,
+    borderWidth: 1,
+    borderColor: colors.glassBorder,
+  },
   mealSegment: {
     flexDirection: 'row',
     backgroundColor: colors.surface2,

@@ -12,11 +12,11 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen name="index" options={{ title: 'สูตร' }} />
-      <Tabs.Screen name="fridge" options={{ title: 'ตู้เย็น' }} />
-      <Tabs.Screen name="picker" options={{ title: 'กินอะไรดี' }} />
+      <Tabs.Screen name="fridge" options={{ title: 'ตู้เย็นของฉัน' }} />
+      <Tabs.Screen name="picker" options={{ href: null }} />
       <Tabs.Screen name="search" options={{ href: null }} />
-      <Tabs.Screen name="planner" options={{ title: 'แพลน' }} />
-      <Tabs.Screen name="settings" options={{ title: 'โปรไฟล์', href: null }} />
+      <Tabs.Screen name="planner" options={{ title: 'แพลนมื้อ' }} />
+      <Tabs.Screen name="settings" options={{ title: 'โปรไฟล์' }} />
       <Tabs.Screen
         name="add"
         options={{

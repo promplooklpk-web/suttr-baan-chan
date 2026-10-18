@@ -15,7 +15,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '@/components/AppText';
 import { AddFridgeSheet } from '@/components/fridge/AddFridgeSheet';
 import { SwipeableFridgeRow } from '@/components/fridge/SwipeableFridgeRow';
-import { FloatingHeader, floatingHeaderClearance } from '@/components/FloatingHeader';
+import { floatingHeaderClearance } from '@/components/FloatingHeader';
+import { ScreenShell } from '@/components/ScreenShell';
 import { SegmentPills } from '@/components/SegmentPills';
 import { RecipeCoverImage } from '@/components/RecipeCoverImage';
 import { fonts, radius, spacing } from '@/constants/theme';
@@ -86,17 +87,7 @@ export default function FridgeScreen() {
   };
 
   return (
-    <View style={styles.screen}>
-      <FloatingHeader
-        actions={[
-          {
-            icon: 'add',
-            accessibilityLabel: 'เพิ่มของ',
-            onPress: () => openAdd(),
-          },
-        ]}
-      />
-
+    <ScreenShell>
       {loading ? (
         <View style={[styles.centered, { paddingTop: headerClearance }]}>
           <ActivityIndicator color={colors.orange} size="large" />
@@ -112,7 +103,12 @@ export default function FridgeScreen() {
           <AppText variant="caption" muted>
             วันนี้ {new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
           </AppText>
-          <AppText variant="heading" style={styles.pageTitle}>ตู้เย็นของฉัน</AppText>
+          <View style={styles.titleRow}>
+            <AppText variant="heading" style={styles.pageTitle}>ตู้เย็นของฉัน</AppText>
+            <Pressable style={styles.addBtn} onPress={() => openAdd()} accessibilityLabel="เพิ่มของ">
+              <Ionicons name="add" size={22} color={colors.onAccent} />
+            </Pressable>
+          </View>
           <SegmentPills
             options={[
               { id: 'items', label: `ของในตู้ ${items.length}` },
@@ -199,7 +195,12 @@ export default function FridgeScreen() {
           <AppText variant="caption" muted>
             วันนี้ {new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
           </AppText>
-          <AppText variant="heading" style={styles.pageTitle}>ตู้เย็นของฉัน</AppText>
+          <View style={styles.titleRow}>
+            <AppText variant="heading" style={styles.pageTitle}>ตู้เย็นของฉัน</AppText>
+            <Pressable style={styles.addBtn} onPress={() => openAdd()} accessibilityLabel="เพิ่มของ">
+              <Ionicons name="add" size={22} color={colors.onAccent} />
+            </Pressable>
+          </View>
           <SegmentPills
             options={[
               { id: 'items', label: `ของในตู้ ${items.length}` },
@@ -301,13 +302,26 @@ export default function FridgeScreen() {
           await addItem(data);
         }}
       />
-    </View>
+    </ScreenShell>
   );
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
-  pageTitle: { fontSize: 28, marginBottom: spacing.md, lineHeight: 34 },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.md,
+  },
+  addBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.orange,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pageTitle: { fontSize: 28, lineHeight: 34, flex: 1 },
   segmentSpacer: { height: spacing.md },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   banner: {

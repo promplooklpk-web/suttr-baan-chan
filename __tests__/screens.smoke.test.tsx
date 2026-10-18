@@ -63,16 +63,16 @@ describe('screen smoke tests', () => {
   });
 
   it('renders Planner with day view', async () => {
-    const { findByText, getAllByText } = renderWithProviders(<PlannerScreen />);
+    const { findByText, findAllByText } = renderWithProviders(<PlannerScreen />);
     await findByText('วันนี้');
-    expect(getAllByText('เพิ่มเมนู').length).toBeGreaterThanOrEqual(1);
-    await findByText(/รวมประมาณ/);
+    expect((await findAllByText('เพิ่มเมนูมื้อเย็น')).length).toBeGreaterThanOrEqual(1);
+    await findByText('สร้างรายการซื้อของจากแผนสัปดาห์');
   });
 
   it('renders Planner in dark theme', async () => {
-    const { findByText } = renderWithProviders(<PlannerScreen />, { colorScheme: 'dark' });
+    const { findByText, findAllByText } = renderWithProviders(<PlannerScreen />, { colorScheme: 'dark' });
     await findByText('วันนี้');
-    await findByText('แพลนมื้อ');
+    expect((await findAllByText('แพลนมื้อ')).length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders Picker with hero and shuffle CTA', async () => {
@@ -84,7 +84,7 @@ describe('screen smoke tests', () => {
 
   it('renders Settings', async () => {
     const { findByText } = renderWithProviders(<SettingsScreen />);
-    await findByText('บัญชีและแอป');
+    await findByText('ยันยง P.');
     await findByText('สูตรของฉัน');
   });
 

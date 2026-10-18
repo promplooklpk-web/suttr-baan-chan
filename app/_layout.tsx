@@ -41,10 +41,7 @@ function RootStack() {
         }}
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="recipe/[id]"
-          options={{ title: 'รายละเอียดสูตร', headerBackTitle: 'กลับ' }}
-        />
+        <Stack.Screen name="recipe/[id]" options={{ headerShown: false }} />
         <Stack.Screen
           name="recipe/edit"
           options={{ title: 'เพิ่มสูตร', presentation: 'modal', headerShown: false }}

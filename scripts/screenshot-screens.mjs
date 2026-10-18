@@ -1,9 +1,8 @@
 /**
  * Headless screenshots of the exported Expo web build (393×852, dark).
  * Usage: node scripts/screenshot-screens.mjs
- * Requires: npx expo export --platform web, @playwright/test, chromium installed.
+ * Requires: EXPO_PUBLIC_WEB_SEED=1 npx expo export --platform web, @playwright/test, chromium.
  */
-import { spawn } from 'node:child_process';
 import { mkdir } from 'node:fs/promises';
 import http from 'node:http';
 import path from 'node:path';
@@ -15,7 +14,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..');
 const distDir = path.join(root, 'dist');
 const outDir = process.env.SHOT_DIR ?? path.join(root, 'artifacts', 'screenshots');
-// Export first with: EXPO_PUBLIC_WEB_SEED=1 npx expo export --platform web (seeds 20 recipes in memory on web)
 
 const ROUTES = [
   { name: 'home', path: '/' },
@@ -79,6 +77,23 @@ function serveStatic(dir, port) {
   });
 }
 
+async function waitForSeededHome(page) {
+  await page.waitForSelector('[data-testid="recipe-list-card"]', { timeout: 90_000 });
+  await page.waitForFunction(
+    () => {
+      const cards = document.querySelectorAll('[data-testid="recipe-list-card"]');
+      const countEl = document.querySelector('[data-testid="home-recipe-count"]');
+      const countText = countEl?.textContent ?? '';
+      const hasManyCards = cards.length >= 10;
+      const hasRecipeCount = /\d+ สูตร/.test(countText) && !countText.startsWith('0 สูตร');
+      const images = document.querySelectorAll('img[src]');
+      const hasPhotos = images.length >= 10;
+      return hasManyCards && hasRecipeCount && hasPhotos;
+    },
+    { timeout: 90_000 },
+  );
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const port = 4173;
@@ -90,34 +105,35 @@ async function main() {
   const context = await browser.newContext({
     ...iphone,
     viewport: { width: 393, height: 852 },
-    deviceScaleFactor: 1, // DSF 3 mobile emulation produced tile-seam artifacts on large photos
+    deviceScaleFactor: 1,
     colorScheme: 'dark',
+  });
+
+  await context.addInitScript(() => {
+    globalThis.__WEB_SEED__ = true;
   });
 
   for (const route of ROUTES) {
     const page = await context.newPage();
-    await page.goto(`${base}${route.path}`, { waitUntil: 'networkidle', timeout: 120_000 });
+    const url = `${base}${route.path}?webSeed=1`;
+    await page.goto(url, { waitUntil: 'networkidle', timeout: 120_000 });
     if (route.name === 'home') {
-      await page
-        .waitForFunction(
-          () => {
-            const t = document.body?.innerText ?? '';
-            return (
-              document.querySelectorAll('img').length > 3
-              || (t.includes('สูตร') && !t.includes('0 สูตร'))
-              || t.includes('ข้าว')
-            );
-          },
-          { timeout: 45_000 },
-        )
-        .catch(() => undefined);
+      await waitForSeededHome(page);
     } else {
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(2500);
     }
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(800);
     const file = path.join(outDir, `${route.name}.png`);
     await page.screenshot({ path: file, fullPage: false });
-    console.log(`wrote ${file}`);
+    const homeMeta =
+      route.name === 'home'
+        ? await page.evaluate(() => ({
+            cards: document.querySelectorAll('[data-testid="recipe-list-card"]').length,
+            count: document.querySelector('[data-testid="home-recipe-count"]')?.textContent,
+            images: document.querySelectorAll('img[src]').length,
+          }))
+        : null;
+    console.log(`wrote ${file}`, homeMeta ? JSON.stringify(homeMeta) : '');
     await page.close();
   }
 

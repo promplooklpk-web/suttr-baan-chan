@@ -54,7 +54,7 @@ describe('dark theme screen smoke', () => {
 
   it('Settings', async () => {
     const { findByText } = renderWithProviders(<SettingsScreen />, dark);
-    await findByText('บัญชีและแอป');
+    await findByText('ยันยง P.');
   });
 
   it('Recipe detail', async () => {

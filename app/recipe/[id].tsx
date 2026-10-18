@@ -2,8 +2,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
+import { BlurView } from 'expo-blur';
 import {
   Alert,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -73,6 +75,13 @@ export default function RecipeDetailScreen() {
     [],
   );
 
+  const tagChips = useMemo(() => {
+    if (!recipe) return [];
+    const tags = [...(recipe.tags ?? [])];
+    if (recipe.category && !tags.includes(recipe.category)) tags.unshift(recipe.category);
+    return tags.slice(0, 5);
+  }, [recipe?.category, recipe?.tags]);
+
   if (!recipe) {
     return (
       <View style={styles.missing}>
@@ -103,24 +112,7 @@ export default function RecipeDetailScreen() {
 
   return (
     <>
-      <Stack.Screen
-        options={{
-          headerRight: () => (
-            <View style={styles.headerActions}>
-              <Pressable onPress={() => router.push({ pathname: '/recipe/edit', params: { id: recipe.id } })}>
-                <Ionicons name="create-outline" size={24} color={colors.ink} />
-              </Pressable>
-              <Pressable onPress={() => toggleFavorite(recipe.id)}>
-                <Ionicons
-                  name={recipe.isFavorite ? 'heart' : 'heart-outline'}
-                  size={24}
-                  color={colors.orange}
-                />
-              </Pressable>
-            </View>
-          ),
-        }}
-      />
+      <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.screen}>
         <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}>
           <View style={styles.hero}>
@@ -132,6 +124,29 @@ export default function RecipeDetailScreen() {
               </View>
             )}
             <PhotoGradientOverlay variant="hero" />
+            <View style={[styles.heroControls, { top: insets.top + spacing.sm }]}>
+              <GlassIconButton
+                accessibilityLabel="กลับ"
+                onPress={() => router.back()}
+                icon="chevron-back"
+                colors={colors}
+              />
+              <View style={styles.heroControlsRight}>
+                <GlassIconButton
+                  accessibilityLabel="แก้ไขสูตร"
+                  onPress={() => router.push({ pathname: '/recipe/edit', params: { id: recipe.id } })}
+                  icon="create-outline"
+                  colors={colors}
+                />
+                <GlassIconButton
+                  accessibilityLabel="โปรด"
+                  onPress={() => toggleFavorite(recipe.id)}
+                  icon={recipe.isFavorite ? 'heart' : 'heart-outline'}
+                  colors={colors}
+                  accent
+                />
+              </View>
+            </View>
           </View>
 
           <View style={styles.body}>
@@ -143,15 +158,25 @@ export default function RecipeDetailScreen() {
                 </AppText>
               )}
             </View>
-            <View style={styles.subRow}>
-              {recipe.category && <AppText muted>{recipe.category}</AppText>}
-              {recipe.rating != null && (
-                <View style={styles.ratingRow}>
-                  <Ionicons name="star" size={16} color={colors.star} />
-                  <AppText muted>{recipe.rating.toFixed(1)}</AppText>
-                </View>
-              )}
-            </View>
+            {tagChips.length > 0 && (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.tagRow}
+              >
+                {tagChips.map((tag) => (
+                  <View key={tag} style={[styles.tagChip, accentGlow(colors, false)]}>
+                    <AppText variant="caption" style={styles.tagChipText}>#{tag}</AppText>
+                  </View>
+                ))}
+              </ScrollView>
+            )}
+            {recipe.rating != null && (
+              <View style={styles.ratingRow}>
+                <Ionicons name="star" size={16} color={colors.star} />
+                <AppText muted>{recipe.rating.toFixed(1)}</AppText>
+              </View>
+            )}
 
             <View style={styles.infoBar}>
               <InfoPill icon="time-outline" label={`${minutes}`} sub="นาที" />
@@ -205,6 +230,14 @@ export default function RecipeDetailScreen() {
                     <RoundBtn label="+" onPress={() => setServings((s) => s + 1)} />
                   </View>
                 </View>
+                {fridgeMatch && (
+                  <View style={styles.ingTableHeader}>
+                    <AppText variant="caption" muted style={styles.ingColName}>รายการ</AppText>
+                    <AppText variant="caption" muted style={styles.ingColStatus}>ในตู้</AppText>
+                    <AppText variant="caption" muted style={styles.ingColAmt}>ปริมาณ</AppText>
+                  </View>
+                )}
+                <View style={fridgeMatch ? styles.ingTable : undefined}>
                 {recipe.ingredients.map((ing, i) => {
                   const fridgeLine = fridgeMatch?.details[i];
                   const inFridge = fridgeLine?.have ?? false;
@@ -250,6 +283,7 @@ export default function RecipeDetailScreen() {
                     </Pressable>
                   );
                 })}
+                </View>
               </View>
             )}
 
@@ -355,6 +389,60 @@ function RoundBtn({ label, onPress }: { label: string; onPress: () => void }) {
   );
 }
 
+function GlassIconButton({
+  icon,
+  onPress,
+  accessibilityLabel,
+  colors,
+  accent,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  onPress: () => void;
+  accessibilityLabel: string;
+  colors: ThemeColors;
+  accent?: boolean;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityLabel={accessibilityLabel}
+      style={glassBtnStyles.outer}
+    >
+      <BlurView
+        intensity={Platform.OS === 'ios' ? 70 : 85}
+        tint="dark"
+        style={glassBtnStyles.blur}
+      >
+        <View style={[glassBtnStyles.tint, { backgroundColor: colors.glassTint }]} pointerEvents="none" />
+        <Ionicons
+          name={icon}
+          size={22}
+          color={accent ? colors.orange : colors.white}
+        />
+      </BlurView>
+    </Pressable>
+  );
+}
+
+const glassBtnStyles = StyleSheet.create({
+  outer: {
+    borderRadius: 22,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.22)',
+  },
+  blur: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  tint: {
+    ...StyleSheet.absoluteFill,
+  },
+});
+
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: {
     flex: 1,
@@ -367,16 +455,24 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     gap: spacing.md,
     backgroundColor: colors.cream,
   },
-  headerActions: {
-    flexDirection: 'row',
-    gap: spacing.md,
-    marginRight: spacing.sm,
-  },
   hero: {
     width: '100%',
-    height: 280,
+    height: 360,
     position: 'relative',
     overflow: 'hidden',
+  },
+  heroControls: {
+    position: 'absolute',
+    left: spacing.md,
+    right: spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    zIndex: 5,
+  },
+  heroControlsRight: {
+    flexDirection: 'row',
+    gap: spacing.sm,
   },
   heroImage: {
     width: '100%',
@@ -390,13 +486,28 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
   },
   body: {
-    marginTop: -24,
+    marginTop: -28,
     padding: spacing.md,
-    backgroundColor: colors.white,
+    backgroundColor: colors.cream,
     borderTopLeftRadius: radius.xl,
     borderTopRightRadius: radius.xl,
+  },
+  tagRow: {
+    gap: spacing.sm,
+    paddingVertical: spacing.sm,
+    alignItems: 'flex-start',
+  },
+  tagChip: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: 6,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surface2,
     borderWidth: 1,
     borderColor: colors.border,
+  },
+  tagChipText: {
+    fontFamily: fonts.semiBold,
+    color: colors.orange,
   },
   titlePercentRow: {
     flexDirection: 'row',
@@ -510,11 +621,31 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     fontFamily: fonts.bold,
     lineHeight: 22,
   },
+  ingTable: {
+    backgroundColor: colors.white,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    overflow: 'hidden',
+    marginBottom: spacing.md,
+  },
+  ingTableHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.sm,
+    paddingBottom: 4,
+    gap: spacing.sm,
+  },
+  ingColName: { flex: 1 },
+  ingColStatus: { width: 56, textAlign: 'center' },
+  ingColAmt: { width: 72, textAlign: 'right' },
   ingRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
     paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border,
   },

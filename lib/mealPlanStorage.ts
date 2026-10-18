@@ -6,7 +6,7 @@ import {
 } from 'expo-file-system/legacy';
 
 import cleanExport from '@/assets/seed/clean-recipes.json';
-import { WEB_SEED_ENABLED } from '@/lib/webSeed';
+import { webSeedEnabled } from '@/lib/webSeed';
 import type { MealPlanDay, MealPlanStore, MealSlot } from '@/types/mealPlan';
 
 const FILE = 'meal-plan.json';
@@ -39,7 +39,7 @@ export function buildWeekDays(anchor = new Date()): MealPlanDay[] {
 }
 
 export async function loadMealPlan(): Promise<MealPlanStore> {
-  if (WEB_SEED_ENABLED) {
+  if (webSeedEnabled()) {
     const ids = (cleanExport as { recipes: { id: string }[] }).recipes.map((r) => r.id);
     const days = buildWeekDays();
     days.forEach((d, i) => {

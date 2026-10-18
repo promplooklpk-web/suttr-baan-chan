@@ -10,6 +10,7 @@ import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { FLOATING_HEADER_GAP } from '@/components/FloatingHeader';
+import { profileAvatarInitial } from '@/lib/profile';
 
 /** Inner row height (avatar 36 + vertical padding) for clearance math */
 export const HOME_TOP_BAR_HEIGHT = 44;
@@ -17,14 +18,14 @@ const BELOW_HOME_BAR = 10;
 
 type HomeTopBarProps = {
   greeting: string;
-  title: string;
+  title?: string;
 };
 
 export function homeTopBarClearance(topInset: number): number {
   return topInset + FLOATING_HEADER_GAP + HOME_TOP_BAR_HEIGHT + BELOW_HOME_BAR;
 }
 
-export function HomeTopBar({ greeting, title }: HomeTopBarProps) {
+export function HomeTopBar({ greeting, title = 'สูตรบ้านฉัน' }: HomeTopBarProps) {
   const styles = useThemedStyles(createStyles);
   const { colors, blurTint } = useTheme();
   const insets = useSafeAreaInsets();
@@ -34,7 +35,7 @@ export function HomeTopBar({ greeting, title }: HomeTopBarProps) {
       <View style={styles.row}>
         <GlassShell blurTint={blurTint} style={styles.profileCapsule}>
           <View style={styles.avatar}>
-            <AppText style={styles.avatarText}>ส</AppText>
+            <AppText style={styles.avatarText}>{profileAvatarInitial()}</AppText>
           </View>
           <View style={styles.greetingCol}>
             <AppText variant="caption" muted numberOfLines={1}>{greeting}</AppText>

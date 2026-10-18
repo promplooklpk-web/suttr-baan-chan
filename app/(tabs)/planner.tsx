@@ -13,6 +13,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { FloatingHeader, floatingHeaderClearance } from '@/components/FloatingHeader';
+import { ScreenShell } from '@/components/ScreenShell';
+import { accentGlow } from '@/lib/design';
 import { RecipeCoverImage } from '@/components/RecipeCoverImage';
 import { fonts, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
@@ -182,8 +184,21 @@ export default function PlannerScreen() {
     [assignMeal],
   );
 
+  const weekLabel = useMemo(() => {
+    if (days.length === 0) return '';
+    const start = days[0].date;
+    const end = days[days.length - 1].date;
+    const fmt = (iso: string) => {
+      const d = new Date(iso);
+      return d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
+    };
+    return `สัปดาห์ ${fmt(start)} – ${fmt(end)}`;
+  }, [days]);
+
+  const shoppingMissing = shopping.filter((i) => !i.checked).length;
+
   return (
-    <View style={styles.screen}>
+    <ScreenShell>
       <FloatingHeader
         segments={[
           { id: 'plan', label: 'แพลนมื้อ' },
@@ -223,6 +238,8 @@ export default function PlannerScreen() {
       >
         {section === 'plan' && (
           <>
+            <AppText variant="caption" muted style={styles.weekTitle}>{weekLabel}</AppText>
+            <AppText variant="heading" style={styles.plannerHeading}>แพลนมื้อ</AppText>
             <View style={styles.weekNav}>
               <Pressable onPress={() => changeWeek(-1)} hitSlop={8} accessibilityLabel="สัปดาห์ก่อน">
                 <Ionicons name="chevron-back" size={24} color={colors.ink} />
@@ -251,6 +268,7 @@ export default function PlannerScreen() {
                     style={[
                       styles.dayChip,
                       isSelected && styles.dayChipSelected,
+                      isSelected && accentGlow(colors),
                       isToday && !isSelected && styles.dayChipToday,
                     ]}
                   >
@@ -304,6 +322,7 @@ export default function PlannerScreen() {
                   return (
                     <View key={slot} style={styles.slotSection}>
                       <View style={styles.slotHeading}>
+                        <View style={styles.timelineDot} />
                         <Ionicons name={SLOT_ICONS[slot]} size={18} color={colors.orange} />
                         <AppText variant="label">{SLOT_LABELS[slot]}</AppText>
                       </View>
@@ -324,10 +343,24 @@ export default function PlannerScreen() {
                   );
                 })}
 
-                <AppText variant="caption" muted style={styles.calSummary}>
-                  รวมประมาณ {dayCalories > 0 ? `${dayCalories} kcal` : '—'} ต่อวัน
-                  {dayCalories === 0 ? ' (ยังไม่ได้วางเมนู)' : ''}
-                </AppText>
+                <View style={styles.kcalCard}>
+                  <AppText variant="caption" muted>วันนี้ · {selectedDay.date.slice(8, 10)} {selectedDay.date.slice(5, 7)}</AppText>
+                  <AppText variant="title">{dayCalories > 0 ? `${dayCalories.toLocaleString()} kcal` : '—'}</AppText>
+                  <View style={styles.kcalBarBg}>
+                    <View style={[styles.kcalBarFill, { width: `${Math.min(100, (dayCalories / 1800) * 100)}%` }]} />
+                  </View>
+                </View>
+
+                <Pressable style={styles.shopCta} onPress={() => setSection('shop')}>
+                  <Ionicons name="cart-outline" size={22} color={colors.orange} />
+                  <View style={styles.shopCtaText}>
+                    <AppText variant="label">สร้างรายการซื้อของจากแผนสัปดาห์</AppText>
+                    <AppText variant="caption" muted>
+                      ขาด {shoppingMissing} อย่าง · เทียบกับของในตู้เย็น
+                    </AppText>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color={colors.inkMuted} />
+                </Pressable>
               </View>
             )}
           </>
@@ -398,7 +431,7 @@ export default function PlannerScreen() {
           </View>
         </Modal>
       </ScrollView>
-    </View>
+    </ScreenShell>
   );
 }
 
@@ -466,9 +499,10 @@ function EmptyMealCard({
   const { colors } = useTheme();
   return (
     <View style={styles.emptyMealRow}>
-      <Pressable style={styles.emptyMealCard} onPress={onAdd}>
-        <Ionicons name="add" size={22} color={colors.inkMuted} />
-        <AppText variant="label" muted>เพิ่มเมนู</AppText>
+      <Pressable style={styles.emptyMealCardDashed} onPress={onAdd}>
+        <Ionicons name="add-circle-outline" size={22} color={colors.orange} />
+        <AppText variant="label" style={{ color: colors.orange }}>เพิ่มเมนูมื้อเย็น</AppText>
+        <AppText variant="caption" muted>เลือกจากสูตร หรือกดสุ่ม</AppText>
       </Pressable>
       <Pressable style={styles.shuffleMini} onPress={onShuffle} accessibilityLabel="สุ่มเมนู">
         <Ionicons name="dice-outline" size={20} color={colors.orange} />
@@ -481,7 +515,46 @@ function EmptyMealCard({
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream },
+  weekTitle: { marginBottom: 4 },
+  plannerHeading: { fontSize: 26, marginBottom: spacing.md, lineHeight: 32 },
+  timelineDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.orange,
+  },
+  kcalCard: {
+    backgroundColor: colors.white,
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.md,
+    marginTop: spacing.md,
+    gap: spacing.sm,
+  },
+  kcalBarBg: {
+    height: 6,
+    backgroundColor: colors.surface2,
+    borderRadius: radius.pill,
+    overflow: 'hidden',
+  },
+  kcalBarFill: {
+    height: 6,
+    backgroundColor: colors.orange,
+    borderRadius: radius.pill,
+  },
+  shopCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    marginTop: spacing.md,
+    padding: spacing.md,
+    borderRadius: radius.xl,
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  shopCtaText: { flex: 1, gap: 2 },
   weekNav: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -589,6 +662,19 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderWidth: 1.5,
     borderStyle: 'dashed',
     borderColor: colors.border,
+    backgroundColor: colors.white,
+  },
+  emptyMealCardDashed: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.xl,
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+    borderColor: colors.orange,
     backgroundColor: colors.white,
   },
   shuffleMini: {

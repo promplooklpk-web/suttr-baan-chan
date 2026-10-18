@@ -27,6 +27,7 @@ type RecipeMenuCardProps = {
   colorIndex?: number;
   fridgeMatch?: RecipeFridgeMatch | null;
   showFridgeSection?: boolean;
+  testID?: string;
 };
 
 const LIST_THUMB = 72;
@@ -37,6 +38,7 @@ export function RecipeMenuCard({
   colorIndex = 0,
   fridgeMatch,
   showFridgeSection = false,
+  testID,
 }: RecipeMenuCardProps) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
@@ -132,6 +134,9 @@ export function RecipeMenuCard({
               ? 'มีครบทุกอย่าง · ทำเมนูนี้ได้เลย'
               : formatMissingIngredients(fridgeMatch!.missing)}
           </AppText>
+          <AppText variant="caption" muted style={styles.fridgeCountLine}>
+            ตรงกับของในตู้ {fridgeMatch!.haveCount}/{fridgeMatch!.totalCount}
+          </AppText>
         </View>
       )}
     </View>
@@ -139,7 +144,7 @@ export function RecipeMenuCard({
 
   return (
     <Link href={`/recipe/${recipe.id}`} asChild>
-      <LinkPressable style={cardStyle}>
+      <LinkPressable style={cardStyle} testID={testID}>
         {imageBlock}
         {body}
       </LinkPressable>
@@ -263,6 +268,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   missingLine: {
     fontSize: 11,
     lineHeight: 14,
+  },
+  fridgeCountLine: {
+    fontSize: 10,
+    lineHeight: 12,
+    textAlign: 'right',
   },
   progressBg: {
     height: 3,

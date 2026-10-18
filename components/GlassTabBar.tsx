@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { router } from 'expo-router';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
@@ -15,18 +15,19 @@ import { useFridge } from '@/context/FridgeContext';
 const TAB_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   index: 'home',
   fridge: 'snow',
-  picker: 'shuffle',
   planner: 'calendar',
+  settings: 'person',
 };
 
-const TAB_LABELS: Record<string, string> = {
-  index: 'สูตร',
-  fridge: 'ตู้เย็น',
-  picker: 'กินอะไรดี',
-  planner: 'แพลน',
-};
+const BAR_TAB_NAMES = ['index', 'fridge', 'planner', 'settings'] as const;
 
-const BAR_TAB_NAMES = ['index', 'fridge', 'picker', 'planner'] as const;
+function openFabMenu() {
+  Alert.alert('เพิ่มหรือสุ่ม', undefined, [
+    { text: 'เพิ่มสูตรใหม่', onPress: () => router.push('/recipe/edit') },
+    { text: 'วันนี้กินอะไรดี?', onPress: () => router.push('/(tabs)/picker') },
+    { text: 'ยกเลิก', style: 'cancel' },
+  ]);
+}
 
 export function GlassTabBar({ state, descriptors, navigation }: {
   state: { routes: { key: string; name: string }[]; index: number };
@@ -49,7 +50,7 @@ export function GlassTabBar({ state, descriptors, navigation }: {
   const renderTab = (route: { key: string; name: string }) => {
     const routeIndex = state.routes.findIndex((r) => r.key === route.key);
     const { options } = descriptors[route.key];
-    const label = options.title ?? TAB_LABELS[route.name] ?? route.name;
+    const label = options.title ?? route.name;
     const focused = state.index === routeIndex;
     const iconName = TAB_ICONS[route.name] ?? 'home';
     const icon = (focused ? iconName : `${iconName}-outline`) as keyof typeof Ionicons.glyphMap;
@@ -118,9 +119,9 @@ export function GlassTabBar({ state, descriptors, navigation }: {
             {leftRoutes.map(renderTab)}
             <View style={styles.fabSlot}>
               <Pressable
-                onPress={() => router.push('/recipe/edit')}
+                onPress={openFabMenu}
                 style={[styles.fab, accentGlow(colors, true)]}
-                accessibilityLabel="เพิ่มสูตร"
+                accessibilityLabel="เพิ่มหรือสุ่มเมนู"
               >
                 <Ionicons name="add" size={28} color={colors.onAccent} />
               </Pressable>
@@ -164,7 +165,7 @@ const createStyles = (colors: ThemeColors) =>
     tabsRow: {
       flexDirection: 'row',
       alignItems: 'flex-end',
-      paddingHorizontal: 4,
+      paddingHorizontal: 2,
       paddingTop: 8,
       paddingBottom: 6,
     },
@@ -176,7 +177,7 @@ const createStyles = (colors: ThemeColors) =>
       alignItems: 'center',
       justifyContent: 'center',
       paddingVertical: 4,
-      paddingHorizontal: 2,
+      paddingHorizontal: 1,
       borderRadius: radius.pill,
       gap: 1,
     },
@@ -189,7 +190,7 @@ const createStyles = (colors: ThemeColors) =>
       justifyContent: 'center',
     },
     tabLabel: {
-      fontSize: 10,
+      fontSize: 9,
       maxWidth: '100%',
     },
     tabLabelActive: {
@@ -203,7 +204,7 @@ const createStyles = (colors: ThemeColors) =>
     badge: {
       position: 'absolute',
       top: -5,
-      right: -12,
+      right: -10,
       minWidth: 16,
       height: 16,
       borderRadius: 8,
@@ -220,7 +221,7 @@ const createStyles = (colors: ThemeColors) =>
       fontFamily: fonts.semiBold,
     },
     fabSlot: {
-      width: 62,
+      width: 58,
       alignItems: 'center',
       justifyContent: 'flex-end',
       marginBottom: 2,

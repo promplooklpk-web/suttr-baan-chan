@@ -4,9 +4,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { HomeTopBar, homeTopBarClearance } from '@/components/HomeTopBar';
-import { CategoryChips } from '@/components/CategoryChips';
+import { HomeFilterChips, type HomeFilterId } from '@/components/HomeFilterChips';
 import { EmptyState } from '@/components/EmptyState';
 import { RecipeMenuCard } from '@/components/RecipeMenuCard';
+import { ScreenShell } from '@/components/ScreenShell';
 import { spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
@@ -14,8 +15,7 @@ import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useRecipes } from '@/context/RecipesContext';
 import { useFridgeRecipeMatches } from '@/hooks/useFridgeRecipeMatches';
 import { scrollPaddingBottom } from '@/lib/screenLayout';
-
-const HOME_CHIP_CATEGORIES = ['ทั้งหมด', 'จานเดียว', 'ต้ม/แกง', 'ผัด/ทอด'];
+import { totalMinutes } from '@/lib/storage';
 
 function greeting(): string {
   const hour = new Date().getHours();
@@ -30,41 +30,40 @@ export default function HomeScreen() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { recipes, loading } = useRecipes();
-  const [category, setCategory] = useState('ทั้งหมด');
+  const [filter, setFilter] = useState<HomeFilterId>('all');
   const fridgeMatches = useFridgeRecipeMatches(recipes);
 
   const filtered = useMemo(() => {
     let list = recipes;
-    if (category !== 'ทั้งหมด') {
-      if (category === 'จานเดียว') {
-        list = recipes.filter(
-          (r) => r.category === 'อาหารจานเดียว' || r.category === 'จานเดียว',
-        );
-      } else {
-        list = recipes.filter((r) => r.category === category);
-      }
+    if (filter === 'ready') {
+      list = list.filter((r) => (fridgeMatches.getPercent(r.id) ?? 0) >= 100);
+    } else if (filter === 'quick') {
+      list = list.filter((r) => totalMinutes(r) <= 15);
+    } else if (filter === 'clean') {
+      list = list.filter(
+        (r) => r.category === 'อาหารคลีน' || r.tags?.includes('คลีน') === true,
+      );
     }
     return list;
-  }, [recipes, category]);
+  }, [recipes, filter, fridgeMatches]);
 
   const headerClearance = homeTopBarClearance(insets.top);
   const bottomPadding = scrollPaddingBottom(insets.bottom);
-  const sectionTitle = category === 'ทั้งหมด' ? 'สูตรทั้งหมด' : category;
 
   if (loading) {
     return (
-      <View style={styles.screen}>
-        <HomeTopBar greeting={greeting()} title="สูตรบ้านฉัน" />
+      <ScreenShell>
+        <HomeTopBar greeting={greeting()} />
         <View style={[styles.centered, { paddingTop: headerClearance }]}>
           <ActivityIndicator size="large" color={colors.orange} />
         </View>
-      </View>
+      </ScreenShell>
     );
   }
 
   return (
-    <View style={styles.screen}>
-      <HomeTopBar greeting={greeting()} title="สูตรบ้านฉัน" />
+    <ScreenShell>
+      <HomeTopBar greeting={greeting()} />
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,
@@ -72,15 +71,13 @@ export default function HomeScreen() {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <CategoryChips
-          selected={category}
-          onSelect={setCategory}
-          categories={HOME_CHIP_CATEGORIES}
-        />
+        <HomeFilterChips selected={filter} onSelect={setFilter} />
 
         <View style={styles.sectionHeader}>
-          <AppText variant="title" style={styles.sectionTitle}>{sectionTitle}</AppText>
-          <AppText variant="caption" muted>{filtered.length} สูตร</AppText>
+          <AppText variant="title" style={styles.sectionTitle}>สูตรทั้งหมด</AppText>
+          <AppText variant="caption" muted testID="home-recipe-count">
+            {filtered.length} สูตร
+          </AppText>
         </View>
 
         {recipes.length === 0 ? (
@@ -90,9 +87,9 @@ export default function HomeScreen() {
             showAdd
           />
         ) : filtered.length === 0 ? (
-          <EmptyState title="ยังไม่มีสูตรในหมวดนี้" showAdd />
+          <EmptyState title="ยังไม่มีสูตรในตัวกรองนี้" showAdd />
         ) : (
-          <View style={styles.listContent}>
+          <View style={styles.listContent} testID="home-recipe-list">
             {filtered.map((item, index) => (
               <RecipeMenuCard
                 key={item.id}
@@ -101,25 +98,21 @@ export default function HomeScreen() {
                 colorIndex={index}
                 fridgeMatch={fridgeMatches.getMatch(item.id)}
                 showFridgeSection={fridgeMatches.hasFridgeItems}
+                testID="recipe-list-card"
               />
             ))}
           </View>
         )}
       </ScrollView>
-    </View>
+    </ScreenShell>
   );
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: colors.cream,
-  },
   centered: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.cream,
   },
   scrollContent: {
     flexGrow: 1,

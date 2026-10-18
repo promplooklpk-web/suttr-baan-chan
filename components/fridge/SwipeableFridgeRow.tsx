@@ -6,7 +6,7 @@ import { fonts, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
-import { surfaceCard } from '@/lib/design';
+import { accentGlow, surfaceCard } from '@/lib/design';
 import { stepForUnit } from '@/lib/fridgeQuantity';
 import { formatExpiryLine, fridgeItemStatus, statusPillLabel } from '@/lib/fridgeStatus';
 import type { FridgeItem } from '@/types/fridge';
@@ -42,8 +42,14 @@ export function SwipeableFridgeRow({ item, onPress, onUse, onEdit, onDelete }: P
     ]);
   };
 
+  const expired = status.kind === 'expired';
+
   return (
-    <Pressable style={styles.wrap} onPress={onPress} onLongPress={openActions}>
+    <Pressable
+      style={[styles.wrap, expired && accentGlow(colors, true), expired && styles.wrapExpired]}
+      onPress={onPress}
+      onLongPress={openActions}
+    >
       <View style={[styles.accentBar, { backgroundColor: statusColor }]} />
       <View style={[styles.icon, { backgroundColor: `${statusColor}22` }]}>
         <AppText style={[styles.iconLetter, { color: statusColor }]}>
@@ -72,6 +78,9 @@ export function SwipeableFridgeRow({ item, onPress, onUse, onEdit, onDelete }: P
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
+  wrapExpired: {
+    borderColor: colors.danger,
+  },
   wrap: {
     ...surfaceCard(colors),
     flexDirection: 'row',
