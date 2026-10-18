@@ -11,6 +11,8 @@ import { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
 import { FridgeProvider } from '@/context/FridgeContext';
 import { MealPlanProvider } from '@/context/MealPlanContext';
 import { RecipesProvider } from '@/context/RecipesContext';
@@ -85,14 +87,16 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider>
-      <RecipesProvider>
-        <FridgeProvider>
-          <MealPlanProvider>
-            <RootStack />
-          </MealPlanProvider>
-        </FridgeProvider>
-      </RecipesProvider>
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <RecipesProvider>
+          <FridgeProvider>
+            <MealPlanProvider>
+              <RootStack />
+            </MealPlanProvider>
+          </FridgeProvider>
+        </RecipesProvider>
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }

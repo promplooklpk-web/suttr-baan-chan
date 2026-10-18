@@ -11,13 +11,17 @@ import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { FLOATING_HEADER_GAP } from '@/components/FloatingHeader';
 
+/** Inner row height (avatar 36 + vertical padding) for clearance math */
+export const HOME_TOP_BAR_HEIGHT = 52;
+const BELOW_HOME_BAR = 16;
+
 type HomeTopBarProps = {
   greeting: string;
   title: string;
 };
 
 export function homeTopBarClearance(topInset: number): number {
-  return topInset + FLOATING_HEADER_GAP + 56 + 12;
+  return topInset + FLOATING_HEADER_GAP + HOME_TOP_BAR_HEIGHT + BELOW_HOME_BAR;
 }
 
 export function HomeTopBar({ greeting, title }: HomeTopBarProps) {

@@ -27,7 +27,7 @@ export default function SearchScreen() {
   const styles = useThemedStyles(createStyles);
   const { colors, keyboardAppearance } = useTheme();
   const insets = useSafeAreaInsets();
-  const params = useLocalSearchParams<{ tag?: string; favorites?: string }>();
+  const params = useLocalSearchParams<{ tag?: string; favorites?: string; q?: string }>();
   const { recipes, searchRecipes } = useRecipes();
   const [query, setQuery] = useState('');
   const [recent, setRecent] = useState<string[]>([]);
@@ -40,8 +40,11 @@ export default function SearchScreen() {
       setTagFilter(params.tag);
       setQuery(params.tag);
     }
+    if (params.q) {
+      setQuery(params.q);
+    }
     if (params.favorites === '1') setFavoritesOnly(true);
-  }, [params.tag, params.favorites]);
+  }, [params.tag, params.favorites, params.q]);
 
   const fridgeMatches = useFridgeRecipeMatches(recipes);
 

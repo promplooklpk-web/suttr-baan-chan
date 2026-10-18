@@ -3,7 +3,6 @@ import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  FlatList,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -25,6 +24,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useRecipes } from '@/context/RecipesContext';
 import { useFridgeRecipeMatches } from '@/hooks/useFridgeRecipeMatches';
+import { scrollPaddingBottom } from '@/lib/screenLayout';
 
 function greeting(): string {
   const hour = new Date().getHours();
@@ -36,12 +36,13 @@ function greeting(): string {
 
 export default function HomeScreen() {
   const styles = useThemedStyles(createStyles);
-  const { colors } = useTheme();
+  const { colors, keyboardAppearance } = useTheme();
   const insets = useSafeAreaInsets();
   const { recipes, loading } = useRecipes();
   const [category, setCategory] = useState('ทั้งหมด');
   const [fridgeSort, setFridgeSort] = useState(false);
   const [layoutMode, setLayoutMode] = useState<'list' | 'compact'>('list');
+  const [homeQuery, setHomeQuery] = useState('');
   const fridgeMatches = useFridgeRecipeMatches(recipes);
 
   const favorites = useMemo(
@@ -76,6 +77,9 @@ export default function HomeScreen() {
   }, [recipes, category, fridgeSort, fridgeMatches]);
 
   const headerClearance = homeTopBarClearance(insets.top);
+  const bottomPadding = scrollPaddingBottom(insets.bottom);
+
+  const openSearch = () => router.push('/(tabs)/search');
 
   if (loading) {
     return (
@@ -92,14 +96,12 @@ export default function HomeScreen() {
     <View style={styles.screen}>
       <HomeTopBar greeting={greeting()} title="สูตรบ้านฉัน" />
       <ScrollView
-        contentContainerStyle={[styles.scrollContent, { paddingTop: headerClearance }]}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingTop: headerClearance, paddingBottom: bottomPadding },
+        ]}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
-          <AppText variant="heading" style={styles.pageTitle}>สูตรของฉัน</AppText>
-          <AppText variant="caption" muted>{recipes.length} สูตร</AppText>
-        </View>
-
         <Pressable
           style={styles.pickerPromo}
           onPress={() => router.push({ pathname: '/(tabs)/picker', params: { autoShuffle: '1' } })}
@@ -117,13 +119,34 @@ export default function HomeScreen() {
           )}
         </Pressable>
 
+        <Pressable style={styles.searchRow} onPress={openSearch}>
+          <Ionicons name="search-outline" size={20} color={colors.inkMuted} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="ค้นหาจากชื่อสูตร ส่วนผสม แท็ก"
+            placeholderTextColor={colors.inkMuted}
+            value={homeQuery}
+            onChangeText={setHomeQuery}
+            onFocus={openSearch}
+            returnKeyType="search"
+            onSubmitEditing={() => {
+              if (homeQuery.trim()) {
+                router.push({ pathname: '/(tabs)/search', params: { q: homeQuery.trim() } });
+              } else {
+                openSearch();
+              }
+            }}
+            keyboardAppearance={keyboardAppearance}
+          />
+        </Pressable>
+
         <CategoryChips selected={category} onSelect={setCategory} />
         {fridgeMatches.hasFridgeItems && (
           <Pressable
             style={[styles.fridgeChip, fridgeSort && styles.fridgeChipOn]}
             onPress={() => setFridgeSort((v) => !v)}
           >
-            <AppText variant="label" style={{ color: fridgeSort ? colors.white : colors.ink }}>
+            <AppText variant="label" style={{ color: fridgeSort ? colors.onAccent : colors.ink }}>
               ทำได้จากตู้เย็น
             </AppText>
           </Pressable>
@@ -158,9 +181,14 @@ export default function HomeScreen() {
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <AppText variant="title" style={styles.sectionTitleInline}>
-                  {category === 'ทั้งหมด' ? 'สูตรของฉัน' : category}
-                </AppText>
+                <View style={styles.sectionTitleBlock}>
+                  <AppText variant="title" style={styles.sectionTitleInline}>
+                    {category === 'ทั้งหมด' ? 'สูตรของฉัน' : category}
+                  </AppText>
+                  <AppText variant="caption" muted style={styles.recipeCount}>
+                    {filtered.length} สูตร
+                  </AppText>
+                </View>
                 <View style={styles.layoutToggle}>
                   <Pressable
                     accessibilityLabel="แสดงแบบรายการเต็มความกว้าง"
@@ -170,7 +198,7 @@ export default function HomeScreen() {
                     <Ionicons
                       name="list-outline"
                       size={20}
-                      color={layoutMode === 'list' ? colors.white : colors.inkMuted}
+                      color={layoutMode === 'list' ? colors.onAccent : colors.inkMuted}
                     />
                   </Pressable>
                   <Pressable
@@ -181,7 +209,7 @@ export default function HomeScreen() {
                     <Ionicons
                       name="grid-outline"
                       size={18}
-                      color={layoutMode === 'compact' ? colors.white : colors.inkMuted}
+                      color={layoutMode === 'compact' ? colors.onAccent : colors.inkMuted}
                     />
                   </Pressable>
                 </View>
@@ -191,27 +219,34 @@ export default function HomeScreen() {
               )}
               {filtered.length === 0 ? (
                 <EmptyState title="ยังไม่มีสูตรในหมวดนี้" showAdd />
-              ) : (
-                <FlatList
-                  key={layoutMode}
-                  data={filtered}
-                  keyExtractor={(item) => item.id}
-                  numColumns={layoutMode === 'compact' ? 2 : 1}
-                  scrollEnabled={false}
-                  columnWrapperStyle={layoutMode === 'compact' ? styles.gridRow : undefined}
-                  contentContainerStyle={styles.listContent}
-                  renderItem={({ item, index }) => (
-                    <View style={layoutMode === 'compact' ? styles.gridItem : styles.listItem}>
+              ) : layoutMode === 'list' ? (
+                <View style={styles.listContent}>
+                  {filtered.map((item, index) => (
+                    <View key={item.id} style={styles.listItem}>
                       <RecipeMenuCard
                         recipe={item}
-                        layout={layoutMode === 'compact' ? 'compact' : 'list'}
+                        layout="list"
                         colorIndex={index}
                         fridgeMatch={fridgeMatches.getMatch(item.id)}
                         showFridgeSection={fridgeMatches.hasFridgeItems}
                       />
                     </View>
-                  )}
-                />
+                  ))}
+                </View>
+              ) : (
+                <View style={styles.gridWrap}>
+                  {filtered.map((item, index) => (
+                    <View key={item.id} style={styles.gridItem}>
+                      <RecipeMenuCard
+                        recipe={item}
+                        layout="compact"
+                        colorIndex={index}
+                        fridgeMatch={fridgeMatches.getMatch(item.id)}
+                        showFridgeSection={fridgeMatches.hasFridgeItems}
+                      />
+                    </View>
+                  ))}
+                </View>
               )}
             </View>
           </>
@@ -233,7 +268,28 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     backgroundColor: colors.cream,
   },
   scrollContent: {
-    paddingBottom: 120,
+    flexGrow: 1,
+  },
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginHorizontal: spacing.md,
+    marginBottom: spacing.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surface2,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  searchInput: {
+    flex: 1,
+    fontFamily: fonts.regular,
+    fontSize: 15,
+    color: colors.ink,
+    paddingVertical: 6,
+    minWidth: 0,
   },
   fridgeChip: {
     alignSelf: 'flex-start',
@@ -242,7 +298,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: radius.pill,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface2,
     borderWidth: 1,
     borderColor: colors.border,
   },
@@ -250,54 +306,56 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     backgroundColor: colors.orange,
     borderColor: colors.orange,
   },
-  header: {
-    paddingHorizontal: spacing.md,
-    marginBottom: spacing.md,
-    gap: 4,
-  },
-  pageTitle: {
-    fontSize: 28,
-    lineHeight: 34,
-  },
   pickerPromo: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
     marginHorizontal: spacing.md,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
     backgroundColor: colors.white,
     borderRadius: radius.xl,
     borderWidth: 1,
     borderColor: colors.border,
     padding: spacing.md,
   },
-  pickerPromoContent: { flex: 1, gap: 4 },
+  pickerPromoContent: { flex: 1, gap: 4, minWidth: 0 },
   pickerPromoTitle: { fontSize: 17 },
   pickerThumb: {
     width: 56,
     height: 56,
+    flexShrink: 0,
   },
   section: {
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
   },
   sectionHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
     marginBottom: spacing.md,
+    gap: spacing.sm,
+  },
+  sectionTitleBlock: {
+    flex: 1,
+    minWidth: 0,
+    gap: 2,
   },
   sectionTitleInline: {
-    flex: 1,
+    fontSize: 22,
+  },
+  recipeCount: {
+    textAlign: 'left',
   },
   layoutToggle: {
     flexDirection: 'row',
     gap: spacing.xs,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface2,
     borderRadius: radius.pill,
     borderWidth: 1,
     borderColor: colors.border,
     padding: 3,
+    flexShrink: 0,
   },
   layoutBtn: {
     paddingHorizontal: spacing.sm,
@@ -313,21 +371,26 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: spacing.md,
-    gap: 0,
+    width: '100%',
   },
   listItem: {
     width: '100%',
+    alignSelf: 'stretch',
   },
   favRow: {
     flexDirection: 'row',
     paddingLeft: spacing.md,
     paddingRight: spacing.sm,
   },
-  gridRow: {
+  gridWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     paddingHorizontal: spacing.md,
     gap: spacing.md,
   },
   gridItem: {
-    flex: 1,
+    width: '47%',
+    flexGrow: 1,
+    minWidth: 150,
   },
 });

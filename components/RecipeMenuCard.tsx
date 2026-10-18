@@ -25,7 +25,7 @@ type RecipeMenuCardProps = {
   showFridgeSection?: boolean;
 };
 
-const LIST_THUMB = 108;
+const LIST_THUMB = 116;
 
 export function RecipeMenuCard({
   recipe,
@@ -113,7 +113,7 @@ export function RecipeMenuCard({
         <View style={styles.matchBlock}>
           <View style={styles.matchLabelRow}>
             <AppText variant="caption" style={[styles.matchLabel, { color: percentColor }]}>
-              {percent >= 100 ? 'มีครบแล้ว' : formatMissingIngredients(fridgeMatch!.missing)}
+              {percent >= 100 ? 'มีครบทุกอย่าง' : formatMissingIngredients(fridgeMatch!.missing)}
             </AppText>
             <AppText variant="caption" muted>
               {fridgeMatch!.haveCount}/{fridgeMatch!.totalCount}
@@ -162,13 +162,18 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.md,
   },
   cardList: {
+    flex: 0,
     flexDirection: 'row',
-    alignItems: 'stretch',
-    flex: undefined,
+    alignItems: 'center',
+    flexGrow: 0,
+    flexShrink: 0,
+    flexBasis: 'auto',
+    alignSelf: 'stretch',
     width: '100%',
+    maxWidth: '100%',
     padding: spacing.md,
     gap: spacing.md,
-    overflow: 'visible',
+    overflow: 'hidden',
   },
   cardCompact: {
     flex: 1,
@@ -177,22 +182,24 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   imageGrid: {
     aspectRatio: 1,
+    position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
+    width: '100%',
   },
   imageList: {
     width: LIST_THUMB,
-    minHeight: LIST_THUMB,
+    height: LIST_THUMB,
     borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
     flexShrink: 0,
+    flexGrow: 0,
   },
   image: {
-    width: '100%',
-    height: '100%',
+    ...StyleSheet.absoluteFill,
   },
   heartBtn: {
     position: 'absolute',
