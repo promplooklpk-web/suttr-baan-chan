@@ -91,6 +91,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingLeft: 0,
     marginBottom: spacing.sm,
     overflow: 'hidden',
+    minHeight: 64,
+    flexShrink: 0,
   },
   accentBar: {
     width: 3,

@@ -115,7 +115,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
   },
   scrollContent: {
-    flexGrow: 1,
+    flexGrow: 0,
     alignItems: 'stretch',
   },
   sectionHeader: {
@@ -132,5 +132,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   listContent: {
     paddingHorizontal: spacing.md,
     width: '100%',
+    flexGrow: 0,
+    flexShrink: 0,
   },
 });

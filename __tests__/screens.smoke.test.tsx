@@ -39,9 +39,12 @@ describe('screen smoke tests', () => {
   });
 
   it('renders Home with full-width recipe list', async () => {
-    const { findByText, findAllByText } = renderWithProviders(<HomeScreen />);
+    const { findByText, findAllByText, findAllByTestId } = renderWithProviders(<HomeScreen />);
     await findByText('ข้าวผัดไก่');
     expect((await findAllByText('สูตรทั้งหมด')).length).toBeGreaterThanOrEqual(1);
+    const cards = await findAllByTestId('recipe-list-card');
+    expect(cards.length).toBeGreaterThanOrEqual(1);
+    expect((await findAllByText(/\d+%/)).length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders Search with results', async () => {

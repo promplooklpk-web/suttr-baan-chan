@@ -822,6 +822,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: colors.border,
+    flexShrink: 0,
   },
-  historyImage: { width: 64, height: 64 },
+  historyImage: { width: 64, height: 64, flexShrink: 0 },
 });

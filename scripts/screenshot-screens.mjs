@@ -77,6 +77,35 @@ function serveStatic(dir, port) {
   });
 }
 
+const MIN_RECIPE_CARD_HEIGHT = 72;
+
+async function assertHomeRecipeCardHeights(page) {
+  const heights = await page.$$eval('[data-testid="recipe-list-card"]', (nodes) =>
+    nodes.map((el) => el.getBoundingClientRect().height),
+  );
+  if (heights.length === 0) {
+    throw new Error('No recipe-list-card elements found for height assertion');
+  }
+  const tooShort = heights.filter((h) => h < MIN_RECIPE_CARD_HEIGHT);
+  if (tooShort.length > 0) {
+    throw new Error(
+      `Home recipe cards collapsed: ${tooShort.length}/${heights.length} below ${MIN_RECIPE_CARD_HEIGHT}px (heights: ${heights.slice(0, 5).join(', ')}…)`,
+    );
+  }
+  const titlesVisible = await page.$$eval('[data-testid="recipe-list-card"]', (nodes) =>
+    nodes.slice(0, 3).map((card) => {
+      const text = card.textContent ?? '';
+      const hasTitle = text.length > 20 && /[\u0E00-\u0E7F]{4,}/.test(text);
+      const hasPercent = /\d+%/.test(text);
+      return { hasTitle, hasPercent, len: text.length };
+    }),
+  );
+  const bad = titlesVisible.filter((t) => !t.hasTitle || !t.hasPercent);
+  if (bad.length > 0) {
+    throw new Error(`Home cards missing title or % in text snapshot: ${JSON.stringify(titlesVisible)}`);
+  }
+}
+
 async function waitForSeededHome(page) {
   await page.waitForSelector('[data-testid="recipe-list-card"]', { timeout: 90_000 });
   await page.waitForFunction(
@@ -119,6 +148,7 @@ async function main() {
     await page.goto(url, { waitUntil: 'networkidle', timeout: 120_000 });
     if (route.name === 'home') {
       await waitForSeededHome(page);
+      await assertHomeRecipeCardHeights(page);
     } else {
       await page.waitForTimeout(2500);
     }

@@ -31,6 +31,8 @@ type RecipeMenuCardProps = {
 };
 
 const LIST_THUMB = 72;
+/** Minimum list card height (design ~84–92px); used in styles and layout tests */
+export const RECIPE_LIST_CARD_MIN_HEIGHT = 88;
 
 export function RecipeMenuCard({
   recipe,
@@ -165,18 +167,20 @@ export function FridgeEmptyHintChip({ onPress }: { onPress?: () => void }) {
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   card: {
-    flex: 1,
     ...surfaceCard(colors),
     overflow: 'hidden',
     marginBottom: spacing.sm,
   },
   cardList: {
-    flex: 0,
+    flexGrow: 0,
+    flexShrink: 0,
+    flexBasis: 'auto',
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     alignSelf: 'stretch',
     width: '100%',
     maxWidth: '100%',
+    minHeight: RECIPE_LIST_CARD_MIN_HEIGHT,
     padding: 10,
     gap: spacing.sm,
     overflow: 'hidden',
@@ -226,9 +230,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   bodyList: {
     flex: 1,
-    justifyContent: 'center',
+    flexShrink: 1,
+    justifyContent: 'flex-start',
     gap: 3,
     minWidth: 0,
+    minHeight: LIST_THUMB,
     paddingVertical: 2,
   },
   titleRow: {
@@ -249,8 +255,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   percentBadge: {
     fontFamily: fonts.bold,
-    fontSize: 17,
-    lineHeight: 20,
+    fontSize: 18,
+    lineHeight: 22,
+    flexShrink: 0,
   },
   metaRow: {
     flexDirection: 'row',
