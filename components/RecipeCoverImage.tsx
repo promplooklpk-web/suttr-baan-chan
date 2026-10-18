@@ -2,7 +2,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
-import { colors, radius } from '@/constants/theme';
+import { radius } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { recipeCoverUri } from '@/lib/recipeMedia';
 import type { Recipe } from '@/types/recipe';
 
@@ -19,6 +22,8 @@ export function RecipeCoverImage({
   iconSize = 40,
   rounded = radius.lg,
 }: RecipeCoverImageProps) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const uri = recipeCoverUri(recipe);
 
   return (
@@ -34,10 +39,10 @@ export function RecipeCoverImage({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   wrap: {
     overflow: 'hidden',
-    backgroundColor: '#FFE8D6',
+    backgroundColor: colors.imagePlaceholder,
   },
   image: {
     width: '100%',
@@ -47,6 +52,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFE8D6',
+    backgroundColor: colors.imagePlaceholder,
   },
 });

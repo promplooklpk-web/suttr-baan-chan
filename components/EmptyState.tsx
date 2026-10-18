@@ -4,7 +4,10 @@ import { StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { LinkPressable } from '@/components/LinkPressable';
-import { colors, radius, spacing } from '@/constants/theme';
+import { radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 
 type EmptyStateProps = {
   title: string;
@@ -13,6 +16,8 @@ type EmptyStateProps = {
 };
 
 export function EmptyState({ title, subtitle, showAdd }: EmptyStateProps) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   return (
     <View style={styles.wrap}>
       <View style={styles.iconCircle}>
@@ -34,7 +39,7 @@ export function EmptyState({ title, subtitle, showAdd }: EmptyStateProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   wrap: {
     alignItems: 'center',
     paddingHorizontal: spacing.lg,

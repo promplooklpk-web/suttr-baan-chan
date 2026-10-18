@@ -1,7 +1,10 @@
 import { Pressable, ScrollView, StyleSheet } from 'react-native';
 
 import { AppText } from '@/components/AppText';
-import { CATEGORIES, colors, radius, spacing } from '@/constants/theme';
+import { CATEGORIES, radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 
 type CategoryChipsProps = {
   selected: string;
@@ -9,6 +12,8 @@ type CategoryChipsProps = {
 };
 
 export function CategoryChips({ selected, onSelect }: CategoryChipsProps) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   return (
     <ScrollView
       horizontal
@@ -36,7 +41,7 @@ export function CategoryChips({ selected, onSelect }: CategoryChipsProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   row: {
     paddingHorizontal: spacing.md,
     gap: spacing.sm,

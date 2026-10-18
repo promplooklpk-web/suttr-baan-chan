@@ -1,5 +1,4 @@
-import { render } from '@testing-library/react-native';
-
+import { renderWithProviders } from '@/__tests__/testProviders';
 import { RecipeMenuCard } from '@/components/RecipeMenuCard';
 import { matchRecipeToFridge } from '@/lib/fridgeMatch';
 import { seedFridgeItems, seedRecipe } from '@/__tests__/fixtures/seed';
@@ -8,7 +7,7 @@ describe('RecipeMenuCard', () => {
   it('renders compact layout without Slot style error', () => {
     const match = matchRecipeToFridge(seedRecipe, seedFridgeItems);
     expect(() =>
-      render(
+      renderWithProviders(
         <RecipeMenuCard
           recipe={seedRecipe}
           layout="compact"
@@ -22,7 +21,7 @@ describe('RecipeMenuCard', () => {
   it('renders list layout with array styles flattened for Link asChild', () => {
     const match = matchRecipeToFridge(seedRecipe, seedFridgeItems);
     expect(() =>
-      render(
+      renderWithProviders(
         <RecipeMenuCard
           recipe={seedRecipe}
           layout="list"

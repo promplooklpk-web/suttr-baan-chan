@@ -11,12 +11,17 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
-import { colors, fonts, radius, spacing } from '@/constants/theme';
+import { fonts, radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useRecipes } from '@/context/RecipesContext';
 import { collectAllTags, removeTag, renameTag } from '@/lib/tags';
 import { saveRecipes } from '@/lib/storage';
 
 export default function TagsManagementScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors, keyboardAppearance } = useTheme();
   const insets = useSafeAreaInsets();
   const { recipes, refresh } = useRecipes();
   const tags = useMemo(() => collectAllTags(recipes), [recipes]);
@@ -72,6 +77,7 @@ export default function TagsManagementScreen() {
           {editing === item ? (
             <View style={styles.editRow}>
               <TextInput
+          keyboardAppearance={keyboardAppearance}
                 value={editValue}
                 onChangeText={setEditValue}
                 style={styles.input}
@@ -103,7 +109,7 @@ export default function TagsManagementScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   hint: { marginBottom: spacing.md },
   card: {

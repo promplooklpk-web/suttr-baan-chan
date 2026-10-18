@@ -1,6 +1,6 @@
-import { colors } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
 
-export function fridgeProgressColor(percent: number): string {
+export function fridgeProgressColor(percent: number, colors: ThemeColors): string {
   if (percent >= 100) return colors.cardGreen;
   if (percent >= 50) return colors.orange;
   return colors.cardYellow;

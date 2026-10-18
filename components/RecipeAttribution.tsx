@@ -4,7 +4,10 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { AppText } from '@/components/AppText';
 import { stepPhotoMatchLabel } from '@/lib/stepPhotoLabels';
 import { SHOW_STEP_PHOTOS } from '@/constants/featureFlags';
-import { colors, radius, spacing } from '@/constants/theme';
+import { radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import type { Recipe } from '@/types/recipe';
 
 type RecipeAttributionProps = {
@@ -12,6 +15,8 @@ type RecipeAttributionProps = {
 };
 
 export function RecipeAttribution({ recipe }: RecipeAttributionProps) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const hasCoverPhoto =
     recipe.photoCredit || recipe.photoLicense || recipe.photoSource;
   const hasSources = recipe.sources && recipe.sources.length > 0;
@@ -93,7 +98,7 @@ export function RecipeAttribution({ recipe }: RecipeAttributionProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   box: {
     marginTop: spacing.lg,
     padding: spacing.md,

@@ -6,11 +6,12 @@ import { StyleSheet, View } from 'react-native';
 import { AppText } from '@/components/AppText';
 import { LinkPressable } from '@/components/LinkPressable';
 import { FridgeMatchBadge } from '@/components/FridgeMatchBadge';
-import { colors, radius, spacing } from '@/constants/theme';
+import { radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { photoUri, totalMinutes } from '@/lib/storage';
 import type { Recipe } from '@/types/recipe';
-
-const CARD_COLORS = ['#E8F5E9', '#FFF3CD', '#FFE8D6', '#E3F2FD', '#F3E5F5'];
 
 type RecipeCardProps = {
   recipe: Recipe;
@@ -26,9 +27,11 @@ export function RecipeCard({
   colorIndex = 0,
   fridgeMatchPercent,
 }: RecipeCardProps) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const uri = photoUri(recipe.photo?.path);
   const minutes = totalMinutes(recipe);
-  const bg = CARD_COLORS[colorIndex % CARD_COLORS.length];
+  const bg = colors.cardAccentTints[colorIndex % colors.cardAccentTints.length];
   const showFridgeBadge = fridgeMatchPercent != null && fridgeMatchPercent > 0;
 
   if (variant === 'compact') {
@@ -95,7 +98,7 @@ export function RecipeCard({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   gridCard: {
     flex: 1,
     marginBottom: spacing.md,

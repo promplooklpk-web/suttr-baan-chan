@@ -19,7 +19,10 @@ import {
   type PickerCategoryFilter,
 } from '@/components/picker/PickerFilterSheet';
 import { RecipeCoverImage } from '@/components/RecipeCoverImage';
-import { colors, fonts, radius, spacing } from '@/constants/theme';
+import { fonts, radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useFridge } from '@/context/FridgeContext';
 import { useMealPlan } from '@/context/MealPlanContext';
 import { useRecipes } from '@/context/RecipesContext';
@@ -111,6 +114,8 @@ function fridgeWeightedPool(
 }
 
 export default function PickerScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ autoShuffle?: string }>();
   const { recipes, toggleFavorite } = useRecipes();
@@ -434,6 +439,8 @@ function HeroCard({
   onSavePlan: () => void;
   showActions: boolean;
 }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const cal = parseRecipeCalories(recipe);
   const mins = totalMinutes(recipe);
   const category = categoryChipLabel(recipe.category);
@@ -475,7 +482,7 @@ function HeroCard({
               <View
                 style={[
                   styles.progressFill,
-                  { width: `${percent}%`, backgroundColor: fridgeProgressColor(percent) },
+                  { width: `${percent}%`, backgroundColor: fridgeProgressColor(percent, colors) },
                 ]}
               />
             </View>
@@ -502,6 +509,8 @@ function HeroCard({
 }
 
 function MetaChip({ icon, label }: { icon?: keyof typeof Ionicons.glyphMap; label: string }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   return (
     <View style={styles.metaChip}>
       {icon ? <Ionicons name={icon} size={13} color={colors.inkMuted} /> : null}
@@ -510,7 +519,7 @@ function MetaChip({ icon, label }: { icon?: keyof typeof Ionicons.glyphMap; labe
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   mealSegment: {
     flexDirection: 'row',
@@ -560,7 +569,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: colors.border,
-    shadowColor: '#3A2A20',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.1,
     shadowRadius: 16,

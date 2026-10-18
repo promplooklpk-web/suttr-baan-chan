@@ -1,6 +1,8 @@
 import { Text, type TextProps, StyleSheet } from 'react-native';
 
-import { colors, fonts } from '@/constants/theme';
+import { fonts } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
 
 type Variant = 'body' | 'caption' | 'title' | 'heading' | 'label';
 
@@ -25,6 +27,7 @@ export function AppText({
   style,
   ...rest
 }: AppTextProps) {
+  const { colors } = useTheme();
   return (
     <Text
       style={[

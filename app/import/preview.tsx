@@ -10,7 +10,10 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
-import { colors, radius, spacing } from '@/constants/theme';
+import { radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useRecipes } from '@/context/RecipesContext';
 import { applyImportPlan, type ImportPlan } from '@/lib/export/applyImport';
 import { clearPendingImport, getPendingImport } from '@/lib/export/importSession';
@@ -23,6 +26,8 @@ const POLICY_LABELS: Record<DuplicatePolicy, string> = {
 };
 
 export default function ImportPreviewScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { refresh } = useRecipes();
   const pending = getPendingImport();
@@ -135,7 +140,7 @@ export default function ImportPreviewScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.md },
   summary: { paddingHorizontal: spacing.md, marginBottom: spacing.md, gap: spacing.sm },

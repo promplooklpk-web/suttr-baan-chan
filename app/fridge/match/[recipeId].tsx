@@ -3,7 +3,10 @@ import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
-import { colors, fonts, radius, spacing } from '@/constants/theme';
+import { fonts, radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useFridge } from '@/context/FridgeContext';
 import { useRecipes } from '@/context/RecipesContext';
 import { useMealPlan } from '@/context/MealPlanContext';
@@ -11,6 +14,8 @@ import { matchRecipeToFridge, missingShoppingEntries } from '@/lib/fridgeMatch';
 import { mergeIntoShoppingList } from '@/lib/shoppingList';
 
 export default function FridgeMatchDetailScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const { recipeId } = useLocalSearchParams<{ recipeId: string }>();
   const insets = useSafeAreaInsets();
   const { items } = useFridge();
@@ -106,7 +111,7 @@ export default function FridgeMatchDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   section: { marginTop: spacing.lg, marginBottom: spacing.sm },

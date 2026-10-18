@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 
 import { AppText } from '@/components/AppText';
-import { colors, fonts, radius, spacing } from '@/constants/theme';
+import { fonts, radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { formatTimerSeconds } from '@/lib/format';
 
 type StepTimerChipProps = {
@@ -11,6 +14,8 @@ type StepTimerChipProps = {
 };
 
 export function StepTimerChip({ timerSeconds, onComplete }: StepTimerChipProps) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const [remaining, setRemaining] = useState<number | null>(null);
   const active = remaining !== null;
 
@@ -45,7 +50,7 @@ export function StepTimerChip({ timerSeconds, onComplete }: StepTimerChipProps) 
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   chip: {
     alignSelf: 'flex-start',
     marginTop: spacing.sm,
@@ -57,7 +62,7 @@ const styles = StyleSheet.create({
     borderColor: colors.orange,
   },
   chipActive: {
-    backgroundColor: '#FFE8D6',
+    backgroundColor: colors.surface2,
   },
   chipText: {
     color: colors.orange,

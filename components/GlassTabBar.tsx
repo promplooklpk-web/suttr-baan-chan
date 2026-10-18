@@ -5,7 +5,10 @@ import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
-import { colors, fonts, radius, spacing } from '@/constants/theme';
+import { fonts, radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useFridge } from '@/context/FridgeContext';
 
 const TAB_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
@@ -23,6 +26,8 @@ export function GlassTabBar({ state, descriptors, navigation }: {
   descriptors: Record<string, { options: { title?: string } }>;
   navigation: { emit: (e: unknown) => { defaultPrevented?: boolean }; navigate: (name: string) => void };
 }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors, blurTint } = useTheme();
   const insets = useSafeAreaInsets();
   const bottom = Math.max(insets.bottom, spacing.sm);
   const { alertCount } = useFridge();
@@ -31,7 +36,7 @@ export function GlassTabBar({ state, descriptors, navigation }: {
 
   return (
     <View style={[styles.container, { paddingBottom: bottom }]} pointerEvents="box-none">
-      <BlurView intensity={Platform.OS === 'ios' ? 70 : 90} tint="light" style={styles.blur}>
+      <BlurView intensity={Platform.OS === 'ios' ? 70 : 90} tint={blurTint} style={styles.blur}>
         <View style={styles.row}>
           {visibleRoutes.map((route) => {
             const routeIndex = state.routes.findIndex((r) => r.key === route.key);
@@ -92,7 +97,7 @@ export function GlassTabBar({ state, descriptors, navigation }: {
               style={styles.addButton}
               accessibilityLabel="เพิ่มสูตร"
             >
-              <Ionicons name="add" size={32} color={colors.white} />
+              <Ionicons name="add" size={32} color={colors.onAccent} />
             </Pressable>
           </View>
         </View>
@@ -101,7 +106,7 @@ export function GlassTabBar({ state, descriptors, navigation }: {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     position: 'absolute',
     left: spacing.md,
@@ -112,8 +117,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.6)',
-    backgroundColor: Platform.OS === 'android' ? 'rgba(255,247,236,0.92)' : undefined,
+    borderColor: colors.glassBorder,
+    backgroundColor: Platform.OS === 'android' ? colors.glassAndroidBg : undefined,
   },
   row: {
     flexDirection: 'row',
@@ -147,7 +152,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   badgeText: {
-    color: colors.white,
+    color: colors.textOnStatus,
     fontSize: 10,
     fontFamily: fonts.semiBold,
   },

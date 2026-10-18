@@ -3,7 +3,10 @@ import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { StepperButton } from '@/components/fridge/StepperButton';
-import { colors, fonts, radius, spacing } from '@/constants/theme';
+import { fonts, radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import {
   FRIDGE_UNIT_OPTIONS,
   formatQuantityLabel,
@@ -27,6 +30,8 @@ export function FridgeQuantityEditor({
   onUnitChange,
   label = 'จำนวน',
 }: Props) {
+  const styles = useThemedStyles(createStyles);
+  const { colors, keyboardAppearance } = useTheme();
   const [text, setText] = useState(formatQuantityLabel(quantity));
   const [customUnit, setCustomUnit] = useState('');
   const [showCustomUnit, setShowCustomUnit] = useState(
@@ -67,6 +72,7 @@ export function FridgeQuantityEditor({
       <View style={styles.mainRow}>
         <StepperButton direction="down" onStep={() => bump(-step)} />
         <TextInput
+          keyboardAppearance={keyboardAppearance}
           ref={inputRef}
           value={text}
           onChangeText={applyText}
@@ -131,6 +137,7 @@ export function FridgeQuantityEditor({
       </View>
       {showCustomUnit && (
         <TextInput
+          keyboardAppearance={keyboardAppearance}
           value={customUnit}
           onChangeText={(v) => {
             setCustomUnit(v);
@@ -145,7 +152,7 @@ export function FridgeQuantityEditor({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   wrap: { marginTop: spacing.sm },
   mainRow: {
     flexDirection: 'row',

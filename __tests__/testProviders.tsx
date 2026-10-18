@@ -5,24 +5,44 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { FridgeProvider } from '@/context/FridgeContext';
 import { MealPlanProvider } from '@/context/MealPlanContext';
 import { RecipesProvider } from '@/context/RecipesContext';
+import { ThemeProvider } from '@/context/ThemeContext';
 
 const initialMetrics = {
   frame: { x: 0, y: 0, width: 390, height: 844 },
   insets: { top: 47, left: 0, right: 0, bottom: 34 },
 };
 
-function AllProviders({ children }: { children: ReactNode }) {
+type ProviderOptions = {
+  colorScheme?: 'light' | 'dark';
+};
+
+function AllProviders({
+  children,
+  colorScheme,
+}: {
+  children: ReactNode;
+  colorScheme?: 'light' | 'dark';
+}) {
   return (
     <SafeAreaProvider initialMetrics={initialMetrics}>
-      <RecipesProvider>
-        <FridgeProvider>
-          <MealPlanProvider>{children}</MealPlanProvider>
-        </FridgeProvider>
-      </RecipesProvider>
+      <ThemeProvider forcedColorScheme={colorScheme}>
+        <RecipesProvider>
+          <FridgeProvider>
+            <MealPlanProvider>{children}</MealPlanProvider>
+          </FridgeProvider>
+        </RecipesProvider>
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }
 
-export function renderWithProviders(ui: ReactElement, options?: Omit<RenderOptions, 'wrapper'>) {
-  return render(ui, { wrapper: AllProviders, ...options });
+export function renderWithProviders(
+  ui: ReactElement,
+  options?: Omit<RenderOptions, 'wrapper'> & ProviderOptions,
+) {
+  const { colorScheme, ...renderOptions } = options ?? {};
+  const Wrapper = ({ children }: { children: ReactNode }) => (
+    <AllProviders colorScheme={colorScheme}>{children}</AllProviders>
+  );
+  return render(ui, { wrapper: Wrapper, ...renderOptions });
 }

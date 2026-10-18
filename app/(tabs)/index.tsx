@@ -19,7 +19,10 @@ import { EmptyState } from '@/components/EmptyState';
 import { RecipeCard } from '@/components/RecipeCard';
 import { FridgeEmptyHintChip, RecipeMenuCard } from '@/components/RecipeMenuCard';
 import { RecipeCoverImage } from '@/components/RecipeCoverImage';
-import { colors, fonts, radius, spacing } from '@/constants/theme';
+import { fonts, radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useRecipes } from '@/context/RecipesContext';
 import { useFridgeRecipeMatches } from '@/hooks/useFridgeRecipeMatches';
 
@@ -32,6 +35,8 @@ function greeting(): string {
 }
 
 export default function HomeScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { recipes, loading } = useRecipes();
   const [category, setCategory] = useState('ทั้งหมด');
@@ -252,7 +257,7 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.cream,

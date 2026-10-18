@@ -16,7 +16,10 @@ import { AppText } from '@/components/AppText';
 import { FridgeQuantityEditor } from '@/components/fridge/FridgeQuantityEditor';
 import { FridgeUseAmountPanel } from '@/components/fridge/FridgeUseAmountPanel';
 import { RecipeCoverImage } from '@/components/RecipeCoverImage';
-import { colors, fonts, radius, spacing } from '@/constants/theme';
+import { fonts, radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useFridge } from '@/context/FridgeContext';
 import { useRecipes } from '@/context/RecipesContext';
 import { daysUntilExpiry, formatExpiryLine, fridgeItemStatus } from '@/lib/fridgeStatus';
@@ -25,6 +28,8 @@ import { PLACE_LABELS } from '@/lib/fridgeStorage';
 import type { FridgePlace } from '@/types/fridge';
 
 export default function FridgeItemDetailScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors, keyboardAppearance } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
   const { items, updateItem, removeItem, subtractAmount } = useFridge();
@@ -138,6 +143,7 @@ export default function FridgeItemDetailScreen() {
 
         <AppText variant="label" style={{ marginTop: spacing.md }}>โน้ต</AppText>
         <TextInput
+          keyboardAppearance={keyboardAppearance}
           value={note}
           onChangeText={setNote}
           style={[styles.input, styles.note]}
@@ -185,7 +191,7 @@ export default function FridgeItemDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   flex: { flex: 1 },
   screen: { flex: 1, backgroundColor: colors.cream },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },

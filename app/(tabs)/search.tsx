@@ -14,13 +14,18 @@ import { AppText } from '@/components/AppText';
 import { FloatingHeader, floatingHeaderClearance } from '@/components/FloatingHeader';
 import { EmptyState } from '@/components/EmptyState';
 import { FridgeEmptyHintChip, RecipeMenuCard } from '@/components/RecipeMenuCard';
-import { colors, fonts, radius, spacing } from '@/constants/theme';
+import { fonts, radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useRecipes } from '@/context/RecipesContext';
 import { useFridgeRecipeMatches } from '@/hooks/useFridgeRecipeMatches';
 
 const POPULAR_TAGS = ['เผ็ด', 'จานด่วน', 'ทำง่าย', 'ผัด', 'ต้มยำ'];
 
 export default function SearchScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors, keyboardAppearance } = useTheme();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ tag?: string; favorites?: string }>();
   const { recipes, searchRecipes } = useRecipes();
@@ -95,6 +100,7 @@ export default function SearchScreen() {
       <View style={styles.searchBar}>
         <Ionicons name="search" size={20} color={colors.inkMuted} />
         <TextInput
+          keyboardAppearance={keyboardAppearance}
           value={query}
           onChangeText={setQuery}
           onSubmitEditing={onSubmit}
@@ -226,7 +232,7 @@ export default function SearchScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.cream,

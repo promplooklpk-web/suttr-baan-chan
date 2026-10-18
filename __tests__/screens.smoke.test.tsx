@@ -20,6 +20,24 @@ describe('screen smoke tests', () => {
     jest.mocked(router.push).mockClear();
   });
 
+  it('renders Home in dark theme', async () => {
+    const { findByText } = renderWithProviders(<HomeScreen />, { colorScheme: 'dark' });
+    await findByText('สูตรทั้งหมด');
+    await findByText('ข้าวผัดไก่');
+  });
+
+  it('renders Settings theme controls in dark theme', async () => {
+    const { findByText } = renderWithProviders(<SettingsScreen />, { colorScheme: 'dark' });
+    await findByText('ธีม');
+    await findByText('มืด');
+  });
+
+  it('renders Picker in dark theme', async () => {
+    const { findByText } = renderWithProviders(<PickerScreen />, { colorScheme: 'dark' });
+    await findByText('กินอะไรดี');
+    await findByText('สุ่มเมนู');
+  });
+
   it('renders Home with full-width recipe list', async () => {
     const { findByText, getByLabelText } = renderWithProviders(<HomeScreen />);
     await findByText('สูตรทั้งหมด');

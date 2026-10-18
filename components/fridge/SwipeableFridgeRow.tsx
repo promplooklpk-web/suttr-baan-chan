@@ -2,7 +2,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
-import { colors, fonts, radius, spacing } from '@/constants/theme';
+import { fonts, radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { stepForUnit } from '@/lib/fridgeQuantity';
 import { formatExpiryLine, fridgeItemStatus } from '@/lib/fridgeStatus';
 import type { FridgeItem } from '@/types/fridge';
@@ -17,6 +20,8 @@ type Props = {
 
 /** Expo Go–safe row actions (no RNGH swipe — avoids native module mismatch). */
 export function SwipeableFridgeRow({ item, onPress, onUse, onEdit, onDelete }: Props) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const step = stepForUnit(item.unit);
   const status = fridgeItemStatus(item);
   const statusColor =
@@ -62,7 +67,7 @@ export function SwipeableFridgeRow({ item, onPress, onUse, onEdit, onDelete }: P
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   wrap: {
     backgroundColor: colors.white,
     borderBottomWidth: StyleSheet.hairlineWidth,

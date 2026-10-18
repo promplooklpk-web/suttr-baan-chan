@@ -4,7 +4,10 @@ import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
-import { colors, fonts, radius, spacing } from '@/constants/theme';
+import { fonts, radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 
 export const FLOATING_HEADER_GAP = 8;
 export const FLOATING_HEADER_CAPSULE_HEIGHT = 44;
@@ -35,13 +38,15 @@ export function floatingHeaderClearance(topInset: number): number {
 }
 
 function GlassCapsule({ children, style }: { children: React.ReactNode; style?: object }) {
+  const styles = useThemedStyles(createStyles);
+  const { blurTint } = useTheme();
   return (
     <View style={[styles.capsuleShadowWrap, style]}>
       <View style={styles.capsuleHairline}>
         <View style={styles.capsuleBorder}>
           <BlurView
             intensity={Platform.OS === 'ios' ? 80 : 92}
-            tint="light"
+            tint={blurTint}
             style={styles.capsuleBlur}
           >
             <View style={styles.capsuleTint} pointerEvents="none" />
@@ -60,6 +65,8 @@ export function FloatingHeader({
   onSegmentPress,
   actions = [],
 }: FloatingHeaderProps) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const hasSegments = segments != null && segments.length > 0;
 
@@ -128,7 +135,7 @@ export function FloatingHeader({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   wrapper: {
     position: 'absolute',
     left: spacing.md,
@@ -143,24 +150,24 @@ const styles = StyleSheet.create({
   },
   capsuleShadowWrap: {
     borderRadius: radius.pill,
-    shadowColor: '#3A2A20',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.16,
+    shadowOpacity: colors.shadow === colors.orange ? 0.28 : 0.16,
     shadowRadius: 14,
     elevation: 6,
   },
   capsuleHairline: {
     borderRadius: radius.pill,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(58,42,32,0.08)',
+    borderColor: colors.glassHairline,
     padding: StyleSheet.hairlineWidth,
   },
   capsuleBorder: {
     borderRadius: radius.pill,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.9)',
-    backgroundColor: Platform.OS === 'android' ? 'rgba(255,255,255,0.82)' : undefined,
+    borderColor: colors.glassBorder,
+    backgroundColor: Platform.OS === 'android' ? colors.glassAndroidBg : undefined,
   },
   capsuleBlur: {
     borderRadius: radius.pill,
@@ -168,7 +175,7 @@ const styles = StyleSheet.create({
   },
   capsuleTint: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(255,255,255,0.42)',
+    backgroundColor: colors.glassTint,
   },
   capsuleInner: {
     minHeight: FLOATING_HEADER_CAPSULE_HEIGHT,
@@ -197,24 +204,24 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
   },
   segmentPillActive: {
-    backgroundColor: colors.ink,
+    backgroundColor: colors.orange,
   },
   segmentText: {
     color: colors.ink,
     fontSize: 15,
   },
   segmentTextActive: {
-    color: colors.white,
+    color: colors.onAccent,
   },
   titlePill: {
-    backgroundColor: colors.ink,
+    backgroundColor: colors.orange,
     borderRadius: radius.pill,
     paddingHorizontal: spacing.md,
     paddingVertical: 10,
     alignSelf: 'flex-start',
   },
   titleText: {
-    color: colors.white,
+    color: colors.onAccent,
     fontSize: 15,
     fontFamily: fonts.semiBold,
   },

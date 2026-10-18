@@ -2,7 +2,10 @@ import { useState } from 'react';
 import { Alert, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
-import { colors, fonts, radius, spacing } from '@/constants/theme';
+import { fonts, radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import {
   formatQuantityLabel,
   parseQuantityInput,
@@ -17,6 +20,8 @@ type Props = {
 };
 
 export function FridgeUseAmountPanel({ item, onSubtract }: Props) {
+  const styles = useThemedStyles(createStyles);
+  const { colors, keyboardAppearance } = useTheme();
   const [useText, setUseText] = useState('');
 
   const applySubtract = async (amount: number) => {
@@ -48,6 +53,7 @@ export function FridgeUseAmountPanel({ item, onSubtract }: Props) {
       </View>
       <View style={styles.customRow}>
         <TextInput
+          keyboardAppearance={keyboardAppearance}
           value={useText}
           onChangeText={setUseText}
           keyboardType="decimal-pad"
@@ -75,7 +81,7 @@ export function FridgeUseAmountPanel({ item, onSubtract }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   wrap: { marginVertical: spacing.lg },
   presetRow: { gap: spacing.sm, marginTop: spacing.sm },
   presetBtn: {

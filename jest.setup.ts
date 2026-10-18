@@ -97,6 +97,11 @@ jest.mock('@/lib/shoppingList', () => {
   };
 });
 
+jest.mock('@/lib/themeStorage', () => ({
+  loadThemePreference: jest.fn(async () => 'system' as const),
+  saveThemePreference: jest.fn(async () => undefined),
+}));
+
 jest.mock('@/lib/pickerHistory', () => {
   const actual = jest.requireActual('@/lib/pickerHistory');
   return {

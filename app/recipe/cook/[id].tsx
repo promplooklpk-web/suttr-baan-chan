@@ -13,7 +13,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { StepTimerChip } from '@/components/StepTimerChip';
-import { colors, fonts, radius, spacing } from '@/constants/theme';
+import { fonts, radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useRecipes } from '@/context/RecipesContext';
 function scaleAmount(amount: number | undefined, factor: number): string {
   if (amount == null) return '';
@@ -22,6 +25,8 @@ function scaleAmount(amount: number | undefined, factor: number): string {
 }
 
 export default function CookingModeScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
   const { getRecipe } = useRecipes();
@@ -149,6 +154,7 @@ export default function CookingModeScreen() {
 }
 
 function RoundBtn({ label, onPress }: { label: string; onPress: () => void }) {
+  const styles = useThemedStyles(createStyles);
   return (
     <Pressable onPress={onPress} style={styles.roundBtn}>
       <AppText style={styles.roundBtnText}>{label}</AppText>
@@ -156,7 +162,7 @@ function RoundBtn({ label, onPress }: { label: string; onPress: () => void }) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream, paddingHorizontal: spacing.md },
   missing: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.md },
   topBar: {

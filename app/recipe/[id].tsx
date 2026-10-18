@@ -16,7 +16,10 @@ import { RecipeAttribution } from '@/components/RecipeAttribution';
 import { StepPhotoBlock } from '@/components/StepPhotoBlock';
 import { StepTimerChip } from '@/components/StepTimerChip';
 import { SHOW_STEP_PHOTOS } from '@/constants/featureFlags';
-import { colors, fonts, radius, spacing } from '@/constants/theme';
+import { fonts, radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { fridgeBadgeColors } from '@/components/FridgeMatchBadge';
 import { useFridge } from '@/context/FridgeContext';
 import { useRecipes } from '@/context/RecipesContext';
@@ -36,6 +39,8 @@ function scaleAmount(amount: number | undefined, factor: number): string {
 }
 
 export default function RecipeDetailScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
   const { getRecipe, toggleFavorite, deleteRecipe } = useRecipes();
@@ -149,12 +154,12 @@ export default function RecipeDetailScreen() {
               <View
                 style={[
                   styles.fridgeSummary,
-                  { backgroundColor: fridgeBadgeColors(fridgeMatch.percent).backgroundColor },
+                  { backgroundColor: fridgeBadgeColors(fridgeMatch.percent, colors).backgroundColor },
                 ]}
               >
                 <AppText
                   variant="label"
-                  style={{ color: fridgeBadgeColors(fridgeMatch.percent).color }}
+                  style={{ color: fridgeBadgeColors(fridgeMatch.percent, colors).color }}
                 >
                   มีในตู้ {fridgeMatch.percent}% ({fridgeMatch.haveCount}/{fridgeMatch.totalCount} อย่าง)
                 </AppText>
@@ -313,6 +318,8 @@ export default function RecipeDetailScreen() {
 }
 
 function InfoPill({ icon, label }: { icon: keyof typeof Ionicons.glyphMap; label: string }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   return (
     <View style={styles.infoPill}>
       <Ionicons name={icon} size={18} color={colors.orange} />
@@ -322,6 +329,7 @@ function InfoPill({ icon, label }: { icon: keyof typeof Ionicons.glyphMap; label
 }
 
 function RoundBtn({ label, onPress }: { label: string; onPress: () => void }) {
+  const styles = useThemedStyles(createStyles);
   return (
     <Pressable onPress={onPress} style={styles.roundBtn}>
       <AppText style={styles.roundBtnText}>{label}</AppText>
@@ -329,7 +337,7 @@ function RoundBtn({ label, onPress }: { label: string; onPress: () => void }) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.cream,

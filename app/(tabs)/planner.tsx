@@ -14,7 +14,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '@/components/AppText';
 import { FloatingHeader, floatingHeaderClearance } from '@/components/FloatingHeader';
 import { RecipeCoverImage } from '@/components/RecipeCoverImage';
-import { colors, fonts, radius, spacing } from '@/constants/theme';
+import { fonts, radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useFridge } from '@/context/FridgeContext';
 import { useMealPlan } from '@/context/MealPlanContext';
 import { useRecipes } from '@/context/RecipesContext';
@@ -71,6 +74,8 @@ function sumDayCalories(day: MealPlanDay, getRecipe: (id: string) => Recipe | un
 }
 
 export default function PlannerScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { plan, shopping, assignMeal, changeWeek, toggleShoppingItem, rebuildShoppingList } =
     useMealPlan();
@@ -412,6 +417,8 @@ function FilledMealCard({
   onPress: () => void;
   onMenu: () => void;
 }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const cal = parseRecipeCalories(recipe);
   const mins = totalMinutes(recipe);
   const match = fridgeItems.length > 0 ? matchRecipeToFridge(recipe, fridgeItems) : null;
@@ -432,7 +439,7 @@ function FilledMealCard({
                 <View
                   style={[
                     styles.miniProgressFill,
-                    { width: `${percent}%`, backgroundColor: fridgeProgressColor(percent) },
+                    { width: `${percent}%`, backgroundColor: fridgeProgressColor(percent, colors) },
                   ]}
                 />
               </View>
@@ -455,6 +462,8 @@ function EmptyMealCard({
   onAdd: () => void;
   onShuffle: () => void;
 }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   return (
     <View style={styles.emptyMealRow}>
       <Pressable style={styles.emptyMealCard} onPress={onAdd}>
@@ -471,7 +480,7 @@ function EmptyMealCard({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   weekNav: {
     flexDirection: 'row',
@@ -524,7 +533,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   todayPill: {
-    backgroundColor: '#FFF3CD',
+    backgroundColor: colors.warningBanner,
     paddingHorizontal: spacing.sm,
     paddingVertical: 2,
     borderRadius: radius.pill,

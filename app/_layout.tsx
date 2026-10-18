@@ -14,7 +14,7 @@ import 'react-native-reanimated';
 import { FridgeProvider } from '@/context/FridgeContext';
 import { MealPlanProvider } from '@/context/MealPlanContext';
 import { RecipesProvider } from '@/context/RecipesContext';
-import { colors } from '@/constants/theme';
+import { ThemeProvider, useTheme } from '@/context/ThemeContext';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -24,33 +24,12 @@ export const unstable_settings = {
 
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
-  const [loaded, error] = useFonts({
-    Sarabun_400Regular,
-    Sarabun_500Medium,
-    Sarabun_600SemiBold,
-    Sarabun_700Bold,
-  });
-
-  useEffect(() => {
-    if (error) throw error;
-  }, [error]);
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
+function RootStack() {
+  const { colors, statusBarStyle } = useTheme();
 
   return (
-    <RecipesProvider>
-      <FridgeProvider>
-      <MealPlanProvider>
-      <StatusBar style="dark" />
+    <>
+      <StatusBar style={statusBarStyle} />
       <Stack
         screenOptions={{
           headerStyle: { backgroundColor: colors.cream },
@@ -79,8 +58,41 @@ export default function RootLayout() {
         <Stack.Screen name="fridge/[id]" options={{ title: 'รายละเอียด' }} />
         <Stack.Screen name="fridge/match/[recipeId]" options={{ title: 'เช็คของในตู้' }} />
       </Stack>
-      </MealPlanProvider>
-      </FridgeProvider>
-    </RecipesProvider>
+    </>
+  );
+}
+
+export default function RootLayout() {
+  const [loaded, error] = useFonts({
+    Sarabun_400Regular,
+    Sarabun_500Medium,
+    Sarabun_600SemiBold,
+    Sarabun_700Bold,
+  });
+
+  useEffect(() => {
+    if (error) throw error;
+  }, [error]);
+
+  useEffect(() => {
+    if (loaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded]);
+
+  if (!loaded) {
+    return null;
+  }
+
+  return (
+    <ThemeProvider>
+      <RecipesProvider>
+        <FridgeProvider>
+          <MealPlanProvider>
+            <RootStack />
+          </MealPlanProvider>
+        </FridgeProvider>
+      </RecipesProvider>
+    </ThemeProvider>
   );
 }

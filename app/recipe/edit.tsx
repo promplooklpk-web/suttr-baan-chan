@@ -16,7 +16,10 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
-import { CATEGORY_VALUES, colors, fonts, radius, spacing } from '@/constants/theme';
+import { CATEGORY_VALUES, fonts, radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useRecipes } from '@/context/RecipesContext';
 import { copyPhotoToStorage, createRecipeId, deleteRecipePhoto, photoUri } from '@/lib/storage';
 import type { RecipeDifficulty, RecipeIngredient, RecipeStep } from '@/types/recipe';
@@ -25,6 +28,8 @@ const emptyIngredient = (): RecipeIngredient => ({ name: '', amount: undefined, 
 const emptyStep = (): RecipeStep => ({ text: '' });
 
 export default function RecipeEditScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors, keyboardAppearance } = useTheme();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const insets = useSafeAreaInsets();
   const { getRecipe, addRecipe, updateRecipe } = useRecipes();
@@ -163,6 +168,7 @@ export default function RecipeEditScreen() {
 
         <Field label="ชื่อสูตร">
           <TextInput
+          keyboardAppearance={keyboardAppearance}
             value={title}
             onChangeText={setTitle}
             placeholder="เช่น ผัดกะเพราหมูสับ"
@@ -192,6 +198,7 @@ export default function RecipeEditScreen() {
         <View style={styles.row3}>
           <Field label="เวลา (นาที)" style={styles.col}>
             <TextInput
+          keyboardAppearance={keyboardAppearance}
               value={minutes}
               onChangeText={setMinutes}
               keyboardType="number-pad"
@@ -200,6 +207,7 @@ export default function RecipeEditScreen() {
           </Field>
           <Field label="เสิร์ฟ" style={styles.col}>
             <TextInput
+          keyboardAppearance={keyboardAppearance}
               value={servings}
               onChangeText={setServings}
               keyboardType="number-pad"
@@ -231,6 +239,7 @@ export default function RecipeEditScreen() {
         {ingredients.map((ing, i) => (
           <View key={i} style={styles.listRow}>
             <TextInput
+          keyboardAppearance={keyboardAppearance}
               value={ing.name}
               onChangeText={(v) => {
                 const next = [...ingredients];
@@ -242,6 +251,7 @@ export default function RecipeEditScreen() {
               style={[styles.input, styles.flex2]}
             />
             <TextInput
+          keyboardAppearance={keyboardAppearance}
               value={ing.amount != null ? String(ing.amount) : ''}
               onChangeText={(v) => {
                 const next = [...ingredients];
@@ -254,6 +264,7 @@ export default function RecipeEditScreen() {
               style={[styles.input, styles.flex1]}
             />
             <TextInput
+          keyboardAppearance={keyboardAppearance}
               value={ing.unit ?? ''}
               onChangeText={(v) => {
                 const next = [...ingredients];
@@ -282,6 +293,7 @@ export default function RecipeEditScreen() {
           <View key={i} style={styles.stepEdit}>
             <AppText variant="label" muted>{i + 1}.</AppText>
             <TextInput
+          keyboardAppearance={keyboardAppearance}
               value={step.text}
               onChangeText={(v) => {
                 const next = [...steps];
@@ -302,6 +314,7 @@ export default function RecipeEditScreen() {
 
         <Field label="แท็ก (คั่นด้วยจุลภาค)">
           <TextInput
+          keyboardAppearance={keyboardAppearance}
             value={tagsText}
             onChangeText={setTagsText}
             placeholder="เผ็ด, จานด่วน"
@@ -312,6 +325,7 @@ export default function RecipeEditScreen() {
 
         <Field label="โน้ต">
           <TextInput
+          keyboardAppearance={keyboardAppearance}
             value={notes}
             onChangeText={setNotes}
             placeholder="บันทึกเพิ่มเติม"
@@ -340,6 +354,7 @@ function Field({
   children: React.ReactNode;
   style?: object;
 }) {
+  const styles = useThemedStyles(createStyles);
   return (
     <View style={[styles.field, style]}>
       <AppText variant="label" style={styles.fieldLabel}>{label}</AppText>
@@ -349,10 +364,13 @@ function Field({
 }
 
 function SectionTitle({ title }: { title: string }) {
+  const styles = useThemedStyles(createStyles);
   return <AppText variant="title" style={styles.sectionTitle}>{title}</AppText>;
 }
 
 function AddLine({ label, onPress }: { label: string; onPress: () => void }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   return (
     <Pressable onPress={onPress} style={styles.addLine}>
       <AppText style={{ color: colors.orange, fontFamily: fonts.semiBold }}>{label}</AppText>
@@ -360,7 +378,7 @@ function AddLine({ label, onPress }: { label: string; onPress: () => void }) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.cream,

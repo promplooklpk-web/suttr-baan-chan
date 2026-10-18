@@ -3,7 +3,10 @@ import { Modal, Pressable, StyleSheet, Switch, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
-import { colors, fonts, radius, spacing } from '@/constants/theme';
+import { fonts, radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 
 export type PickerCategoryFilter = 'ทั้งหมด' | 'คลีน' | 'จานเดียว';
 
@@ -31,9 +34,11 @@ function FilterChip({
   active: boolean;
   onPress: () => void;
 }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   return (
     <Pressable onPress={onPress} style={[styles.chip, active && styles.chipOn]}>
-      <AppText variant="caption" style={{ color: active ? colors.white : colors.ink, fontFamily: fonts.medium }}>
+      <AppText variant="caption" style={{ color: active ? colors.onAccent : colors.ink, fontFamily: fonts.medium }}>
         {label}
       </AppText>
     </Pressable>
@@ -54,6 +59,8 @@ export function PickerFilterSheet({
   fridgeAvailable,
   onReset,
 }: Props) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
 
   return (
@@ -121,7 +128,7 @@ export function PickerFilterSheet({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   backdrop: {
     flex: 1,
     backgroundColor: 'rgba(58,42,32,0.35)',

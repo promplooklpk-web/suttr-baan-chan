@@ -6,7 +6,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { FloatingHeader, floatingHeaderClearance } from '@/components/FloatingHeader';
-import { colors, radius, spacing } from '@/constants/theme';
+import { radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useRecipes } from '@/context/RecipesContext';
 import { clearAllAppData } from '@/lib/clearData';
 import { useMealPlan } from '@/context/MealPlanContext';
@@ -17,8 +20,11 @@ import { useFridge } from '@/context/FridgeContext';
 import { shareRecipeJsonExport } from '@/lib/export/exportRecipeJson';
 import { parseImportFile } from '@/lib/export/importParse';
 import { setPendingImport } from '@/lib/export/importSession';
+import type { ThemePreference } from '@/lib/themeStorage';
 
 export default function SettingsScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { preference, setPreference } = useTheme();
   const insets = useSafeAreaInsets();
   const { recipes, refresh } = useRecipes();
   const { refresh: refreshPlan } = useMealPlan();
@@ -94,6 +100,27 @@ export default function SettingsScreen() {
           paddingHorizontal: spacing.md,
         }}
       >
+      <Section title="ธีม">
+        <ThemeOption
+          label="ระบบ"
+          subtitle="ตามการตั้งค่าอุปกรณ์ (ค่าเริ่มต้น)"
+          selected={preference === 'system'}
+          onPress={() => setPreference('system')}
+        />
+        <ThemeOption
+          label="สว่าง"
+          subtitle="โทนสว่างตลอด"
+          selected={preference === 'light'}
+          onPress={() => setPreference('light')}
+        />
+        <ThemeOption
+          label="มืด"
+          subtitle="โทนมืดตลอด"
+          selected={preference === 'dark'}
+          onPress={() => setPreference('dark')}
+        />
+      </Section>
+
       <Section title="ส่งออกสูตร">
         <Row
           icon="archive-outline"
@@ -193,11 +220,40 @@ export default function SettingsScreen() {
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  const styles = useThemedStyles(createStyles);
   return (
     <View style={styles.section}>
       <AppText variant="title" style={styles.sectionTitle}>{title}</AppText>
       <View style={styles.card}>{children}</View>
     </View>
+  );
+}
+
+function ThemeOption({
+  label,
+  subtitle,
+  selected,
+  onPress,
+}: {
+  label: string;
+  subtitle: string;
+  selected: boolean;
+  onPress: () => void;
+}) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
+  return (
+    <Pressable style={styles.row} onPress={onPress}>
+      <Ionicons
+        name={selected ? 'radio-button-on' : 'radio-button-off'}
+        size={22}
+        color={selected ? colors.orange : colors.inkMuted}
+      />
+      <View style={styles.rowText}>
+        <AppText variant="label">{label}</AppText>
+        <AppText variant="caption" muted>{subtitle}</AppText>
+      </View>
+    </Pressable>
   );
 }
 
@@ -212,6 +268,8 @@ function Row({
   subtitle: string;
   onPress: () => void;
 }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   return (
     <Pressable style={styles.row} onPress={onPress}>
       <Ionicons name={icon} size={22} color={colors.orange} />
@@ -224,7 +282,7 @@ function Row({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screenWrap: { flex: 1, backgroundColor: colors.cream },
   screen: { flex: 1 },
   section: { marginBottom: spacing.lg },
@@ -245,4 +303,5 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.border,
   },
   rowText: { flex: 1, gap: 2 },
+  themeRowLast: { borderBottomWidth: 0 },
 });

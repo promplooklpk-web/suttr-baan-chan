@@ -15,7 +15,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { FridgeQuantityEditor } from '@/components/fridge/FridgeQuantityEditor';
-import { colors, fonts, radius, spacing } from '@/constants/theme';
+import { fonts, radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { catalogEntryForName, searchIngredientCatalog } from '@/lib/ingredientCatalog';
 import { parseQuantityInput } from '@/lib/fridgeQuantity';
 import { PLACE_LABELS } from '@/lib/fridgeStorage';
@@ -39,6 +42,8 @@ type Props = {
 };
 
 export function AddFridgeSheet({ visible, onClose, catalog, initialName, onSubmit }: Props) {
+  const styles = useThemedStyles(createStyles);
+  const { colors, keyboardAppearance } = useTheme();
   const insets = useSafeAreaInsets();
   const [name, setName] = useState(initialName ?? '');
   const [quantity, setQuantity] = useState(500);
@@ -123,6 +128,7 @@ export function AddFridgeSheet({ visible, onClose, catalog, initialName, onSubmi
           >
             <AppText variant="label">ชื่อ</AppText>
             <TextInput
+          keyboardAppearance={keyboardAppearance}
               value={name}
               onChangeText={setName}
               placeholder="เช่น เนื้อสับ"
@@ -198,6 +204,7 @@ export function AddFridgeSheet({ visible, onClose, catalog, initialName, onSubmi
 
             <AppText variant="label" style={styles.labelTop}>โน้ต</AppText>
             <TextInput
+          keyboardAppearance={keyboardAppearance}
               value={note}
               onChangeText={setNote}
               placeholder="เพิ่มรายละเอียด"
@@ -216,7 +223,7 @@ export function AddFridgeSheet({ visible, onClose, catalog, initialName, onSubmi
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   modalWrap: { flex: 1, justifyContent: 'flex-end' },
   backdrop: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.35)' },
   sheet: {

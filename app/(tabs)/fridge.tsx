@@ -17,7 +17,10 @@ import { AddFridgeSheet } from '@/components/fridge/AddFridgeSheet';
 import { SwipeableFridgeRow } from '@/components/fridge/SwipeableFridgeRow';
 import { FloatingHeader, floatingHeaderClearance } from '@/components/FloatingHeader';
 import { RecipeCoverImage } from '@/components/RecipeCoverImage';
-import { colors, fonts, radius, spacing } from '@/constants/theme';
+import { fonts, radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useFridge } from '@/context/FridgeContext';
 import { useRecipes } from '@/context/RecipesContext';
 import { useMealPlan } from '@/context/MealPlanContext';
@@ -32,6 +35,8 @@ import type { FridgePlace } from '@/types/fridge';
 const POPULAR = ['ไข่ไก่', 'หมูสับ', 'นมสด', 'กะเพรา', 'ข้าวสวย'];
 
 export default function FridgeScreen() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { items, loading, catalog, addItem, subtractAmount, removeItem } = useFridge();
   const { recipes } = useRecipes();
@@ -270,13 +275,13 @@ export default function FridgeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   banner: {
     marginHorizontal: spacing.md,
     marginBottom: spacing.md,
-    backgroundColor: '#FFF3CD',
+    backgroundColor: colors.warningBanner,
     borderRadius: radius.lg,
     padding: spacing.md,
     borderWidth: 1,

@@ -5,7 +5,10 @@ import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
-import { colors, fonts, radius, spacing } from '@/constants/theme';
+import { fonts, radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { stepPhotoMatchLabel } from '@/lib/stepPhotoLabels';
 import { photoUri } from '@/lib/storage';
 import type { RecipePhoto } from '@/types/recipe';
@@ -15,6 +18,8 @@ type StepPhotoBlockProps = {
 };
 
 export function StepPhotoBlock({ photo }: StepPhotoBlockProps) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const uri = photoUri(photo.path);
   const insets = useSafeAreaInsets();
   const [enlarged, setEnlarged] = useState(false);
@@ -65,7 +70,7 @@ export function StepPhotoBlock({ photo }: StepPhotoBlockProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   wrap: {
     marginTop: spacing.sm,
   },

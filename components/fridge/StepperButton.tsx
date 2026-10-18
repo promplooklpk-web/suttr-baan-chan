@@ -2,7 +2,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useRef } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 
-import { colors } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 
 type Props = {
   direction: 'up' | 'down';
@@ -12,6 +14,8 @@ type Props = {
 const REPEAT_MS = 80;
 
 export function StepperButton({ direction, onStep }: Props) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const stop = useCallback(() => {
@@ -43,7 +47,7 @@ export function StepperButton({ direction, onStep }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   btn: {
     width: 44,
     height: 44,

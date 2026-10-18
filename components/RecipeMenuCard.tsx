@@ -5,14 +5,15 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { LinkPressable } from '@/components/LinkPressable';
-import { colors, fonts, radius, spacing } from '@/constants/theme';
+import { fonts, radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { categoryChipLabel, parseRecipeCalories } from '@/lib/recipeMedia';
 import { formatMissingIngredients, fridgeProgressColor } from '@/lib/fridgeMatchDisplay';
 import { photoUri, totalMinutes } from '@/lib/storage';
 import type { RecipeFridgeMatch } from '@/types/fridge';
 import type { Recipe } from '@/types/recipe';
-
-const CARD_COLORS = ['#E8F5E9', '#FFF3CD', '#FFE8D6', '#E3F2FD', '#F3E5F5'];
 
 type RecipeMenuCardProps = {
   recipe: Recipe;
@@ -32,11 +33,13 @@ export function RecipeMenuCard({
   fridgeMatch,
   showFridgeSection = false,
 }: RecipeMenuCardProps) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const uri = photoUri(recipe.photo?.path);
   const minutes = totalMinutes(recipe);
   const cal = parseRecipeCalories(recipe);
   const category = categoryChipLabel(recipe.category);
-  const bg = CARD_COLORS[colorIndex % CARD_COLORS.length];
+  const bg = colors.cardAccentTints[colorIndex % colors.cardAccentTints.length];
   const percent = fridgeMatch?.percent ?? 0;
   const showMatch = showFridgeSection && fridgeMatch != null;
   const isList = layout === 'list';
@@ -98,7 +101,7 @@ export function RecipeMenuCard({
             <View
               style={[
                 styles.progressFill,
-                { width: `${percent}%`, backgroundColor: fridgeProgressColor(percent) },
+                { width: `${percent}%`, backgroundColor: fridgeProgressColor(percent, colors) },
               ]}
             />
           </View>
@@ -121,6 +124,8 @@ export function RecipeMenuCard({
 }
 
 export function FridgeEmptyHintChip({ onPress }: { onPress?: () => void }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   return (
     <Pressable style={styles.hintChip} onPress={onPress}>
       <Ionicons name="snow-outline" size={16} color={colors.inkMuted} />
@@ -129,7 +134,7 @@ export function FridgeEmptyHintChip({ onPress }: { onPress?: () => void }) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   card: {
     flex: 1,
     backgroundColor: colors.white,
@@ -138,7 +143,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     overflow: 'hidden',
     marginBottom: spacing.md,
-    shadowColor: '#3A2A20',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.08,
     shadowRadius: 10,
@@ -183,7 +188,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderRadius: radius.pill,
     padding: 6,
-    shadowColor: '#3A2A20',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,

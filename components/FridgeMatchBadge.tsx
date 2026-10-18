@@ -1,25 +1,33 @@
 import { StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
-import { colors, fonts, radius, spacing } from '@/constants/theme';
+import { fonts, radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import { useTheme } from '@/context/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
 
 type Props = {
   percent: number;
   compact?: boolean;
 };
 
-export function fridgeBadgeColors(percent: number): { backgroundColor: string; color: string } {
+export function fridgeBadgeColors(
+  percent: number,
+  colors: ThemeColors,
+): { backgroundColor: string; color: string } {
   if (percent >= 100) {
-    return { backgroundColor: colors.cardGreen, color: colors.white };
+    return { backgroundColor: colors.cardGreen, color: colors.onAccent };
   }
   if (percent >= 50) {
-    return { backgroundColor: colors.orange, color: colors.white };
+    return { backgroundColor: colors.orange, color: colors.onAccent };
   }
-  return { backgroundColor: colors.cardYellow, color: colors.ink };
+  return { backgroundColor: colors.cardYellow, color: colors.onAccent };
 }
 
 export function FridgeMatchBadge({ percent, compact }: Props) {
-  const palette = fridgeBadgeColors(percent);
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
+  const palette = fridgeBadgeColors(percent, colors);
   return (
     <View style={[styles.badge, compact && styles.badgeCompact, { backgroundColor: palette.backgroundColor }]}>
       <AppText
@@ -33,7 +41,7 @@ export function FridgeMatchBadge({ percent, compact }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   badge: {
     position: 'absolute',
     top: spacing.sm,
@@ -42,7 +50,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: radius.pill,
     maxWidth: '88%',
-    shadowColor: '#3A2A20',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.15,
     shadowRadius: 2,
