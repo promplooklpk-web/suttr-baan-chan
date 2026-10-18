@@ -13,7 +13,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
-import { floatingHeaderClearance } from '@/components/FloatingHeader';
+import { screenTopPadding } from '@/lib/screenLayout';
 import { ScreenShell } from '@/components/ScreenShell';
 import {
   PickerFilterSheet,
@@ -32,6 +32,7 @@ import { useRecipes } from '@/context/RecipesContext';
 import { fridgeProgressColor } from '@/lib/fridgeMatchDisplay';
 import { matchRecipeToFridge } from '@/lib/fridgeMatch';
 import {
+  clearPickerHistory,
   loadPickerHistory,
   pickRandom,
   preferFreshPool,
@@ -274,7 +275,7 @@ export default function PickerScreen() {
   };
 
   const empty = pool.length === 0;
-  const headerClearance = floatingHeaderClearance(insets.top);
+  const headerClearance = screenTopPadding(insets.top);
   const filterSummary = useMemo(() => {
     const parts: string[] = [];
     parts.push(category === 'ทั้งหมด' ? 'จานเดียว' : category);
@@ -413,7 +414,18 @@ export default function PickerScreen() {
 
         {recentHistory.length > 0 && (
           <View style={styles.historySection}>
-            <AppText variant="label" style={styles.historyTitle}>ที่เพิ่งสุ่มเจอ</AppText>
+            <View style={styles.historyHead}>
+              <AppText variant="label" style={styles.historyTitle}>ที่เพิ่งสุ่มเจอ</AppText>
+              <Pressable
+                onPress={async () => {
+                  await clearPickerHistory();
+                  setHistory({});
+                }}
+                hitSlop={8}
+              >
+                <AppText variant="caption" style={styles.historyClear}>ล้าง</AppText>
+              </Pressable>
+            </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View style={styles.historyRow}>
                 {recentHistory.map((r) => (
@@ -423,6 +435,11 @@ export default function PickerScreen() {
                     onPress={() => finishPick(r)}
                   >
                     <RecipeCoverImage recipe={r} style={styles.historyImage} rounded={radius.md} />
+                    <View style={styles.historyLabel}>
+                      <AppText variant="caption" numberOfLines={1} style={styles.historyLabelText}>
+                        {r.title}
+                      </AppText>
+                    </View>
                   </Pressable>
                 ))}
               </View>
@@ -812,17 +829,35 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderColor: colors.orange,
   },
   clearBtnText: { color: colors.orange, fontFamily: fonts.semiBold },
-  historySection: { marginTop: spacing.sm },
-  historyTitle: { marginBottom: spacing.sm },
+  historySection: { marginTop: spacing.lg },
+  historyHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.sm,
+  },
+  historyTitle: { fontFamily: fonts.semiBold },
+  historyClear: { color: colors.orange, fontFamily: fonts.semiBold },
   historyRow: { flexDirection: 'row', gap: spacing.sm, paddingRight: spacing.md },
   historyThumb: {
-    width: 64,
-    height: 64,
+    width: 88,
+    height: 88,
     borderRadius: radius.md,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: colors.border,
     flexShrink: 0,
+    position: 'relative',
   },
-  historyImage: { width: 64, height: 64, flexShrink: 0 },
+  historyImage: { width: 88, height: 88, flexShrink: 0 },
+  historyLabel: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: 4,
+    paddingVertical: 4,
+    backgroundColor: 'rgba(14,13,12,0.72)',
+  },
+  historyLabelText: { color: colors.white, fontSize: 10, lineHeight: 12 },
 });

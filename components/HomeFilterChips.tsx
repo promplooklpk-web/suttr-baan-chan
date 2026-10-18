@@ -12,7 +12,7 @@ export type HomeFilterId = 'all' | 'ready' | 'quick' | 'clean';
 const FILTERS: { id: HomeFilterId; label: string }[] = [
   { id: 'all', label: 'ทั้งหมด' },
   { id: 'ready', label: 'ทำได้เลย' },
-  { id: 'quick', label: '≤ 15 น.' },
+  { id: 'quick', label: '≤ 15 นาที' },
   { id: 'clean', label: 'คลีน' },
 ];
 

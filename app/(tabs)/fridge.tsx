@@ -15,7 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '@/components/AppText';
 import { AddFridgeSheet } from '@/components/fridge/AddFridgeSheet';
 import { SwipeableFridgeRow } from '@/components/fridge/SwipeableFridgeRow';
-import { floatingHeaderClearance } from '@/components/FloatingHeader';
+import { screenTopPadding } from '@/lib/screenLayout';
 import { ScreenShell } from '@/components/ScreenShell';
 import { SegmentPills } from '@/components/SegmentPills';
 import { RecipeCoverImage } from '@/components/RecipeCoverImage';
@@ -49,7 +49,7 @@ export default function FridgeScreen() {
   const [matchFilter, setMatchFilter] = useState<CookMatchFilter>('all');
   const [prioritizeExpiring, setPrioritizeExpiring] = useState(true);
 
-  const headerClearance = floatingHeaderClearance(insets.top);
+  const headerClearance = screenTopPadding(insets.top);
 
   const expiringCount = items.filter((i) => isFridgeItemExpiringSoon(i)).length;
   const expiredCount = items.filter((i) => isFridgeItemExpired(i)).length;
@@ -141,6 +141,9 @@ export default function FridgeScreen() {
                   style={styles.banner}
                   onPress={() => setTab('cook')}
                 >
+                  <View style={styles.bannerIcon}>
+                    <Ionicons name="alert-circle" size={22} color={colors.cardYellow} />
+                  </View>
                   <View style={styles.bannerTextCol}>
                     <AppText variant="label" style={styles.bannerTitle}>
                       {expiringCount > 0 ? `ใกล้หมดอายุ ${expiringCount} รายการ` : 'ตรวจของในตู้'}
@@ -329,11 +332,19 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
     marginBottom: spacing.md,
-    backgroundColor: colors.warningBanner,
-    borderRadius: radius.lg,
+    backgroundColor: colors.surface2,
+    borderRadius: radius.xl,
     padding: spacing.md,
     borderWidth: 1,
     borderColor: colors.cardYellow,
+  },
+  bannerIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: `${colors.cardYellow}22`,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   bannerTextCol: { flex: 1 },
   bannerTitle: { marginBottom: 4, color: colors.cardYellow },

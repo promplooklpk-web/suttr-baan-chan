@@ -74,7 +74,7 @@ export default function HomeScreen() {
         <HomeFilterChips selected={filter} onSelect={setFilter} />
 
         <View style={styles.sectionHeader}>
-          <AppText variant="title" style={styles.sectionTitle}>สูตรทั้งหมด</AppText>
+          <AppText variant="title" style={styles.sectionTitle}>สูตรของฉัน</AppText>
           <AppText variant="caption" muted testID="home-recipe-count">
             {filtered.length} สูตร
           </AppText>

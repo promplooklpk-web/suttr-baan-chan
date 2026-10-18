@@ -11,6 +11,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { ScreenShell } from '@/components/ScreenShell';
+import { scrollPaddingBottom, screenTopPadding } from '@/lib/screenLayout';
 import { fonts, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
@@ -57,11 +59,12 @@ export default function TagsManagementScreen() {
   };
 
   return (
+    <ScreenShell>
     <FlatList
       style={styles.screen}
       contentContainerStyle={{
-        paddingTop: spacing.md,
-        paddingBottom: insets.bottom + spacing.xl,
+        paddingTop: screenTopPadding(insets.top),
+        paddingBottom: scrollPaddingBottom(insets.bottom),
         paddingHorizontal: spacing.md,
       }}
       data={tags}
@@ -106,6 +109,7 @@ export default function TagsManagementScreen() {
         </View>
       )}
     />
+    </ScreenShell>
   );
 }
 

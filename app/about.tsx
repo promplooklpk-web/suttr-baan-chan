@@ -2,7 +2,9 @@ import { ScrollView, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { ScreenShell } from '@/components/ScreenShell';
 import { spacing } from '@/constants/theme';
+import { screenTopPadding, scrollPaddingBottom } from '@/lib/screenLayout';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
@@ -12,11 +14,13 @@ export default function AboutScreen() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   return (
+    <ScreenShell>
     <ScrollView
       style={styles.screen}
       contentContainerStyle={{
         padding: spacing.md,
-        paddingBottom: insets.bottom + spacing.xl,
+        paddingTop: screenTopPadding(insets.top),
+        paddingBottom: scrollPaddingBottom(insets.bottom),
       }}
     >
       <AppText variant="title" style={{ marginBottom: spacing.md }}>สูตรบ้านฉัน</AppText>
@@ -32,6 +36,7 @@ export default function AboutScreen() {
       <AppText variant="label" style={styles.h}>เทคโนโลยี</AppText>
       <AppText style={styles.p}>Expo SDK 57 · React Native · Expo Router</AppText>
     </ScrollView>
+    </ScreenShell>
   );
 }
 

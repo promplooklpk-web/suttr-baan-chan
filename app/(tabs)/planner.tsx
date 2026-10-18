@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
@@ -84,7 +84,10 @@ export default function PlannerScreen() {
   const { recipes, getRecipe } = useRecipes();
   const { items: fridgeItems } = useFridge();
   const [picker, setPicker] = useState<{ date: string; slot: MealSlot } | null>(null);
-  const [section, setSection] = useState<'plan' | 'shop'>('plan');
+  const params = useLocalSearchParams<{ section?: string }>();
+  const [section, setSection] = useState<'plan' | 'shop'>(
+    params.section === 'shop' ? 'shop' : 'plan',
+  );
   const [selectedDate, setSelectedDate] = useState(todayIso());
   const headerClearance = floatingHeaderClearance(insets.top);
 
@@ -316,6 +319,26 @@ export default function PlannerScreen() {
                   )}
                 </View>
 
+                <View style={[styles.kcalCard, accentGlow(colors, false)]}>
+                  <View style={styles.kcalTopRow}>
+                    <AppText variant="caption" muted>
+                      วันนี้ · {selectedDay.date.slice(8, 10)} {selectedDay.date.slice(5, 7)}
+                    </AppText>
+                    <AppText variant="caption" style={styles.kcalGoal}>เป้า 1,800</AppText>
+                  </View>
+                  <AppText variant="title" style={styles.kcalValue}>
+                    {dayCalories > 0 ? `${dayCalories.toLocaleString()} kcal` : '—'}
+                  </AppText>
+                  <View style={styles.kcalBarBg}>
+                    <View
+                      style={[
+                        styles.kcalBarFill,
+                        { width: `${Math.min(100, (dayCalories / 1800) * 100)}%` },
+                      ]}
+                    />
+                  </View>
+                </View>
+
                 {(['breakfast', 'lunch', 'dinner'] as MealSlot[]).map((slot) => {
                   const rid = selectedDay.meals[slot];
                   const recipe = rid ? getRecipe(rid) : undefined;
@@ -335,6 +358,7 @@ export default function PlannerScreen() {
                         />
                       ) : (
                         <EmptyMealCard
+                          slot={slot}
                           onAdd={() => setPicker({ date: selectedDay.date, slot })}
                           onShuffle={() => randomizeSlot(selectedDay.date, slot)}
                         />
@@ -343,16 +367,10 @@ export default function PlannerScreen() {
                   );
                 })}
 
-                <View style={styles.kcalCard}>
-                  <AppText variant="caption" muted>วันนี้ · {selectedDay.date.slice(8, 10)} {selectedDay.date.slice(5, 7)}</AppText>
-                  <AppText variant="title">{dayCalories > 0 ? `${dayCalories.toLocaleString()} kcal` : '—'}</AppText>
-                  <View style={styles.kcalBarBg}>
-                    <View style={[styles.kcalBarFill, { width: `${Math.min(100, (dayCalories / 1800) * 100)}%` }]} />
+                <Pressable style={[styles.shopCta, accentGlow(colors, false)]} onPress={() => setSection('shop')}>
+                  <View style={styles.shopCtaIcon}>
+                    <Ionicons name="basket-outline" size={22} color={colors.orange} />
                   </View>
-                </View>
-
-                <Pressable style={styles.shopCta} onPress={() => setSection('shop')}>
-                  <Ionicons name="cart-outline" size={22} color={colors.orange} />
                   <View style={styles.shopCtaText}>
                     <AppText variant="label">สร้างรายการซื้อของจากแผนสัปดาห์</AppText>
                     <AppText variant="caption" muted>
@@ -488,10 +506,18 @@ function FilledMealCard({
   );
 }
 
+const EMPTY_SLOT_LABEL: Record<MealSlot, string> = {
+  breakfast: 'เพิ่มเมนูมื้อเช้า',
+  lunch: 'เพิ่มเมนูมื้อกลางวัน',
+  dinner: 'เพิ่มเมนูมื้อเย็น',
+};
+
 function EmptyMealCard({
+  slot,
   onAdd,
   onShuffle,
 }: {
+  slot: MealSlot;
   onAdd: () => void;
   onShuffle: () => void;
 }) {
@@ -501,7 +527,7 @@ function EmptyMealCard({
     <View style={styles.emptyMealRow}>
       <Pressable style={styles.emptyMealCardDashed} onPress={onAdd}>
         <Ionicons name="add-circle-outline" size={22} color={colors.orange} />
-        <AppText variant="label" style={{ color: colors.orange }}>เพิ่มเมนูมื้อเย็น</AppText>
+        <AppText variant="label" style={{ color: colors.orange }}>{EMPTY_SLOT_LABEL[slot]}</AppText>
         <AppText variant="caption" muted>เลือกจากสูตร หรือกดสุ่ม</AppText>
       </Pressable>
       <Pressable style={styles.shuffleMini} onPress={onShuffle} accessibilityLabel="สุ่มเมนู">
@@ -529,8 +555,25 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     padding: spacing.md,
-    marginTop: spacing.md,
+    marginBottom: spacing.md,
     gap: spacing.sm,
+  },
+  kcalTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  kcalGoal: { color: colors.orange, fontFamily: fonts.semiBold },
+  kcalValue: { fontSize: 24, lineHeight: 30 },
+  shopCtaIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    backgroundColor: colors.surface2,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   kcalBarBg: {
     height: 6,

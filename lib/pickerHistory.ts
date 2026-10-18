@@ -32,6 +32,10 @@ export async function recordPickerPick(recipeId: string): Promise<void> {
   await writeAsStringAsync(path(), JSON.stringify(history));
 }
 
+export async function clearPickerHistory(): Promise<void> {
+  await writeAsStringAsync(path(), JSON.stringify({}));
+}
+
 export function wasPickedWithinDays(
   recipeId: string,
   history: PickerHistoryStore,

@@ -219,6 +219,14 @@ export default function RecipeDetailScreen() {
 
             {tab === 'ingredients' && (
               <View>
+                {fridgeMatch && (
+                  <View style={styles.ingSectionHead}>
+                    <AppText variant="title">ส่วนผสม</AppText>
+                    <AppText variant="label" style={{ color: colors.orange }}>
+                      มี {fridgeMatch.haveCount} จาก {fridgeMatch.totalCount} อย่าง
+                    </AppText>
+                  </View>
+                )}
                 <View style={styles.servingRow}>
                   <AppText variant="label">จำนวนเสิร์ฟ</AppText>
                   <View style={styles.servingControls}>
@@ -352,6 +360,7 @@ export default function RecipeDetailScreen() {
             style={[styles.cookBtn, accentGlow(colors, true)]}
             onPress={() => router.push(`/recipe/cook/${recipe.id}`)}
           >
+            <Ionicons name="play" size={20} color={colors.onAccent} />
             <AppText style={styles.cookBtnText}>เริ่มทำเมนูนี้</AppText>
           </Pressable>
         </View>
@@ -749,10 +758,19 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     backgroundColor: colors.cream,
   },
   cookBtn: {
+    flexDirection: 'row',
+    gap: spacing.sm,
     backgroundColor: colors.orange,
     borderRadius: radius.pill,
     paddingVertical: spacing.md,
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ingSectionHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.sm,
   },
   cookBtnText: {
     color: colors.onAccent,

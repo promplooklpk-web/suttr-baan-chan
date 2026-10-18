@@ -32,7 +32,7 @@ type RecipeMenuCardProps = {
 
 const LIST_THUMB = 72;
 /** Minimum list card height (design ~84–92px); used in styles and layout tests */
-export const RECIPE_LIST_CARD_MIN_HEIGHT = 88;
+export const RECIPE_LIST_CARD_MIN_HEIGHT = 96;
 
 export function RecipeMenuCard({
   recipe,
