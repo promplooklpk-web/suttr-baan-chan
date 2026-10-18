@@ -10,18 +10,20 @@ import { accentGlow } from '@/lib/design';
 type CategoryChipsProps = {
   selected: string;
   onSelect: (category: string) => void;
+  categories?: readonly string[];
 };
 
-export function CategoryChips({ selected, onSelect }: CategoryChipsProps) {
+export function CategoryChips({ selected, onSelect, categories }: CategoryChipsProps) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
+  const items = categories ?? CATEGORIES;
   return (
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.row}
     >
-      {CATEGORIES.map((cat) => {
+      {items.map((cat) => {
         const active = selected === cat;
         return (
           <Pressable
@@ -47,14 +49,16 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.md,
     gap: spacing.sm,
     paddingBottom: spacing.sm,
+    alignItems: 'flex-start',
   },
   chip: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: 10,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 8,
     borderRadius: radius.pill,
     backgroundColor: colors.surface2,
     borderWidth: 1,
     borderColor: colors.border,
+    alignSelf: 'flex-start',
   },
   chipActive: {
     backgroundColor: colors.orange,

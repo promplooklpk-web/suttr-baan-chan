@@ -12,7 +12,11 @@ import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { CARD_RADIUS, matchProgressGlow, surfaceCard } from '@/lib/design';
 import { categoryChipLabel, parseRecipeCalories } from '@/lib/recipeMedia';
-import { formatMissingIngredients, fridgeProgressColor } from '@/lib/fridgeMatchDisplay';
+import {
+  formatMissingIngredients,
+  fridgeProgressColor,
+  matchPercentColor,
+} from '@/lib/fridgeMatchDisplay';
 import { photoUri, totalMinutes } from '@/lib/storage';
 import type { RecipeFridgeMatch } from '@/types/fridge';
 import type { Recipe } from '@/types/recipe';
@@ -25,7 +29,7 @@ type RecipeMenuCardProps = {
   showFridgeSection?: boolean;
 };
 
-const LIST_THUMB = 116;
+const LIST_THUMB = 72;
 
 export function RecipeMenuCard({
   recipe,
@@ -46,8 +50,7 @@ export function RecipeMenuCard({
   const isList = layout === 'list';
   const isCompact = layout === 'compact' || layout === 'grid';
   const progressColor = fridgeProgressColor(percent, colors);
-  const percentColor =
-    percent >= 100 ? colors.cardGreen : percent >= 50 ? colors.orange : colors.cardYellow;
+  const percentColor = matchPercentColor(percent, colors);
 
   const cardStyle = StyleSheet.flatten([
     styles.card,
@@ -68,12 +71,12 @@ export function RecipeMenuCard({
           {isCompact && <PhotoGradientOverlay variant="card" />}
         </>
       ) : (
-        <Ionicons name="restaurant" size={isList ? 32 : 40} color={colors.orange} />
+        <Ionicons name="restaurant" size={isList ? 26 : 40} color={colors.orange} />
       )}
       <Pressable style={styles.heartBtn} accessibilityLabel="โปรด">
         <Ionicons
           name={recipe.isFavorite ? 'heart' : 'heart-outline'}
-          size={16}
+          size={14}
           color={recipe.isFavorite ? colors.orange : colors.ink}
         />
       </Pressable>
@@ -86,7 +89,11 @@ export function RecipeMenuCard({
   const body = (
     <View style={isList ? styles.bodyList : styles.bodyGrid}>
       <View style={styles.titleRow}>
-        <AppText variant="label" numberOfLines={2} style={[isList ? styles.titleList : styles.title, styles.titleFlex]}>
+        <AppText
+          variant="label"
+          numberOfLines={2}
+          style={[isList ? styles.titleList : styles.title, styles.titleFlex]}
+        >
           {recipe.title}
         </AppText>
         {showMatch && (
@@ -96,13 +103,13 @@ export function RecipeMenuCard({
         )}
       </View>
       <View style={styles.metaRow}>
-        <Ionicons name="time-outline" size={13} color={colors.orange} />
-        <AppText variant="caption" muted>{minutes} น.</AppText>
+        <Ionicons name="time-outline" size={12} color={colors.orange} />
+        <AppText variant="caption" muted style={styles.metaText}>{minutes} น.</AppText>
         {cal != null && (
           <>
             <AppText variant="caption" muted> · </AppText>
-            <Ionicons name="flame-outline" size={13} color={colors.orange} />
-            <AppText variant="caption" muted>{cal} kcal</AppText>
+            <Ionicons name="flame-outline" size={12} color={colors.orange} />
+            <AppText variant="caption" muted style={styles.metaText}>{cal} kcal</AppText>
           </>
         )}
         {!isList && (
@@ -111,23 +118,20 @@ export function RecipeMenuCard({
       </View>
       {showMatch && (
         <View style={styles.matchBlock}>
-          <View style={styles.matchLabelRow}>
-            <AppText variant="caption" style={[styles.matchLabel, { color: percentColor }]}>
-              {percent >= 100 ? 'มีครบทุกอย่าง' : formatMissingIngredients(fridgeMatch!.missing)}
-            </AppText>
-            <AppText variant="caption" muted>
-              {fridgeMatch!.haveCount}/{fridgeMatch!.totalCount}
-            </AppText>
-          </View>
           <View style={styles.progressBg}>
             <View
               style={[
                 styles.progressFill,
                 { width: `${percent}%`, backgroundColor: progressColor },
-                percent >= 100 && matchProgressGlow(colors.cardGreen),
+                percent >= 80 && matchProgressGlow(progressColor),
               ]}
             />
           </View>
+          <AppText variant="caption" muted numberOfLines={1} style={styles.missingLine}>
+            {percent >= 100
+              ? 'มีครบทุกอย่าง · ทำเมนูนี้ได้เลย'
+              : formatMissingIngredients(fridgeMatch!.missing)}
+          </AppText>
         </View>
       )}
     </View>
@@ -159,20 +163,17 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     flex: 1,
     ...surfaceCard(colors),
     overflow: 'hidden',
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   cardList: {
     flex: 0,
     flexDirection: 'row',
     alignItems: 'center',
-    flexGrow: 0,
-    flexShrink: 0,
-    flexBasis: 'auto',
     alignSelf: 'stretch',
     width: '100%',
     maxWidth: '100%',
-    padding: spacing.md,
-    gap: spacing.md,
+    padding: 10,
+    gap: spacing.sm,
     overflow: 'hidden',
   },
   cardCompact: {
@@ -191,7 +192,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   imageList: {
     width: LIST_THUMB,
     height: LIST_THUMB,
-    borderRadius: radius.md,
+    borderRadius: radius.sm,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
@@ -203,11 +204,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   heartBtn: {
     position: 'absolute',
-    top: spacing.sm,
-    left: spacing.sm,
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    top: 4,
+    left: 4,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     backgroundColor: 'rgba(14,13,12,0.55)',
     borderWidth: 1,
     borderColor: colors.glassBorder,
@@ -221,8 +222,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   bodyList: {
     flex: 1,
     justifyContent: 'center',
-    gap: spacing.xs,
+    gap: 3,
     minWidth: 0,
+    paddingVertical: 2,
   },
   titleRow: {
     flexDirection: 'row',
@@ -237,12 +239,13 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   titleList: {
     fontFamily: fonts.semiBold,
-    fontSize: 17,
-    lineHeight: 24,
+    fontSize: 15,
+    lineHeight: 20,
   },
   percentBadge: {
     fontFamily: fonts.bold,
-    fontSize: 15,
+    fontSize: 17,
+    lineHeight: 20,
   },
   metaRow: {
     flexDirection: 'row',
@@ -250,28 +253,25 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     flexWrap: 'wrap',
     gap: 2,
   },
+  metaText: {
+    fontSize: 12,
+  },
   matchBlock: {
-    marginTop: spacing.xs,
-    gap: 6,
+    gap: 4,
+    marginTop: 2,
   },
-  matchLabelRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  matchLabel: {
-    fontFamily: fonts.medium,
-    flex: 1,
+  missingLine: {
+    fontSize: 11,
+    lineHeight: 14,
   },
   progressBg: {
-    height: 6,
+    height: 3,
     backgroundColor: colors.surface2,
     borderRadius: CARD_RADIUS,
     overflow: 'hidden',
   },
   progressFill: {
-    height: 6,
+    height: 3,
     borderRadius: CARD_RADIUS,
   },
   hintChip: {

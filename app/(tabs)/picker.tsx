@@ -51,6 +51,12 @@ const MEAL_SHORT: Record<MealSlot, string> = {
   dinner: 'เย็น',
 };
 
+const MEAL_SEGMENT: Record<MealSlot, string> = {
+  breakfast: 'มื้อเช้า',
+  lunch: 'มื้อกลางวัน',
+  dinner: 'มื้อเย็น',
+};
+
 function defaultMealSlot(): MealSlot {
   const hour = new Date().getHours();
   if (hour < 11) return 'breakfast';
@@ -268,6 +274,13 @@ export default function PickerScreen() {
 
   const empty = pool.length === 0;
   const headerClearance = floatingHeaderClearance(insets.top);
+  const filterSummary = useMemo(() => {
+    const parts: string[] = [];
+    parts.push(category === 'ทั้งหมด' ? 'จานเดียว' : category);
+    if (maxMinutes != null) parts.push(`≤ ${maxMinutes} นาที`);
+    if (maxCalories != null) parts.push(`≤ ${maxCalories} kcal`);
+    return parts.join(' · ');
+  }, [category, maxMinutes, maxCalories]);
   const onPrimaryPress = () => {
     if (phase === 'shuffling') stopShuffle();
     else startShuffle();
@@ -315,24 +328,22 @@ export default function PickerScreen() {
                 variant="label"
                 style={{ color: meal === slot ? colors.onAccent : colors.inkMuted, fontSize: 14 }}
               >
-                {MEAL_SHORT[slot]}
+                {MEAL_SEGMENT[slot]}
               </AppText>
             </Pressable>
           ))}
         </View>
 
         <Pressable
-          style={styles.filterChip}
+          style={styles.filterSummaryRow}
           onPress={() => setFilterOpen(true)}
           accessibilityLabel="ตัวกรอง"
         >
-          <Ionicons name="options-outline" size={18} color={colors.ink} />
-          <AppText variant="label">ตัวกรอง</AppText>
-          {activeFilterCount > 0 && (
-            <View style={styles.filterBadge}>
-              <AppText variant="caption" style={styles.filterBadgeText}>{activeFilterCount}</AppText>
-            </View>
-          )}
+          <Ionicons name="options-outline" size={18} color={colors.orange} />
+          <AppText variant="label" style={styles.filterSummaryText} numberOfLines={1}>
+            {filterSummary}
+          </AppText>
+          <Ionicons name="chevron-down" size={18} color={colors.inkMuted} />
         </Pressable>
 
         {empty ? (
@@ -366,20 +377,29 @@ export default function PickerScreen() {
               )}
             </Animated.View>
 
-            <Pressable
-              style={[styles.shufflePrimary, accentGlow(colors, true)]}
-              onPress={onPrimaryPress}
-              accessibilityLabel={phase === 'shuffling' ? 'หยุดสุ่ม' : 'สุ่มเมนู'}
-            >
-              <Ionicons
-                name={phase === 'shuffling' ? 'hand-left-outline' : 'dice-outline'}
-                size={24}
-                color={colors.onAccent}
-              />
-              <AppText style={styles.shufflePrimaryText}>
-                {phase === 'shuffling' ? 'แตะเพื่อหยุด' : phase === 'result' ? 'สุ่มใหม่' : 'สุ่มเมนู'}
-              </AppText>
-            </Pressable>
+            <View style={styles.shuffleRow}>
+              <Pressable
+                style={[styles.shufflePrimary, accentGlow(colors, true)]}
+                onPress={onPrimaryPress}
+                accessibilityLabel={phase === 'shuffling' ? 'หยุดสุ่ม' : 'สุ่มเมนูใหม่'}
+              >
+                <Ionicons
+                  name={phase === 'shuffling' ? 'hand-left-outline' : 'dice-outline'}
+                  size={22}
+                  color={colors.onAccent}
+                />
+                <AppText style={styles.shufflePrimaryText}>
+                  {phase === 'shuffling' ? 'แตะเพื่อหยุด' : 'สุ่มเมนูใหม่'}
+                </AppText>
+              </Pressable>
+              <Pressable
+                style={styles.playBtn}
+                onPress={() => displayRecipe && router.push(`/recipe/${displayRecipe.id}`)}
+                accessibilityLabel="ดูสูตร"
+              >
+                <Ionicons name="play" size={22} color={colors.ink} />
+              </Pressable>
+            </View>
 
             {phase === 'idle' && displayRecipe && (
               <AppText variant="caption" muted style={styles.previewHint}>
@@ -395,7 +415,7 @@ export default function PickerScreen() {
 
         {recentHistory.length > 0 && (
           <View style={styles.historySection}>
-            <AppText variant="label" style={styles.historyTitle}>เมนูที่เพิ่งสุ่ม</AppText>
+            <AppText variant="label" style={styles.historyTitle}>ที่เพิ่งสุ่มเจอ</AppText>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View style={styles.historyRow}>
                 {recentHistory.map((r) => (
@@ -555,18 +575,38 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   mealSegBtnOn: {
     backgroundColor: colors.orange,
   },
-  filterChip: {
+  filterSummaryRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    alignSelf: 'flex-start',
-    gap: spacing.xs,
-    backgroundColor: colors.white,
+    gap: spacing.sm,
+    backgroundColor: colors.surface2,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.pill,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     marginBottom: spacing.md,
+  },
+  filterSummaryText: {
+    flex: 1,
+    color: colors.orange,
+    fontSize: 14,
+  },
+  shuffleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  playBtn: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: colors.surface2,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   filterBadge: {
     minWidth: 20,
@@ -677,6 +717,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: 24,
   },
   shufflePrimary: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -684,7 +725,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     backgroundColor: colors.orange,
     borderRadius: radius.pill,
     paddingVertical: spacing.md + 2,
-    marginBottom: spacing.sm,
     shadowColor: colors.orange,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,

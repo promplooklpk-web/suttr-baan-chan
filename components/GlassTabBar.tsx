@@ -16,12 +16,18 @@ const TAB_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   index: 'home',
   fridge: 'snow',
   picker: 'shuffle',
-  search: 'search',
   planner: 'calendar',
-  settings: 'settings',
 };
 
-// Props match React Navigation tab bar; kept loose to avoid duplicate @react-navigation version types.
+const TAB_LABELS: Record<string, string> = {
+  index: 'สูตร',
+  fridge: 'ตู้เย็น',
+  picker: 'กินอะไรดี',
+  planner: 'แพลน',
+};
+
+const BAR_TAB_NAMES = ['index', 'fridge', 'picker', 'planner'] as const;
+
 export function GlassTabBar({ state, descriptors, navigation }: {
   state: { routes: { key: string; name: string }[]; index: number };
   descriptors: Record<string, { options: { title?: string } }>;
@@ -33,96 +39,95 @@ export function GlassTabBar({ state, descriptors, navigation }: {
   const bottom = Math.max(insets.bottom, spacing.sm);
   const { alertCount } = useFridge();
 
-  const visibleRoutes = state.routes.filter((r) => r.name !== 'add' && r.name !== 'search');
+  const barRoutes = BAR_TAB_NAMES
+    .map((name) => state.routes.find((r) => r.name === name))
+    .filter((r): r is { key: string; name: string } => r != null);
+
+  const leftRoutes = barRoutes.slice(0, 2);
+  const rightRoutes = barRoutes.slice(2);
+
+  const renderTab = (route: { key: string; name: string }) => {
+    const routeIndex = state.routes.findIndex((r) => r.key === route.key);
+    const { options } = descriptors[route.key];
+    const label = options.title ?? TAB_LABELS[route.name] ?? route.name;
+    const focused = state.index === routeIndex;
+    const iconName = TAB_ICONS[route.name] ?? 'home';
+    const icon = (focused ? iconName : `${iconName}-outline`) as keyof typeof Ionicons.glyphMap;
+
+    const onPress = () => {
+      const event = navigation.emit({
+        type: 'tabPress',
+        target: route.key,
+        canPreventDefault: true,
+      });
+      if (!focused && !event.defaultPrevented) {
+        navigation.navigate(route.name);
+      }
+    };
+
+    const badge = route.name === 'fridge' && alertCount > 0 ? alertCount : 0;
+
+    return (
+      <Pressable
+        key={route.key}
+        onPress={onPress}
+        style={styles.tabHit}
+        accessibilityRole="button"
+        accessibilityState={{ selected: focused }}
+      >
+        <View style={[styles.tabPill, focused && styles.tabPillActive]}>
+          <View style={styles.iconWrap}>
+            <Ionicons
+              name={icon}
+              size={21}
+              color={focused ? colors.orange : colors.inkMuted}
+            />
+            {badge > 0 && (
+              <View style={styles.badge}>
+                <AppText style={styles.badgeText}>
+                  {badge > 9 ? '9+' : badge}
+                </AppText>
+              </View>
+            )}
+          </View>
+          <AppText
+            variant="caption"
+            numberOfLines={1}
+            style={[
+              styles.tabLabel,
+              focused ? styles.tabLabelActive : styles.tabLabelInactive,
+            ]}
+          >
+            {label}
+          </AppText>
+        </View>
+      </Pressable>
+    );
+  };
 
   return (
     <View style={[styles.container, { paddingBottom: bottom }]} pointerEvents="box-none">
-      <View style={styles.barOuter}>
-        <View style={styles.barShadow}>
-          <BlurView
-            intensity={Platform.OS === 'ios' ? 64 : 80}
-            tint={blurTint}
-            style={styles.blur}
-          >
-            <View style={styles.barFill} pointerEvents="none" />
-            <View style={styles.tabsRow}>
-              {visibleRoutes.map((route) => {
-                const routeIndex = state.routes.findIndex((r) => r.key === route.key);
-                const { options } = descriptors[route.key];
-                const label =
-                  options.title ??
-                  ({
-                    index: 'หน้าแรก',
-                    fridge: 'ตู้เย็น',
-                    picker: 'กินอะไรดี',
-                    planner: 'แพลน',
-                    settings: 'ตั้งค่า',
-                  }[route.name] ?? route.name);
-                const focused = state.index === routeIndex;
-                const iconName = TAB_ICONS[route.name] ?? 'home';
-                const icon = (focused ? iconName : `${iconName}-outline`) as keyof typeof Ionicons.glyphMap;
-
-                const onPress = () => {
-                  const event = navigation.emit({
-                    type: 'tabPress',
-                    target: route.key,
-                    canPreventDefault: true,
-                  });
-                  if (!focused && !event.defaultPrevented) {
-                    navigation.navigate(route.name);
-                  }
-                };
-
-                const badge = route.name === 'fridge' && alertCount > 0 ? alertCount : 0;
-
-                return (
-                  <Pressable
-                    key={route.key}
-                    onPress={onPress}
-                    style={styles.tabHit}
-                    accessibilityRole="button"
-                    accessibilityState={{ selected: focused }}
-                  >
-                    <View style={[styles.tabPill, focused && styles.tabPillActive]}>
-                      <View style={styles.iconWrap}>
-                        <Ionicons
-                          name={icon}
-                          size={22}
-                          color={focused ? colors.orange : colors.inkMuted}
-                        />
-                        {badge > 0 && (
-                          <View style={styles.badge}>
-                            <AppText style={styles.badgeText}>
-                              {badge > 9 ? '9+' : badge}
-                            </AppText>
-                          </View>
-                        )}
-                      </View>
-                      <AppText
-                        variant="caption"
-                        numberOfLines={1}
-                        style={[
-                          styles.tabLabel,
-                          focused ? styles.tabLabelActive : styles.tabLabelInactive,
-                        ]}
-                      >
-                        {label}
-                      </AppText>
-                    </View>
-                  </Pressable>
-                );
-              })}
-            </View>
-          </BlurView>
-        </View>
-
-        <Pressable
-          onPress={() => router.push('/recipe/edit')}
-          style={[styles.fab, accentGlow(colors, true)]}
-          accessibilityLabel="เพิ่มสูตร"
+      <View style={styles.barShadow}>
+        <BlurView
+          intensity={Platform.OS === 'ios' ? 64 : 80}
+          tint={blurTint}
+          style={styles.blur}
         >
-          <Ionicons name="add" size={30} color={colors.onAccent} />
-        </Pressable>
+          <View style={styles.barFill} pointerEvents="none" />
+          <View style={styles.tabsRow}>
+            {leftRoutes.map(renderTab)}
+            <View style={styles.fabSlot}>
+              <Pressable
+                onPress={() => router.push('/recipe/edit')}
+                style={[styles.fab, accentGlow(colors, true)]}
+                accessibilityLabel="เพิ่มสูตร"
+              >
+                <Ionicons name="add" size={28} color={colors.onAccent} />
+              </Pressable>
+            </View>
+            {rightRoutes.map(renderTab)}
+          </View>
+        </BlurView>
       </View>
     </View>
   );
@@ -136,12 +141,7 @@ const createStyles = (colors: ThemeColors) =>
       right: spacing.md,
       bottom: 0,
     },
-    barOuter: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
     barShadow: {
-      flex: 1,
       borderRadius: radius.xl,
       shadowColor: colors.tabBarShadow,
       shadowOffset: { width: 0, height: 10 },
@@ -151,7 +151,7 @@ const createStyles = (colors: ThemeColors) =>
     },
     blur: {
       borderRadius: radius.xl,
-      overflow: 'hidden',
+      overflow: 'visible',
       borderWidth: 1,
       borderColor: colors.tabBarBorder,
       backgroundColor: Platform.OS === 'android' ? colors.tabBarFill : undefined,
@@ -159,12 +159,14 @@ const createStyles = (colors: ThemeColors) =>
     barFill: {
       ...StyleSheet.absoluteFill,
       backgroundColor: colors.tabBarFill,
+      borderRadius: radius.xl,
     },
     tabsRow: {
       flexDirection: 'row',
-      alignItems: 'stretch',
+      alignItems: 'flex-end',
       paddingHorizontal: 4,
-      paddingVertical: 6,
+      paddingTop: 8,
+      paddingBottom: 6,
     },
     tabHit: {
       flex: 1,
@@ -173,10 +175,10 @@ const createStyles = (colors: ThemeColors) =>
     tabPill: {
       alignItems: 'center',
       justifyContent: 'center',
-      paddingVertical: 6,
+      paddingVertical: 4,
       paddingHorizontal: 2,
       borderRadius: radius.pill,
-      gap: 2,
+      gap: 1,
     },
     tabPillActive: {
       backgroundColor: colors.tabBarActivePill,
@@ -217,16 +219,22 @@ const createStyles = (colors: ThemeColors) =>
       fontSize: 9,
       fontFamily: fonts.semiBold,
     },
+    fabSlot: {
+      width: 62,
+      alignItems: 'center',
+      justifyContent: 'flex-end',
+      marginBottom: 2,
+    },
     fab: {
-      width: 58,
-      height: 58,
-      borderRadius: 29,
+      width: 52,
+      height: 52,
+      borderRadius: 26,
       backgroundColor: colors.orange,
       alignItems: 'center',
       justifyContent: 'center',
-      marginLeft: -10,
-      zIndex: 2,
+      marginTop: -22,
       borderWidth: 2,
       borderColor: colors.tabBarFill,
+      zIndex: 3,
     },
   });

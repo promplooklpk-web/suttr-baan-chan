@@ -44,7 +44,7 @@ describe('dark theme screen smoke', () => {
   it('Picker', async () => {
     const { findByText } = renderWithProviders(<PickerScreen />, dark);
     await findByText('วันนี้กินอะไรดี?');
-    await findByText('สุ่มเมนู');
+    await findByText('สุ่มเมนูใหม่');
   });
 
   it('Planner', async () => {
@@ -61,7 +61,7 @@ describe('dark theme screen smoke', () => {
     mockedParams.mockReturnValue({ id: seedRecipe.id });
     const { findByText } = renderWithProviders(<RecipeDetailScreen />, dark);
     await findByText(seedRecipe.title);
-    await findByText('เริ่มทำอาหาร');
+    await findByText('เริ่มทำเมนูนี้');
   });
 
   it('Recipe edit (new)', async () => {

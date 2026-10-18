@@ -23,6 +23,7 @@ const ROUTES = [
   { name: 'picker', path: '/picker' },
   { name: 'planner', path: '/planner' },
   { name: 'recipe', path: '/recipe/6da6201a-3a01-4726-aa9a-5bcfc5c8d8c7' },
+  { name: 'settings', path: '/settings' },
 ];
 
 function serveStatic(dir, port) {
@@ -99,7 +100,14 @@ async function main() {
     if (route.name === 'home') {
       await page
         .waitForFunction(
-          () => document.querySelectorAll('img').length > 3 || document.body?.innerText?.includes('ยังไม่มีสูตร'),
+          () => {
+            const t = document.body?.innerText ?? '';
+            return (
+              document.querySelectorAll('img').length > 3
+              || (t.includes('สูตร') && !t.includes('0 สูตร'))
+              || t.includes('ข้าว')
+            );
+          },
           { timeout: 45_000 },
         )
         .catch(() => undefined);

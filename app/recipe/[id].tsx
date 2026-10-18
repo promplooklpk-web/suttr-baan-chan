@@ -26,11 +26,9 @@ import { fridgeBadgeColors } from '@/components/FridgeMatchBadge';
 import { useFridge } from '@/context/FridgeContext';
 import { useRecipes } from '@/context/RecipesContext';
 import { matchRecipeToFridge } from '@/lib/fridgeMatch';
-import {
-  difficultyLabel,
-  photoUri,
-  totalMinutes,
-} from '@/lib/storage';
+import { matchPercentColor } from '@/lib/fridgeMatchDisplay';
+import { parseRecipeCalories } from '@/lib/recipeMedia';
+import { photoUri, totalMinutes } from '@/lib/storage';
 
 type TabKey = 'ingredients' | 'steps' | 'notes';
 
@@ -87,6 +85,7 @@ export default function RecipeDetailScreen() {
   }
 
   const minutes = totalMinutes(recipe);
+  const calories = parseRecipeCalories(recipe);
 
   const onDelete = () => {
     Alert.alert('ลบสูตรนี้?', 'การลบไม่สามารถย้อนกลับได้', [
@@ -136,7 +135,14 @@ export default function RecipeDetailScreen() {
           </View>
 
           <View style={styles.body}>
-            <AppText variant="heading">{recipe.title}</AppText>
+            <View style={styles.titlePercentRow}>
+              <AppText variant="heading" style={styles.detailTitle}>{recipe.title}</AppText>
+              {fridgeMatch && (
+                <AppText style={[styles.detailPercent, { color: matchPercentColor(fridgeMatch.percent, colors) }]}>
+                  {fridgeMatch.percent}%
+                </AppText>
+              )}
+            </View>
             <View style={styles.subRow}>
               {recipe.category && <AppText muted>{recipe.category}</AppText>}
               {recipe.rating != null && (
@@ -148,9 +154,9 @@ export default function RecipeDetailScreen() {
             </View>
 
             <View style={styles.infoBar}>
-              <InfoPill icon="time-outline" label={`${minutes} นาที`} />
-              <InfoPill icon="people-outline" label={`${servings} ที่`} />
-              <InfoPill icon="bar-chart-outline" label={difficultyLabel(recipe.difficulty)} />
+              <InfoPill icon="time-outline" label={`${minutes}`} sub="นาที" />
+              <InfoPill icon="flame-outline" label={calories != null ? `${calories}` : '—'} sub="kcal" />
+              <InfoPill icon="people-outline" label={`${servings}`} sub="เสิร์ฟ" />
             </View>
 
             {fridgeMatch && (
@@ -312,7 +318,7 @@ export default function RecipeDetailScreen() {
             style={[styles.cookBtn, accentGlow(colors, true)]}
             onPress={() => router.push(`/recipe/cook/${recipe.id}`)}
           >
-            <AppText style={styles.cookBtnText}>เริ่มทำอาหาร</AppText>
+            <AppText style={styles.cookBtnText}>เริ่มทำเมนูนี้</AppText>
           </Pressable>
         </View>
       </View>
@@ -320,13 +326,22 @@ export default function RecipeDetailScreen() {
   );
 }
 
-function InfoPill({ icon, label }: { icon: keyof typeof Ionicons.glyphMap; label: string }) {
+function InfoPill({
+  icon,
+  label,
+  sub,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  sub?: string;
+}) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   return (
     <View style={styles.infoPill}>
-      <Ionicons name={icon} size={18} color={colors.orange} />
-      <AppText variant="caption">{label}</AppText>
+      <AppText variant="title" style={styles.infoPillValue}>{label}</AppText>
+      <AppText variant="caption" muted>{sub ?? ''}</AppText>
+      <Ionicons name={icon} size={16} color={colors.orange} style={styles.infoPillIcon} />
     </View>
   );
 }
@@ -383,6 +398,22 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
+  titlePercentRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+    marginBottom: spacing.xs,
+  },
+  detailTitle: {
+    flex: 1,
+    fontSize: 24,
+    lineHeight: 30,
+  },
+  detailPercent: {
+    fontFamily: fonts.bold,
+    fontSize: 26,
+    lineHeight: 30,
+  },
   subRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -409,6 +440,25 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.lg,
   },
   infoPill: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 2,
+    backgroundColor: colors.surface2,
+    borderRadius: radius.md,
+    paddingVertical: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  infoPillValue: {
+    fontFamily: fonts.bold,
+    fontSize: 20,
+  },
+  infoPillIcon: {
+    position: 'absolute',
+    opacity: 0,
+  },
+  infoPillLegacy: {
     alignItems: 'center',
     gap: 4,
     flex: 1,

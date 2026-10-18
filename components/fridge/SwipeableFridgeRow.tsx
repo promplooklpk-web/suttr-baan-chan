@@ -6,8 +6,9 @@ import { fonts, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
+import { surfaceCard } from '@/lib/design';
 import { stepForUnit } from '@/lib/fridgeQuantity';
-import { formatExpiryLine, fridgeItemStatus } from '@/lib/fridgeStatus';
+import { formatExpiryLine, fridgeItemStatus, statusPillLabel } from '@/lib/fridgeStatus';
 import type { FridgeItem } from '@/types/fridge';
 
 type Props = {
@@ -18,7 +19,6 @@ type Props = {
   onDelete: () => void;
 };
 
-/** Expo Go–safe row actions (no RNGH swipe — avoids native module mismatch). */
 export function SwipeableFridgeRow({ item, onPress, onUse, onEdit, onDelete }: Props) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
@@ -43,51 +43,83 @@ export function SwipeableFridgeRow({ item, onPress, onUse, onEdit, onDelete }: P
   };
 
   return (
-    <View style={styles.wrap}>
-      <Pressable style={styles.row} onPress={onPress} onLongPress={openActions}>
-        <View style={[styles.icon, { backgroundColor: `${statusColor}22` }]}>
-          <AppText style={[styles.iconLetter, { color: statusColor }]}>
-            {item.name.charAt(0)}
-          </AppText>
-        </View>
-        <View style={styles.text}>
-          <AppText variant="label" numberOfLines={1}>{item.name}</AppText>
-          <AppText variant="caption" style={{ color: statusColor }}>
-            {formatExpiryLine(item)}
-          </AppText>
-        </View>
+    <Pressable style={styles.wrap} onPress={onPress} onLongPress={openActions}>
+      <View style={[styles.accentBar, { backgroundColor: statusColor }]} />
+      <View style={[styles.icon, { backgroundColor: `${statusColor}22` }]}>
+        <AppText style={[styles.iconLetter, { color: statusColor }]}>
+          {item.name.charAt(0)}
+        </AppText>
+      </View>
+      <View style={styles.text}>
+        <AppText variant="label" numberOfLines={1}>{item.name}</AppText>
+        <AppText variant="caption" muted numberOfLines={1}>
+          {formatExpiryLine(item)}
+        </AppText>
+      </View>
+      <View style={styles.rightCol}>
         <AppText variant="caption" muted>
           {item.quantity} {item.unit}
         </AppText>
-        <Pressable onPress={openActions} hitSlop={8} style={styles.moreBtn}>
-          <Ionicons name="ellipsis-horizontal" size={20} color={colors.inkMuted} />
-        </Pressable>
-      </Pressable>
-    </View>
+        <View style={[styles.statusPill, { borderColor: `${statusColor}66` }]}>
+          <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
+          <AppText variant="caption" style={[styles.statusText, { color: statusColor }]}>
+            {statusPillLabel(item)}
+          </AppText>
+        </View>
+      </View>
+    </Pressable>
   );
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   wrap: {
-    backgroundColor: colors.white,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-  },
-  row: {
+    ...surfaceCard(colors),
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.md,
+    gap: spacing.sm,
+    paddingVertical: spacing.sm,
+    paddingRight: spacing.md,
+    paddingLeft: 0,
+    marginBottom: spacing.sm,
+    overflow: 'hidden',
+  },
+  accentBar: {
+    width: 3,
+    alignSelf: 'stretch',
+    borderTopLeftRadius: radius.xl,
+    borderBottomLeftRadius: radius.xl,
   },
   icon: {
-    width: 44,
-    height: 44,
-    borderRadius: radius.md,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  iconLetter: { fontFamily: fonts.bold, fontSize: 18 },
-  text: { flex: 1, gap: 2 },
-  moreBtn: { padding: spacing.xs },
+  iconLetter: { fontFamily: fonts.bold, fontSize: 16 },
+  text: { flex: 1, gap: 2, minWidth: 0 },
+  rightCol: {
+    alignItems: 'flex-end',
+    gap: 4,
+    flexShrink: 0,
+  },
+  statusPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    backgroundColor: colors.surface2,
+  },
+  statusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  statusText: {
+    fontSize: 11,
+    fontFamily: fonts.medium,
+  },
 });

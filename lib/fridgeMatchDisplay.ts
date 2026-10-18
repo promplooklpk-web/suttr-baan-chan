@@ -1,9 +1,13 @@
 import type { ThemeColors } from '@/constants/colorSchemes';
 
-export function fridgeProgressColor(percent: number, colors: ThemeColors): string {
-  if (percent >= 100) return colors.cardGreen;
+export function matchPercentColor(percent: number, colors: ThemeColors): string {
+  if (percent >= 80) return colors.cardGreen;
   if (percent >= 50) return colors.orange;
   return colors.cardYellow;
+}
+
+export function fridgeProgressColor(percent: number, colors: ThemeColors): string {
+  return matchPercentColor(percent, colors);
 }
 
 export function formatMissingIngredients(missing: string[]): string {

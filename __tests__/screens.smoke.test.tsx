@@ -23,7 +23,7 @@ describe('screen smoke tests', () => {
   it('renders Home in dark theme', async () => {
     const { findByText, findAllByText } = renderWithProviders(<HomeScreen />, { colorScheme: 'dark' });
     await findByText('ข้าวผัดไก่');
-    expect((await findAllByText('สูตรของฉัน')).length).toBeGreaterThanOrEqual(1);
+    expect((await findAllByText('สูตรทั้งหมด')).length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders Settings theme controls in dark theme', async () => {
@@ -35,14 +35,13 @@ describe('screen smoke tests', () => {
   it('renders Picker in dark theme', async () => {
     const { findByText } = renderWithProviders(<PickerScreen />, { colorScheme: 'dark' });
     await findByText('วันนี้กินอะไรดี?');
-    await findByText('สุ่มเมนู');
+    await findByText('สุ่มเมนูใหม่');
   });
 
   it('renders Home with full-width recipe list', async () => {
-    const { findByText, getByLabelText, findAllByText } = renderWithProviders(<HomeScreen />);
+    const { findByText, findAllByText } = renderWithProviders(<HomeScreen />);
     await findByText('ข้าวผัดไก่');
-    expect((await findAllByText('สูตรของฉัน')).length).toBeGreaterThanOrEqual(1);
-    expect(getByLabelText('แสดงแบบรายการเต็มความกว้าง')).toBeTruthy();
+    expect((await findAllByText('สูตรทั้งหมด')).length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders Search with results', async () => {
@@ -79,7 +78,7 @@ describe('screen smoke tests', () => {
   it('renders Picker with hero and shuffle CTA', async () => {
     const { findByText, getByLabelText } = renderWithProviders(<PickerScreen />);
     await findByText('วันนี้กินอะไรดี?');
-    await findByText('สุ่มเมนู');
+    await findByText('สุ่มเมนูใหม่');
     expect(getByLabelText('ตัวกรอง')).toBeTruthy();
   });
 
@@ -111,6 +110,6 @@ describe('screen smoke tests', () => {
     mockedParams.mockReturnValue({ id: seedRecipe.id });
     const { findByText } = renderWithProviders(<RecipeDetailScreen />, { colorScheme: 'dark' });
     await findByText(seedRecipe.title);
-    await findByText('เริ่มทำอาหาร');
+    await findByText('เริ่มทำเมนูนี้');
   });
 });

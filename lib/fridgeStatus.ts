@@ -32,6 +32,15 @@ export function fridgeItemStatus(item: FridgeItem): FridgeStatus {
   return { kind: 'ok', daysLeft, label: 'ปกติ' };
 }
 
+export function statusPillLabel(item: FridgeItem): string {
+  const daysLeft = daysUntilExpiry(item.expiresAt);
+  if (daysLeft != null && daysLeft < 0) return 'หมดอายุแล้ว';
+  if (daysLeft === 0) return 'วันนี้';
+  if (daysLeft === 1) return 'พรุ่งนี้';
+  if (daysLeft != null && daysLeft > 1) return `อีก ${daysLeft} วัน`;
+  return 'ปกติ';
+}
+
 export function formatExpiryLine(item: FridgeItem): string {
   const status = fridgeItemStatus(item);
   if (!item.expiresAt) return status.label;

@@ -145,20 +145,28 @@ export default function FridgeScreen() {
                   style={styles.banner}
                   onPress={() => setTab('cook')}
                 >
-                  <AppText variant="label" style={styles.bannerTitle}>
-                    {expiringCount > 0 ? `ใกล้หมดอายุ ${expiringCount} รายการ` : 'ตรวจของในตู้'}
-                  </AppText>
-                  <AppText variant="caption" style={styles.bannerSub}>
-                    {expiredCount > 0
-                      ? `หมดอายุแล้ว ${expiredCount} รายการ · ดูว่าทำอะไรได้บ้าง`
-                      : 'ดูว่าทำอะไรได้บ้าง'}
-                  </AppText>
+                  <View style={styles.bannerTextCol}>
+                    <AppText variant="label" style={styles.bannerTitle}>
+                      {expiringCount > 0 ? `ใกล้หมดอายุ ${expiringCount} รายการ` : 'ตรวจของในตู้'}
+                    </AppText>
+                    <AppText variant="caption" style={styles.bannerSub}>
+                      {expiredCount > 0
+                        ? `หมดอายุแล้ว ${expiredCount} รายการ · ดูว่าทำอะไรได้บ้าง`
+                        : 'ดูว่าทำอะไรได้บ้าง'}
+                    </AppText>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color={colors.cardYellow} />
                 </Pressable>
               )}
               {grouped.map((g) =>
                 g.items.length === 0 ? null : (
                   <View key={g.place} style={styles.section}>
-                    <AppText variant="label" style={styles.sectionTitle}>{g.label}</AppText>
+                    <View style={styles.sectionHead}>
+                      <AppText variant="label" style={styles.sectionTitle}>{g.label}</AppText>
+                      <View style={styles.sectionBadge}>
+                        <AppText variant="caption" style={styles.sectionBadgeText}>{g.items.length}</AppText>
+                      </View>
+                    </View>
                     {g.items.map((item) => (
                       <SwipeableFridgeRow
                         key={item.id}
@@ -303,7 +311,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   segmentSpacer: { height: spacing.md },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   banner: {
-    marginHorizontal: spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
     marginBottom: spacing.md,
     backgroundColor: colors.warningBanner,
     borderRadius: radius.lg,
@@ -311,10 +321,29 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.cardYellow,
   },
-  bannerTitle: { marginBottom: 4 },
+  bannerTextCol: { flex: 1 },
+  bannerTitle: { marginBottom: 4, color: colors.cardYellow },
   bannerSub: { color: colors.inkMuted },
   section: { marginBottom: spacing.sm },
-  sectionTitle: { paddingHorizontal: spacing.md, marginBottom: spacing.xs },
+  sectionHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  sectionTitle: { fontFamily: fonts.semiBold },
+  sectionBadge: {
+    minWidth: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: colors.surface2,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 6,
+  },
+  sectionBadgeText: { fontSize: 11 },
   empty: { alignItems: 'center', padding: spacing.xl, gap: spacing.md },
   emptyTitle: { textAlign: 'center' },
   emptyBtn: {

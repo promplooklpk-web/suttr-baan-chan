@@ -12,8 +12,8 @@ import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { FLOATING_HEADER_GAP } from '@/components/FloatingHeader';
 
 /** Inner row height (avatar 36 + vertical padding) for clearance math */
-export const HOME_TOP_BAR_HEIGHT = 52;
-const BELOW_HOME_BAR = 16;
+export const HOME_TOP_BAR_HEIGHT = 44;
+const BELOW_HOME_BAR = 10;
 
 type HomeTopBarProps = {
   greeting: string;
@@ -118,15 +118,15 @@ const createStyles = (colors: ThemeColors) =>
       flexDirection: 'row',
       alignItems: 'center',
       paddingHorizontal: spacing.sm,
-      paddingVertical: 8,
+      paddingVertical: 6,
       gap: spacing.sm,
     },
     profileCapsule: { flex: 1, minWidth: 0 },
     actionsCapsule: { flexShrink: 0 },
     avatar: {
-      width: 36,
-      height: 36,
-      borderRadius: 18,
+      width: 32,
+      height: 32,
+      borderRadius: 16,
       backgroundColor: colors.orange,
       alignItems: 'center',
       justifyContent: 'center',
@@ -134,13 +134,13 @@ const createStyles = (colors: ThemeColors) =>
     avatarText: {
       color: colors.onAccent,
       fontFamily: fonts.bold,
-      fontSize: 16,
+      fontSize: 14,
     },
-    greetingCol: { flex: 1, minWidth: 0, gap: 1 },
-    appName: { fontFamily: fonts.semiBold, fontSize: 15 },
+    greetingCol: { flex: 1, minWidth: 0, gap: 0 },
+    appName: { fontFamily: fonts.semiBold, fontSize: 14 },
     iconBtn: {
-      width: 40,
-      height: 40,
+      width: 36,
+      height: 36,
       alignItems: 'center',
       justifyContent: 'center',
     },
