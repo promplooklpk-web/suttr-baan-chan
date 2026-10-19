@@ -1,0 +1,23 @@
+/** Bundled recipe ids shipped in seed pack v3 (replaced in v4 weight-loss pack). */
+export const SEED_PACK_V3_RECIPE_IDS = new Set([
+  '6da6201a-3a01-4726-aa9a-5bcfc5c8d8c7',
+  'cd6475a5-3510-4781-8678-aed2f312ae62',
+  '43df8234-5290-4f89-b973-9697211d2bc7',
+  'aef8139e-458a-4c1d-ac77-0ec002b647c9',
+  '8a9b0063-e11d-448a-814e-6601cd524db8',
+  '87aa82cb-b22e-4c53-a859-790c17c0527d',
+  '2ddadbc2-4196-4cbc-ab23-5b1cd6ad174f',
+  '4c6a2525-ae3a-4445-a21d-423f1c3a367c',
+  'd331b4f5-2d77-42f0-bcf3-3bd658d115b6',
+  '64403abb-5ef9-4c7a-9ff2-6a50d1076f0c',
+  'd099dea5-37a6-50df-bdac-c315534ed33c',
+  'b521fbf4-7d0f-51e6-9ea4-370e3dff236d',
+  '8085ca71-c7bc-52e8-8191-1ead10b38ca1',
+  'f818dfbe-50bb-53fa-8e0a-16d3f63a0e0d',
+  '4feb11a1-6b5b-5b1b-ae4e-d28a9721f241',
+  'd325d45e-66b0-5c5a-b8df-4100b6d5f19d',
+  'b2f0186b-0bb4-5e10-997d-f548fc747c8f',
+  'eec6295f-931d-565f-b7d6-8f037832facc',
+  '4c1b180d-fec6-51af-83ca-893ed67873f2',
+  '0a3b64eb-4122-5710-a08c-867d35e44762',
+]);

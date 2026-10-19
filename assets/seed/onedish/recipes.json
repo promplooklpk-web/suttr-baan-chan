@@ -1,1360 +1,253 @@
 {
   "schemaVersion": 1,
   "app": "baan-chan-recipes",
-  "exportedAt": "2026-10-17T14:00:00+07:00",
+  "exportedAt": "2026-10-19T10:00:00+07:00",
   "includesPhotos": true,
   "format": "zip",
   "recipes": [
     {
-      "id": "d099dea5-37a6-50df-bdac-c315534ed33c",
-      "title": "ข้าวผัดอกไก่",
-      "category": "อาหารจานเดียว",
+      "id": "b4020001-4a20-4f80-a002-000000000001",
+      "title": "ข้าวกล้องอกไก่ย่างสลัดบรอกโคลี",
+      "category": "อาหารลดน้ำหนัก",
       "tags": [
-        "ข้าวผัด",
-        "อกไก่",
+        "ลดน้ำหนัก",
         "โปรตีนสูง",
-        "น้ำมันน้อย"
-      ],
-      "prepMinutes": 10,
-      "cookMinutes": 8,
-      "servings": 1,
-      "difficulty": "easy",
-      "notes": "ประมาณ 450 กิโลแคลอรี/จาน (ข้าวสวย 200 ก. ≈ 260 + อกไก่ 100 ก. ≈ 130–165 + ไข่ 1 ฟอง ≈ 72 + น้ำมัน 1 ชช. ≈ 40 ; เทียบข้าวผัดไก่ร้านทั่วไป ~570 กิโลแคลอรี) (ค่าประมาณจากการรวมวัตถุดิบ ไม่ใช่ค่าที่ตรวจวัด) | แหล่งอ้างอิง: https://datanutri.com/foods/171477/chicken-broilers-or-fryers-breast-meat-only-cooked-roasted ; https://www.ocean.co.th/articles/calories-thai-food ; https://www.kindeediet.com/thai-food-calorie/ | เคล็ดลับ: (1) ใช้น้ำมันแค่ 1 ช้อนชาได้เพราะใช้กระทะร้อนจัดและข้าวแห้ง ถ้าข้าวติดกระทะให้เติมน้ำ 1 ช้อนโต๊ะแทนการเติมน้ำมัน ; (2) อย่าใส่ข้าวมากเกิน 250 ก. ต่อครั้ง ข้าวเยอะกระทะจะเย็นและข้าวจะนึ่งแทนที่จะผัด ; (3) เพิ่มผักได้ เช่น ถั่วลันเตา ข้าวโพดอ่อน เพื่อให้ได้ใยอาหาร | หมายเหตุภาพ: รูปขั้นตอนส่วนใหญ่เป็นภาพเทคนิค/วัตถุดิบที่ใช้ร่วมกันจาก Wikimedia Commons ไม่ใช่ภาพจากการทำสูตรนี้โดยตรง (ดู photo.match ของแต่ละขั้น)",
-      "tips": [
-        "ใช้น้ำมันแค่ 1 ช้อนชาได้เพราะใช้กระทะร้อนจัดและข้าวแห้ง ถ้าข้าวติดกระทะให้เติมน้ำ 1 ช้อนโต๊ะแทนการเติมน้ำมัน",
-        "อย่าใส่ข้าวมากเกิน 250 ก. ต่อครั้ง ข้าวเยอะกระทะจะเย็นและข้าวจะนึ่งแทนที่จะผัด",
-        "เพิ่มผักได้ เช่น ถั่วลันเตา ข้าวโพดอ่อน เพื่อให้ได้ใยอาหาร"
-      ],
-      "photo": {
-        "path": "images/khao-pad-gai-cover.jpg",
-        "mime": "image/jpeg",
-        "credit": "Andy Li",
-        "source": "https://commons.wikimedia.org/wiki/File:Khao_Pad_(Rosa%27s_Fried_Rice)_with_Chicken_-_Rosa%27s_Thai_2025-07-22.jpg",
-        "license": "CC0",
-        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
-      },
-      "photoCredit": "Andy Li",
-      "photoSource": "https://commons.wikimedia.org/wiki/File:Khao_Pad_(Rosa%27s_Fried_Rice)_with_Chicken_-_Rosa%27s_Thai_2025-07-22.jpg",
-      "photoLicense": "CC0",
-      "sources": [
-        "https://datanutri.com/foods/171477/chicken-broilers-or-fryers-breast-meat-only-cooked-roasted",
-        "https://www.ocean.co.th/articles/calories-thai-food",
-        "https://www.kindeediet.com/thai-food-calorie/"
-      ],
-      "ingredients": [
-        {
-          "name": "ข้าวสวยเย็น (ข้าวกล้องผสมข้าวขาว)",
-          "amount": 200,
-          "unit": "กรัม",
-          "note": "ข้าวค้างคืนหรือพักให้เย็นจะร่วนไม่เละ"
-        },
-        {
-          "name": "อกไก่ไม่ติดหนัง",
-          "amount": 100,
-          "unit": "กรัม"
-        },
-        {
-          "name": "ไข่ไก่",
-          "amount": 1,
-          "unit": "ฟอง"
-        },
-        {
-          "name": "กระเทียมสับ",
-          "amount": 2,
-          "unit": "กลีบ"
-        },
-        {
-          "name": "แครอทหั่นเต๋าเล็ก",
-          "amount": 2,
-          "unit": "ช้อนโต๊ะ"
-        },
-        {
-          "name": "ต้นหอมซอย",
-          "amount": 1,
-          "unit": "ต้น"
-        },
-        {
-          "name": "น้ำมันรำข้าว",
-          "amount": 1,
-          "unit": "ช้อนชา"
-        },
-        {
-          "name": "ซีอิ๊วขาว",
-          "amount": 1,
-          "unit": "ช้อนชา"
-        },
-        {
-          "name": "น้ำปลา",
-          "amount": 1,
-          "unit": "ช้อนชา"
-        },
-        {
-          "name": "พริกไทยป่น",
-          "unit": "เล็กน้อย"
-        }
-      ],
-      "steps": [
-        {
-          "text": "ตักข้าวสวยใส่ชามแล้วใช้ช้อนร่อนให้เม็ดข้าวแยกจากกัน ถ้าข้าวยังอุ่นให้พักไว้ 10–15 นาที ข้าวที่ผิวแห้งจะผัดแล้วร่วนและไม่เหนียวติดกระทะ"
-        },
-        {
-          "text": "เลาะเส้นเอ็นและไขมันออกจากอกไก่ ตัดขวางเสี้ยนเป็นชิ้นหนาประมาณ 0.5 ซม. แล้วหั่นเป็นเต๋าเล็กขนาดประมาณเม็ดข้าวโพด ไก่ชิ้นเล็กจะสุกเร็วและไม่แห้ง",
-          "photo": {
-            "path": "images/khao-pad-gai-step-slice.jpg",
-            "mime": "image/jpeg",
-            "credit": "kakyusei",
-            "source": "https://commons.wikimedia.org/wiki/File:Raw_chicken_slices.jpg",
-            "license": "CC0",
-            "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
-            "match": "technique"
-          }
-        },
-        {
-          "text": "หั่นแครอทเป็นเต๋าเล็ก ซอยต้นหอม แล้วสับกระเทียมให้ละเอียดพอประมาณ (ไม่ต้องบดเป็นเนื้อ) แยกใส่ถ้วยไว้ข้างเตา",
-          "photo": {
-            "path": "images/khao-pad-gai-step-garlic.jpg",
-            "mime": "image/jpeg",
-            "credit": "Betsssssy",
-            "source": "https://commons.wikimedia.org/wiki/File:Chopping_garlic-01.jpg",
-            "license": "CC BY 2.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
-            "match": "technique"
-          }
-        },
-        {
-          "text": "ตอกไข่ใส่ถ้วย ตีเบา ๆ พอให้ไข่แดงแตกรวมกับไข่ขาว ปรุงด้วยพริกไทยนิดหน่อย พักไว้ข้างเตา",
-          "photo": {
-            "path": "images/khao-pad-gai-step-egg.jpg",
-            "mime": "image/jpeg",
-            "credit": "Mark Bonica",
-            "source": "https://commons.wikimedia.org/wiki/File:Pre-omelet_eggs.jpg",
-            "license": "CC BY 2.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
-            "match": "technique"
-          }
-        },
-        {
-          "text": "ตั้งกระทะ (ควรเป็นกระทะเหล็กหรือเทฟลอน) ไฟกลางค่อนแรง ใส่น้ำมัน 1 ช้อนชา เมื่อกระทะร้อนจนเริ่มมีควันบางๆ ใส่กระเทียมผัดประมาณ 15 วินาทีให้หอมแต่ยังไม่ไหม้",
-          "timerSeconds": 15
-        },
-        {
-          "text": "ใส่ไก่และแครอท ผัดไฟแรงประมาณ 2–3 นาที ให้ไก่เปลี่ยนจากสีชมพูเป็นสีขาวทั้งชิ้น ตัดชิ้นใหญ่สุดดูข้างในต้องไม่มีสีชมพู แล้วดันไก่ไปขอบกระทะ",
-          "timerSeconds": 150,
-          "photo": {
-            "path": "images/khao-pad-gai-step-wok.jpg",
-            "mime": "image/jpeg",
-            "credit": "Jvdc (Wikimedia Commons uploader)",
-            "source": "https://commons.wikimedia.org/wiki/File:Wok_Cooking.jpg",
-            "license": "CC BY-SA 2.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
-            "match": "technique"
-          }
-        },
-        {
-          "text": "เทไข่ลงกลางกระทะที่เว้นไว้ รอ 10 วินาทีให้ขอบไข่เริ่มเซ็ตแล้วจึงคุ้ยให้เป็นก้อนเล็ก ๆ จากนั้นใส่ข้าวลงไป ใช้ตะหลิวกดและตัดข้าวให้แตกออก ผัดไฟแรง 2 นาทีจนเม็ดข้าวกระโดดและร้อนทั่วกัน",
-          "timerSeconds": 120
-        },
-        {
-          "text": "ปรุงรสด้วยซีอิ๊วขาวและน้ำปลาโดยเทรอบขอบกระทะ (จะหอมไหม้เล็กน้อย) คลุกอีก 30 วินาที โรยต้นหอม ชิมแล้วปิดไฟ เสิร์ฟพร้อมแตงกวาและมะนาวทันที",
-          "timerSeconds": 30
-        }
-      ],
-      "createdAt": "2026-10-17T14:00:00+07:00",
-      "updatedAt": "2026-10-17T14:00:00+07:00"
-    },
-    {
-      "id": "b521fbf4-7d0f-51e6-9ea4-370e3dff236d",
-      "title": "ข้าวกะเพราไก่ไม่ใช้น้ำมัน",
-      "category": "อาหารจานเดียว",
-      "tags": [
-        "กะเพรา",
+        "คลีน",
         "ไก่",
-        "ไม่ใช้น้ำมัน",
-        "เผ็ด",
-        "โปรตีนสูง"
+        "บรอกโคลี"
       ],
-      "prepMinutes": 10,
-      "cookMinutes": 6,
+      "prepMinutes": 12,
+      "cookMinutes": 20,
       "servings": 1,
       "difficulty": "easy",
-      "notes": "ประมาณ 430 กิโลแคลอรี/จาน (ข้าวสวย 200 ก. ≈ 260 + อกไก่สับ 120 ก. ≈ 130 + ถั่วฝักยาว/ซอสปรุง ≈ 40 ; ไม่รวมไข่ดาว ถ้าเพิ่มไข่ต้ม 1 ฟอง +70 ; ข้าวราดกะเพราไก่ร้านทั่วไป ~573) (ค่าประมาณจากการรวมวัตถุดิบ ไม่ใช่ค่าที่ตรวจวัด) | แหล่งอ้างอิง: https://datanutri.com/foods/171477/chicken-broilers-or-fryers-breast-meat-only-cooked-roasted ; https://www.ocean.co.th/articles/calories-thai-food | เคล็ดลับ: (1) การใช้น้ำแทนน้ำมันทำให้กระเทียมไหม้ง่ายกว่า คุมไฟกลางและอย่าทิ้งกระทะ ; (2) ถ้าอยากได้ไข่ดาวแบบไม่ใช้น้ำมัน ให้ใช้ไข่ต้มยางมะตูมหรือไข่ลวก ; (3) เพิ่มความอิ่มด้วยข้าวกล้องและผักสดข้างจาน | หมายเหตุภาพ: รูปขั้นตอนส่วนใหญ่เป็นภาพเทคนิค/วัตถุดิบที่ใช้ร่วมกันจาก Wikimedia Commons ไม่ใช่ภาพจากการทำสูตรนี้โดยตรง (ดู photo.match ของแต่ละขั้น)",
+      "notes": "ประมาณ 420 กิโลแคลอรี/เสิร์ฟ โปรตีนราว 38 ก. (ค่าประมาณจากส่วนผสมหลัก ปรับตามแบรนด์และปริมาณจริง)",
       "tips": [
-        "การใช้น้ำแทนน้ำมันทำให้กระเทียมไหม้ง่ายกว่า คุมไฟกลางและอย่าทิ้งกระทะ",
-        "ถ้าอยากได้ไข่ดาวแบบไม่ใช้น้ำมัน ให้ใช้ไข่ต้มยางมะตูมหรือไข่ลวก",
-        "เพิ่มความอิ่มด้วยข้าวกล้องและผักสดข้างจาน"
+        "ใช้ไฟกลาง–แรงและน้ำมันน้อยที่สุดที่ทำได้",
+        "ชิมรสก่อนเสิร์ฟ ปรับเค็มหวานให้พอดี"
       ],
       "photo": {
-        "path": "images/kra-pao-gai-cover.jpg",
-        "mime": "image/jpeg",
-        "credit": "PattayaPatrol",
-        "source": "https://commons.wikimedia.org/wiki/File:DFC_0804_A_plate_of_steamed_white_rice_topped_with_a_runny_fried_egg_served_alongside_stir-fried_minced_chicken_with_basil_and_sliced_cucumber.jpg",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+        "path": "images/khao-man-gai-luak-cover.jpg",
+        "mime": "image/jpeg"
       },
-      "photoCredit": "PattayaPatrol",
-      "photoSource": "https://commons.wikimedia.org/wiki/File:DFC_0804_A_plate_of_steamed_white_rice_topped_with_a_runny_fried_egg_served_alongside_stir-fried_minced_chicken_with_basil_and_sliced_cucumber.jpg",
-      "photoLicense": "CC BY-SA 4.0",
-      "sources": [
-        "https://datanutri.com/foods/171477/chicken-broilers-or-fryers-breast-meat-only-cooked-roasted",
-        "https://www.ocean.co.th/articles/calories-thai-food"
-      ],
       "ingredients": [
         {
-          "name": "อกไก่สับหยาบ",
-          "amount": 120,
-          "unit": "กรัม"
-        },
-        {
-          "name": "ใบกะเพรา",
-          "amount": 1,
-          "unit": "ถ้วย",
-          "note": "ใส่แบบหลวม ๆ"
-        },
-        {
-          "name": "กระเทียม",
-          "amount": 4,
-          "unit": "กลีบ"
-        },
-        {
-          "name": "พริกขี้หนูสวน",
-          "amount": 4,
-          "unit": "เม็ด",
-          "note": "ปรับตามความเผ็ด"
-        },
-        {
-          "name": "ถั่วฝักยาวซอยท่อนสั้น",
-          "amount": 3,
-          "unit": "ฝัก"
-        },
-        {
-          "name": "น้ำปลา",
-          "amount": 1,
-          "unit": "ช้อนชา"
-        },
-        {
-          "name": "ซีอิ๊วขาว",
-          "amount": 1,
-          "unit": "ช้อนชา"
-        },
-        {
-          "name": "ซอสหอยนางรม",
-          "amount": 1,
-          "unit": "ช้อนชา"
-        },
-        {
-          "name": "น้ำตาลปี๊บ",
-          "amount": 0.5,
-          "unit": "ช้อนชา"
-        },
-        {
-          "name": "น้ำเปล่าหรือน้ำซุป",
-          "amount": 3,
-          "unit": "ช้อนโต๊ะ",
-          "note": "ใช้แทนน้ำมัน"
-        },
-        {
-          "name": "ข้าวสวยร้อน",
-          "amount": 200,
-          "unit": "กรัม"
-        }
-      ],
-      "steps": [
-        {
-          "text": "เด็ดใบกะเพราล้างให้สะอาดแล้วสะเด็ดน้ำให้แห้งสนิท น้ำที่ติดใบจะทำให้ผัดแล้วเฉาและมีน้ำมาก ผสมน้ำปลา ซีอิ๊วขาว ซอสหอยนางรม น้ำตาล และน้ำ 3 ช้อนโต๊ะในถ้วยเล็กให้เข้ากัน"
-        },
-        {
-          "text": "เลือกพริกขี้หนูตามความเผ็ดที่ชอบ ใช้ครกโขลกหรือสับหยาบพร้อมกระเทียมให้พอแหลก เห็นเป็นเม็ดหยาบ ๆ จะหอมกว่าซอยละเอียด",
-          "photo": {
-            "path": "images/kra-pao-gai-step-chili.jpg",
-            "mime": "image/jpeg",
-            "credit": "Eric Polk",
-            "source": "https://commons.wikimedia.org/wiki/File:Thai_chilis.jpg",
-            "license": "CC BY-SA 4.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-            "match": "ingredient"
-          }
-        },
-        {
-          "text": "ใช้วิธีสับกระเทียมกับพริกบนเขียงด้วยมีดหนัก ๆ ถ้าไม่มีครก ให้สับจนเป็นชิ้นเล็กและเริ่มมีน้ำกระเทียมซึมออกมา",
-          "photo": {
-            "path": "images/kra-pao-gai-step-garlic.jpg",
-            "mime": "image/jpeg",
-            "credit": "Betsssssy",
-            "source": "https://commons.wikimedia.org/wiki/File:Chopping_garlic-01.jpg",
-            "license": "CC BY 2.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
-            "match": "technique"
-          }
-        },
-        {
-          "text": "หากซื้ออกไก่ทั้งชิ้น ให้เลาะหนังและเอ็นออก แล้วสับให้เป็นชิ้นเล็กหยาบ ๆ ประมาณ 3–4 มม. (หรือใช้อกไก่บดไม่ติดมัน) จะได้เนื้อฉ่ำกว่าไก่บดละเอียดที่ผัดแล้วเป็นก้อน",
-          "photo": {
-            "path": "images/kra-pao-gai-step-chicken.jpg",
-            "mime": "image/jpeg",
-            "credit": "kakyusei",
-            "source": "https://commons.wikimedia.org/wiki/File:Raw_chicken_slices.jpg",
-            "license": "CC0",
-            "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
-            "match": "ingredient"
-          }
-        },
-        {
-          "text": "ตั้งกระทะเทฟลอนไฟกลางจนร้อนโดยยังไม่ใส่น้ำมัน ใส่น้ำ 2 ช้อนโต๊ะลงไปก่อน เมื่อเริ่มมีไอร้อน ใส่พริกกระเทียมลงผัดประมาณ 20 วินาทีจนส่งกลิ่นหอมเต็มครัว",
-          "timerSeconds": 20
-        },
-        {
-          "text": "ใส่ไก่ ใช้ตะหลิวคนและตัดเนื้อให้แยกออกจากกัน ผัดไฟกลางค่อนแรงราว 2 นาที จนเนื้อเปลี่ยนจากสีชมพูเป็นสีขาวทั้งหมดและเริ่มเกรียมเบา ๆ ถ้ากระทะแห้งให้เติมน้ำครั้งละ 1 ช้อนโต๊ะ",
-          "timerSeconds": 120,
-          "photo": {
-            "path": "images/kra-pao-gai-step-wok.jpg",
-            "mime": "image/jpeg",
-            "credit": "Jvdc (Wikimedia Commons uploader)",
-            "source": "https://commons.wikimedia.org/wiki/File:Wok_Cooking.jpg",
-            "license": "CC BY-SA 2.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
-            "match": "technique"
-          }
-        },
-        {
-          "text": "ใส่ถั่วฝักยาว เทน้ำปรุงรสที่ผสมไว้ลงไป ผัดต่ออีก 1 นาทีจนถั่วเริ่มสุกแต่ยังกรอบและน้ำปรุงงวดเกาะเนื้อไก่",
-          "timerSeconds": 60
-        },
-        {
-          "text": "ปิดไฟแล้วใส่ใบกะเพราทั้งหมด คนด้วยความร้อนเหลือของกระทะประมาณ 10–15 วินาที ให้ใบเพิ่งสลด จะยังเขียวและหอมแรง เสิร์ฟบนข้าวสวยร้อน ๆ ทันที",
-          "timerSeconds": 15
-        }
-      ],
-      "createdAt": "2026-10-17T14:00:00+07:00",
-      "updatedAt": "2026-10-17T14:00:00+07:00"
-    },
-    {
-      "id": "8085ca71-c7bc-52e8-8191-1ead10b38ca1",
-      "title": "ข้าวต้มเห็ดหน่อไม้ไก่สับ",
-      "category": "อาหารจานเดียว",
-      "tags": [
-        "ข้าวต้ม",
-        "ซุป",
-        "เห็ด",
-        "ย่อยง่าย"
-      ],
-      "prepMinutes": 15,
-      "cookMinutes": 30,
-      "servings": 1,
-      "difficulty": "easy",
-      "notes": "ประมาณ 290 กิโลแคลอรี/ชาม (ข้าวสาร 40 ก. ≈ 140 + ไก่สับ 60 ก. ≈ 75 + ไข่ลวก ≈ 70 + เห็ด/ผัก ≈ 10 ; ข้าวต้มเครื่องร้านทั่วไป ~230 กิโลแคลอรี/ถ้วย) (ค่าประมาณจากการรวมวัตถุดิบ ไม่ใช่ค่าที่ตรวจวัด) | แหล่งอ้างอิง: https://www.kindeediet.com/thai-food-calorie/ ; https://hdmall.co.th/blog/table-of-calories-in-food-types/ ; https://datanutri.com/foods/171477/chicken-broilers-or-fryers-breast-meat-only-cooked-roasted | รูปประกอบข้าวต้มทุกขั้นตอนมาจากชุดภาพสูตรข้าวต้มหน่อไม้เห็ดสไตล์จีน (ใช้หมูสามชั้นผัด) ซึ่งเป็นสูตรใกล้เคียง ไม่ใช่สูตรไก่แบบนี้เป๊ะ | เคล็ดลับ: (1) อัตราส่วนข้าวต่อน้ำประมาณ 1:12 ถ้าชอบข้าวต้มแบบเละน้อยให้ใช้ข้าวสวยเหลือ 100 ก. แทนข้าวสาร ใช้เวลาต้มเพียง 8–10 นาที ; (2) รสเค็มค่อยปรุงตอนท้าย เพราะน้ำงวดจะทำให้เค็มขึ้น ; (3) ใส่ไก่เป็นก้อนเล็กแทนหมูสามชั้นเพื่อลดไขมัน | หมายเหตุภาพ: รูปขั้นตอนส่วนใหญ่เป็นภาพเทคนิค/วัตถุดิบที่ใช้ร่วมกันจาก Wikimedia Commons ไม่ใช่ภาพจากการทำสูตรนี้โดยตรง (ดู photo.match ของแต่ละขั้น)",
-      "tips": [
-        "อัตราส่วนข้าวต่อน้ำประมาณ 1:12 ถ้าชอบข้าวต้มแบบเละน้อยให้ใช้ข้าวสวยเหลือ 100 ก. แทนข้าวสาร ใช้เวลาต้มเพียง 8–10 นาที",
-        "รสเค็มค่อยปรุงตอนท้าย เพราะน้ำงวดจะทำให้เค็มขึ้น",
-        "ใส่ไก่เป็นก้อนเล็กแทนหมูสามชั้นเพื่อลดไขมัน"
-      ],
-      "photo": {
-        "path": "images/khao-tom-cover.jpg",
-        "mime": "image/jpeg",
-        "credit": "Vian Chen",
-        "source": "https://commons.wikimedia.org/wiki/File:Bamboo_Shoot_Savory_Congee_Recipe_13.jpg",
-        "license": "CC BY 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
-      },
-      "photoCredit": "Vian Chen",
-      "photoSource": "https://commons.wikimedia.org/wiki/File:Bamboo_Shoot_Savory_Congee_Recipe_13.jpg",
-      "photoLicense": "CC BY 4.0",
-      "sources": [
-        "https://www.kindeediet.com/thai-food-calorie/",
-        "https://hdmall.co.th/blog/table-of-calories-in-food-types/",
-        "https://datanutri.com/foods/171477/chicken-broilers-or-fryers-breast-meat-only-cooked-roasted"
-      ],
-      "ingredients": [
-        {
-          "name": "ข้าวสาร (ข้าวหอมมะลิ)",
-          "amount": 40,
-          "unit": "กรัม"
-        },
-        {
-          "name": "อกไก่สับ",
-          "amount": 60,
-          "unit": "กรัม"
-        },
-        {
-          "name": "เห็ดหอมแช่น้ำ",
-          "amount": 3,
-          "unit": "ดอก"
-        },
-        {
-          "name": "หน่อไม้ต้มหั่นเส้นบาง",
-          "amount": 50,
-          "unit": "กรัม"
-        },
-        {
-          "name": "น้ำซุปกระดูกไก่หรือน้ำเปล่า",
-          "amount": 500,
-          "unit": "มิลลิลิตร"
-        },
-        {
-          "name": "ขิงซอยฝอย",
-          "amount": 1,
-          "unit": "ช้อนชา"
-        },
-        {
-          "name": "น้ำปลา",
-          "amount": 1,
-          "unit": "ช้อนชา"
-        },
-        {
-          "name": "ซีอิ๊วขาว",
-          "amount": 1,
-          "unit": "ช้อนชา"
-        },
-        {
-          "name": "ต้นหอม ผักชี ซอย",
-          "amount": 2,
-          "unit": "ช้อนโต๊ะ"
-        },
-        {
-          "name": "พริกไทย",
-          "unit": "เล็กน้อย"
-        },
-        {
-          "name": "ไข่ไก่",
-          "amount": 1,
-          "unit": "ฟอง",
-          "note": "ทางเลือก"
-        }
-      ],
-      "steps": [
-        {
-          "text": "แช่เห็ดหอมแห้งในน้ำอุ่นราว 20 นาทีจนนุ่ม บีบน้ำออก เก็บน้ำแช่เห็ดไว้ใช้ต้มต่อเพราะหอมมาก ส่วนข้าวสารล้างน้ำ 2 ครั้งแล้วสะเด็ดน้ำ แช่ทิ้งไว้ในชามจะช่วยให้เม็ดข้าวบานเร็วขึ้น",
-          "photo": {
-            "path": "images/khao-tom-step-rice.jpg",
-            "mime": "image/jpeg",
-            "credit": "Vian Chen",
-            "source": "https://commons.wikimedia.org/wiki/File:Bamboo_Shoot_Savory_Congee_Recipe_3.jpg",
-            "license": "CC BY 4.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
-            "match": "similar-recipe"
-          }
-        },
-        {
-          "text": "ใช้มีดหั่นหน่อไม้ต้มเป็นเส้นบางยาว ๆ ตัดเห็ดหอมเป็นชิ้นบาง และซอยขิงฝอยให้พร้อมในถ้วย",
-          "photo": {
-            "path": "images/khao-tom-step-slice.jpg",
-            "mime": "image/jpeg",
-            "credit": "Vian Chen",
-            "source": "https://commons.wikimedia.org/wiki/File:Bamboo_Shoot_Savory_Congee_Recipe_1.jpg",
-            "license": "CC BY 4.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
-            "match": "similar-recipe"
-          }
-        },
-        {
-          "text": "ซอยต้นหอมและผักชีให้เป็นเม็ดเล็ก แยกไว้โรยหน้า เตรียมเครื่องให้ครบก่อนเปิดไฟ ข้าวต้มต้องคอยดูตลอดช่วงเดือด",
-          "photo": {
-            "path": "images/khao-tom-step-herbs.jpg",
-            "mime": "image/jpeg",
-            "credit": "Vian Chen",
-            "source": "https://commons.wikimedia.org/wiki/File:Bamboo_Shoot_Savory_Congee_Recipe_8.jpg",
-            "license": "CC BY 4.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
-            "match": "similar-recipe"
-          }
-        },
-        {
-          "text": "ตั้งหม้อกับน้ำซุปและน้ำแช่เห็ดไฟแรงจนเดือดปุด ๆ ใส่ข้าวสารลงไปคนหนึ่งครั้งเพื่อไม่ให้ข้าวจับติดก้นหม้อ ลดเหลือไฟกลางค่อนอ่อน"
-        },
-        {
-          "text": "เคี่ยวโดยเปิดฝาแง้มประมาณ 15–20 นาที คนบ้างทุก 3–4 นาที ได้ข้าวที่บานเป็นดอกและน้ำเริ่มข้นเล็กน้อย ถ้าน้ำแห้งเร็วให้เติมน้ำร้อนครั้งละครึ่งถ้วย",
-          "timerSeconds": 60,
-          "photo": {
-            "path": "images/khao-tom-step-simmer.jpg",
-            "mime": "image/jpeg",
-            "credit": "Vian Chen",
-            "source": "https://commons.wikimedia.org/wiki/File:Bamboo_Shoot_Savory_Congee_Recipe_11.jpg",
-            "license": "CC BY 4.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
-            "match": "similar-recipe"
-          }
-        },
-        {
-          "text": "ปั้นไก่สับเป็นก้อนเล็ก ๆ ใส่ลงไปพร้อมเห็ดและหน่อไม้ ปรุงด้วยน้ำปลาและซีอิ๊วขาว เดือดเบา ๆ ต่ออีก 4–5 นาที ไก่ก้อนลอยและสุกขาวทั้งก้อน",
-          "timerSeconds": 300
-        },
-        {
-          "text": "ถ้าชอบไข่ ตอกไข่ลงไปแล้วปิดไฟ ปิดฝาทิ้งไว้ 2 นาที ไข่ขาวจะเซ็ตส่วนไข่แดงยังเยิ้ม ชิมรสให้พอดีโดยไม่ต้องเค็มจัด",
-          "timerSeconds": 120
-        },
-        {
-          "text": "ตักใส่ชาม โรยขิงซอย ต้นหอม ผักชี และพริกไทย เสิร์ฟร้อน ๆ เมื่อวางทิ้งไว้ ข้าวจะดูดน้ำจนข้นขึ้น ให้เติมน้ำร้อนแทนเมื่ออุ่นซ้ำ",
-          "photo": {
-            "path": "images/khao-tom-step-simmer2.jpg",
-            "mime": "image/jpeg",
-            "credit": "Vian Chen",
-            "source": "https://commons.wikimedia.org/wiki/File:Bamboo_Shoot_Savory_Congee_Recipe_13.jpg",
-            "license": "CC BY 4.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
-            "match": "similar-recipe"
-          }
-        }
-      ],
-      "createdAt": "2026-10-17T14:00:00+07:00",
-      "updatedAt": "2026-10-17T14:00:00+07:00"
-    },
-    {
-      "id": "f818dfbe-50bb-53fa-8e0a-16d3f63a0e0d",
-      "title": "ก๋วยเตี๋ยวน้ำใสไก่ฉีก",
-      "category": "อาหารจานเดียว",
-      "tags": [
-        "ก๋วยเตี๋ยว",
-        "น้ำใส",
-        "ไก่",
-        "ไขมันต่ำ"
-      ],
-      "prepMinutes": 10,
-      "cookMinutes": 25,
-      "servings": 1,
-      "difficulty": "easy",
-      "notes": "ประมาณ 290 กิโลแคลอรี/ชาม (เส้นเล็กลวก 150 ก. ≈ 165 + อกไก่ 60 ก. ≈ 80 + ผัก/กระเทียมเจียวเล็กน้อย ≈ 45 ; สุกี้น้ำ/ก๋วยเตี๋ยวน้ำร้านทั่วไป 165–345) (ค่าประมาณจากการรวมวัตถุดิบ ไม่ใช่ค่าที่ตรวจวัด) | แหล่งอ้างอิง: https://datanutri.com/foods/171477/chicken-broilers-or-fryers-breast-meat-only-cooked-roasted ; https://www.ocean.co.th/articles/calories-thai-food ; https://hdmall.co.th/blog/table-of-calories-in-food-types/ | เคล็ดลับ: (1) น้ำซุปแช่แข็งเป็นก้อนน้ำแข็งก้อนเล็กไว้ใช้ได้ 2 สัปดาห์ ; (2) ถ้าชอบเส้นหมี่ขาวหรือวุ้นเส้นให้ปรับเวลาลวกตามซอง ; (3) ปรุงเผ็ดด้วยพริกป่นเล็กน้อยแทนน้ำตาลและพริกน้ำส้มสำเร็จรูป เพื่อลดน้ำตาล | หมายเหตุภาพ: รูปขั้นตอนส่วนใหญ่เป็นภาพเทคนิค/วัตถุดิบที่ใช้ร่วมกันจาก Wikimedia Commons ไม่ใช่ภาพจากการทำสูตรนี้โดยตรง (ดู photo.match ของแต่ละขั้น)",
-      "tips": [
-        "น้ำซุปแช่แข็งเป็นก้อนน้ำแข็งก้อนเล็กไว้ใช้ได้ 2 สัปดาห์",
-        "ถ้าชอบเส้นหมี่ขาวหรือวุ้นเส้นให้ปรับเวลาลวกตามซอง",
-        "ปรุงเผ็ดด้วยพริกป่นเล็กน้อยแทนน้ำตาลและพริกน้ำส้มสำเร็จรูป เพื่อลดน้ำตาล"
-      ],
-      "photo": {
-        "path": "images/kuaitiao-nam-sai-cover.jpg",
-        "mime": "image/jpeg",
-        "credit": "Sharon Hahn Darlin",
-        "source": "https://commons.wikimedia.org/wiki/File:Common_local_Thai_food._50%E0%B8%BF_(baht)_%3D_$1.50_(pork)_noodle_soup_in_Phuket,_Thailand.jpg",
-        "license": "CC BY 2.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
-      },
-      "photoCredit": "Sharon Hahn Darlin",
-      "photoSource": "https://commons.wikimedia.org/wiki/File:Common_local_Thai_food._50%E0%B8%BF_(baht)_%3D_$1.50_(pork)_noodle_soup_in_Phuket,_Thailand.jpg",
-      "photoLicense": "CC BY 2.0",
-      "sources": [
-        "https://datanutri.com/foods/171477/chicken-broilers-or-fryers-breast-meat-only-cooked-roasted",
-        "https://www.ocean.co.th/articles/calories-thai-food",
-        "https://hdmall.co.th/blog/table-of-calories-in-food-types/"
-      ],
-      "ingredients": [
-        {
-          "name": "เส้นเล็กสด",
+          "name": "ข้าวกล้องหุงสุก",
           "amount": 150,
           "unit": "กรัม"
         },
         {
           "name": "อกไก่",
-          "amount": 80,
-          "unit": "กรัม"
-        },
-        {
-          "name": "น้ำซุปกระดูกไก่ใส (หรือน้ำเปล่า+รากผักชี)",
-          "amount": 400,
-          "unit": "มิลลิลิตร"
-        },
-        {
-          "name": "รากผักชีทุบ",
-          "amount": 1,
-          "unit": "ต้น"
-        },
-        {
-          "name": "กระเทียมไทยทุบ",
-          "amount": 3,
-          "unit": "กลีบ"
-        },
-        {
-          "name": "ถั่วงอก",
-          "amount": 1,
-          "unit": "กำมือ"
-        },
-        {
-          "name": "ผักกาดขาวหรือคะน้าหั่น",
-          "amount": 1,
-          "unit": "ถ้วย"
-        },
-        {
-          "name": "น้ำปลา",
-          "amount": 1,
-          "unit": "ช้อนชา"
-        },
-        {
-          "name": "ซีอิ๊วขาว",
-          "amount": 0.5,
-          "unit": "ช้อนชา"
-        },
-        {
-          "name": "ต้นหอม ผักชี ซอย",
-          "amount": 1,
-          "unit": "ช้อนโต๊ะ"
-        },
-        {
-          "name": "พริกไทยป่น",
-          "unit": "เล็กน้อย"
-        }
-      ],
-      "steps": [
-        {
-          "text": "ใส่น้ำ 600 มล. รากผักชี และกระเทียมทุบลงหม้อ ตั้งไฟกลางจนเดือดเบา ๆ จะได้น้ำซุปหอมโดยไม่ต้องใช้กระดูกหมูหรือผงปรุง",
-          "timerSeconds": 300
-        },
-        {
-          "text": "ใส่อกไก่ทั้งชิ้นลงในน้ำที่เดือดเบา ๆ (ไม่ให้เดือดพล่าน) ต้มประมาณ 12–15 นาที หรือจนแทงด้วยไม้จิ้มแล้วน้ำที่ไหลออกมาใส ไม่มีสีชมพู ถ้าไก่เดือดแรงเกินจะเหนียวแห้ง ขั้นนี้ให้ลักษณะเนื้อแบบไก่ลวกนุ่มสีขาว",
-          "timerSeconds": 780,
-          "photo": {
-            "path": "images/kuaitiao-nam-sai-step-chicken.jpg",
-            "mime": "image/jpeg",
-            "credit": "Jvdc (Wikimedia Commons uploader)",
-            "source": "https://commons.wikimedia.org/wiki/File:Poached_chicken.jpg",
-            "license": "CC BY-SA 2.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
-            "match": "technique"
-          }
-        },
-        {
-          "text": "ตักไก่ขึ้นพักให้เย็นพอจับได้ แล้วฉีกตามเสี้ยนเป็นเส้นเล็ก ส่วนน้ำซุปกรองเอากากทิ้ง ปรุงรสน้ำปลา และซีอิ๊วขาวพอให้น้ำซุปมีรสกลม ๆ ชิมแล้วค่อยปรับ"
-        },
-        {
-          "text": "ต้มน้ำอีกหม้อให้เดือดจัด ใส่เส้นเล็กลงลวกประมาณ 10–15 วินาที จนเส้นนุ่มและเปลี่ยนเป็นสีขาวใส ไม่ควรเกินนี้เพราะเส้นจะเปื่อย ตักขึ้นสะเด็ดน้ำใส่ชาม",
-          "timerSeconds": 15,
-          "photo": {
-            "path": "images/kuaitiao-nam-sai-step-noodle.jpg",
-            "mime": "image/jpeg",
-            "credit": "Fandwisdoywci",
-            "source": "https://commons.wikimedia.org/wiki/File:HK_Boiling_hot_water_n_noodle_August_2018_IX2_pot_06.jpg",
-            "license": "CC BY-SA 4.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-            "match": "technique"
-          }
-        },
-        {
-          "text": "ลวกถั่วงอกและผักกาดในน้ำเดือดเดียวกันไม่เกิน 10 วินาที ตักขึ้นวางบนเส้น ถั่วงอกควรยังกรอบ ใช้เป็นผักสด ๆ ช่วยเพิ่มใยอาหาร",
-          "timerSeconds": 10,
-          "photo": {
-            "path": "images/kuaitiao-nam-sai-step-sprouts.jpg",
-            "mime": "image/jpeg",
-            "credit": "pics_pd",
-            "source": "https://commons.wikimedia.org/wiki/File:Mung_bean_sprouts,_close-up.jpg",
-            "license": "CC0",
-            "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
-            "match": "ingredient"
-          }
-        },
-        {
-          "text": "วางไก่ฉีกบนเส้น ซอยต้นหอมกับผักชีโรยหน้า ให้เห็นสีเขียวสดตัดกับน้ำซุปใส",
-          "photo": {
-            "path": "images/kuaitiao-nam-sai-step-scallion.jpg",
-            "mime": "image/jpeg",
-            "credit": "褒忠國中 雲端網",
-            "source": "https://commons.wikimedia.org/wiki/File:Chopped_scallions_2014-09-26.jpg",
-            "license": "CC BY 2.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
-            "match": "ingredient"
-          }
-        },
-        {
-          "text": "ตักน้ำซุปที่ร้อนจัดเดือดปุด ๆ ราดจนท่วมเส้น ชิมแล้วโรยพริกไทย เสิร์ฟทันที ปรุงเปรี้ยวเผ็ดเพิ่มที่โต๊ะแทนปรุงในหม้อ จะคุมโซเดียมได้ดีกว่า"
-        }
-      ],
-      "createdAt": "2026-10-17T14:00:00+07:00",
-      "updatedAt": "2026-10-17T14:00:00+07:00"
-    },
-    {
-      "id": "4feb11a1-6b5b-5b1b-ae4e-d28a9721f241",
-      "title": "ข้าวไข่เจียวผักไม่ทอดลอยน้ำมัน",
-      "category": "อาหารจานเดียว",
-      "tags": [
-        "ไข่เจียว",
-        "ผัก",
-        "ประหยัด",
-        "เร็ว"
-      ],
-      "prepMinutes": 8,
-      "cookMinutes": 6,
-      "servings": 1,
-      "difficulty": "easy",
-      "notes": "ประมาณ 465 กิโลแคลอรี/จาน (ข้าวสวย 200 ก. ≈ 260 + ไข่ 2 ฟอง ≈ 145 + น้ำมัน 1 ชช. ≈ 40 + ผัก ≈ 20 ; ข้าวไข่เจียวร้านทั่วไป ~445 ซึ่งทอดแบบน้ำมันน้อย) (ค่าประมาณจากการรวมวัตถุดิบ ไม่ใช่ค่าที่ตรวจวัด) | แหล่งอ้างอิง: https://www.kindeediet.com/thai-food-calorie/ ; https://www.nanitalk.com/food-calorie-chart/ | เคล็ดลับ: (1) ใช้กระทะเทฟลอนจะใช้น้ำมันแค่ 1 ชช. ได้สบาย ; (2) เติมน้ำเปล่า 1 ช้อนโต๊ะในไข่จะทำให้ไข่เจียวนุ่มเหมือนออมเล็ต ; (3) ใส่ผักให้มากกว่านี้ได้ แต่ควรหั่นเล็กและบีบน้ำออกก่อน | หมายเหตุภาพ: รูปขั้นตอนส่วนใหญ่เป็นภาพเทคนิค/วัตถุดิบที่ใช้ร่วมกันจาก Wikimedia Commons ไม่ใช่ภาพจากการทำสูตรนี้โดยตรง (ดู photo.match ของแต่ละขั้น)",
-      "tips": [
-        "ใช้กระทะเทฟลอนจะใช้น้ำมันแค่ 1 ชช. ได้สบาย",
-        "เติมน้ำเปล่า 1 ช้อนโต๊ะในไข่จะทำให้ไข่เจียวนุ่มเหมือนออมเล็ต",
-        "ใส่ผักให้มากกว่านี้ได้ แต่ควรหั่นเล็กและบีบน้ำออกก่อน"
-      ],
-      "photo": {
-        "path": "images/khao-khai-jiao-pak-cover.jpg",
-        "mime": "image/jpeg",
-        "credit": "Bitterschoko",
-        "source": "https://commons.wikimedia.org/wiki/File:Khao_khaichiao_(omelette_with_rice),_Bangkok,_2018-05-15.jpg",
-        "license": "CC0",
-        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
-      },
-      "photoCredit": "Bitterschoko",
-      "photoSource": "https://commons.wikimedia.org/wiki/File:Khao_khaichiao_(omelette_with_rice),_Bangkok,_2018-05-15.jpg",
-      "photoLicense": "CC0",
-      "sources": [
-        "https://www.kindeediet.com/thai-food-calorie/",
-        "https://www.nanitalk.com/food-calorie-chart/"
-      ],
-      "ingredients": [
-        {
-          "name": "ไข่ไก่",
-          "amount": 2,
-          "unit": "ฟอง"
-        },
-        {
-          "name": "แครอทขูดหรือหั่นเต๋าเล็ก",
-          "amount": 2,
-          "unit": "ช้อนโต๊ะ"
-        },
-        {
-          "name": "ต้นหอมซอย",
-          "amount": 1,
-          "unit": "ต้น"
-        },
-        {
-          "name": "มะเขือเทศหั่นเต๋า",
-          "amount": 2,
-          "unit": "ช้อนโต๊ะ"
-        },
-        {
-          "name": "น้ำปลา",
-          "amount": 1,
-          "unit": "ช้อนชา"
-        },
-        {
-          "name": "พริกไทยป่น",
-          "unit": "เล็กน้อย"
-        },
-        {
-          "name": "น้ำมันรำข้าว",
-          "amount": 1,
-          "unit": "ช้อนชา",
-          "note": "เคลือบกระทะเทฟลอน"
-        },
-        {
-          "name": "ข้าวสวยร้อน",
-          "amount": 200,
-          "unit": "กรัม"
-        },
-        {
-          "name": "แตงกวา มะนาว",
-          "unit": "เสิร์ฟข้าง"
-        }
-      ],
-      "steps": [
-        {
-          "text": "ตอกไข่ลงชามกว้าง ระวังเปลือกไม่ให้ตกลงไป ตรวจสอบสีไข่แดงและไข่ขาวให้ปกติ",
-          "photo": {
-            "path": "images/khao-khai-jiao-pak-step-egg.jpg",
-            "mime": "image/jpeg",
-            "credit": "Mark Bonica",
-            "source": "https://commons.wikimedia.org/wiki/File:Pre-omelet_eggs.jpg",
-            "license": "CC BY 2.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
-            "match": "technique"
-          }
-        },
-        {
-          "text": "หั่นแครอทเป็นเต๋าเล็กหรือขูดเส้นฝอย ให้ชิ้นเล็กพอที่จะสุกทันในเวลาไข่เซ็ต",
-          "photo": {
-            "path": "images/khao-khai-jiao-pak-step-carrot.jpg",
-            "mime": "image/jpeg",
-            "credit": "W.carter",
-            "source": "https://commons.wikimedia.org/wiki/File:Preparing_and_slicing_carrots.jpg",
-            "license": "CC0",
-            "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
-            "match": "technique"
-          }
-        },
-        {
-          "text": "ซอยต้นหอมละเอียด หั่นมะเขือเทศเป็นเต๋าเล็กแล้วบีบเมล็ดทิ้งเพื่อให้ไข่ไม่เฉอะแฉะ ใส่ลงชามไข่พร้อมน้ำปลาและพริกไทย",
-          "photo": {
-            "path": "images/khao-khai-jiao-pak-step-scallion.jpg",
-            "mime": "image/jpeg",
-            "credit": "褒忠國中 雲端網",
-            "source": "https://commons.wikimedia.org/wiki/File:Chopped_scallions_2014-09-26.jpg",
-            "license": "CC BY 2.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
-            "match": "ingredient"
-          }
-        },
-        {
-          "text": "ตีไข่ด้วยส้อม 20–30 ครั้งให้ไข่แดงและไข่ขาวเข้ากันดีและเริ่มมีฟองเล็กน้อย การตีให้มีอากาศทำให้ไข่เจียวฟูโดยไม่ต้องใช้น้ำมันมาก",
-          "timerSeconds": 30
-        },
-        {
-          "text": "ตั้งกระทะเทฟลอนไฟกลางจนร้อนแล้วใส่น้ำมัน 1 ช้อนชา เอียงกระทะให้น้ำมันเคลือบทั่ว ทดสอบโดยหยดไข่ลงไปหนึ่งหยดต้องมีเสียงฉ่าเบา ๆ"
-        },
-        {
-          "text": "เทไข่ลงไปตรงกลาง รอ 15 วินาทีให้ขอบเริ่มเซ็ตและพองฟู จากนั้นเอียงกระทะให้ไข่เหลวไหลไปขอบ ใช้เวลาประมาณ 1 นาทีจนผิวด้านบนแห้งหมาด ๆ",
-          "timerSeconds": 75,
-          "photo": {
-            "path": "images/khao-khai-jiao-pak-step-pan.jpg",
-            "mime": "image/jpeg",
-            "credit": "Nundhaa",
-            "source": "https://commons.wikimedia.org/wiki/File:Chicken_Egg_Omlette_Loaded_with_Onions_in_the_making.JPG",
-            "license": "CC BY-SA 4.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-            "match": "technique"
-          }
-        },
-        {
-          "text": "ใช้ตะหลิวพับไข่ครึ่งหรือพลิกทั้งแผ่น ทอดอีก 30–40 วินาทีให้ผิวเหลืองทอง อย่าปล่อยจนกรอบแห้งเพราะไข่จะแข็ง",
-          "timerSeconds": 40
-        },
-        {
-          "text": "ตักไข่เจียววางบนข้าวสวยร้อน ๆ เสิร์ฟกับแตงกวาและมะนาวฝาน อาจรองด้วยกระดาษซับน้ำมันก่อนวางเพื่อลดน้ำมันลง"
-        }
-      ],
-      "createdAt": "2026-10-17T14:00:00+07:00",
-      "updatedAt": "2026-10-17T14:00:00+07:00"
-    },
-    {
-      "id": "d325d45e-66b0-5c5a-b8df-4100b6d5f19d",
-      "title": "ข้าวหน้าไก่เทอริยากิ",
-      "category": "อาหารจานเดียว",
-      "tags": [
-        "ญี่ปุ่น",
-        "ไก่",
-        "ข้าวหน้า",
-        "โปรตีนสูง"
-      ],
-      "prepMinutes": 15,
-      "cookMinutes": 12,
-      "servings": 1,
-      "difficulty": "easy",
-      "notes": "ประมาณ 500 กิโลแคลอรี/จาน (ข้าวสวย 200 ก. ≈ 260 + อกไก่ 120 ก. สุก ≈ 170 + ซอสเทอริยากิ 1.5 ชต. ≈ 50 + ผัก ≈ 20) (ค่าประมาณจากการรวมวัตถุดิบ ไม่ใช่ค่าที่ตรวจวัด) | แหล่งอ้างอิง: https://datanutri.com/foods/171477/chicken-broilers-or-fryers-breast-meat-only-cooked-roasted ; https://www.kindeediet.com/thai-food-calorie/ | เคล็ดลับ: (1) ถ้ามีเวลา หมักไก่ข้ามคืนในตู้เย็นจะซึมรสมากขึ้น ; (2) น้ำตาลในซอสเกาะกระทะง่ายให้ใช้ไฟอ่อนตอนเคี่ยว ; (3) ใช้ซีอิ๊วโซเดียมต่ำและลดน้ำตาลลงเหลือครึ่งช้อนชาสำหรับสายคลีน | หมายเหตุภาพ: รูปขั้นตอนส่วนใหญ่เป็นภาพเทคนิค/วัตถุดิบที่ใช้ร่วมกันจาก Wikimedia Commons ไม่ใช่ภาพจากการทำสูตรนี้โดยตรง (ดู photo.match ของแต่ละขั้น)",
-      "tips": [
-        "ถ้ามีเวลา หมักไก่ข้ามคืนในตู้เย็นจะซึมรสมากขึ้น",
-        "น้ำตาลในซอสเกาะกระทะง่ายให้ใช้ไฟอ่อนตอนเคี่ยว",
-        "ใช้ซีอิ๊วโซเดียมต่ำและลดน้ำตาลลงเหลือครึ่งช้อนชาสำหรับสายคลีน"
-      ],
-      "photo": {
-        "path": "images/teriyaki-gai-rice-cover.jpg",
-        "mime": "image/jpeg",
-        "credit": "Wide Awake!",
-        "source": "https://commons.wikimedia.org/wiki/File:Teriyaki_Chicken_Rice_Bowl_from_Botejyu_(2024-12-21).jpg",
-        "license": "CC BY 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
-      },
-      "photoCredit": "Wide Awake!",
-      "photoSource": "https://commons.wikimedia.org/wiki/File:Teriyaki_Chicken_Rice_Bowl_from_Botejyu_(2024-12-21).jpg",
-      "photoLicense": "CC BY 4.0",
-      "sources": [
-        "https://datanutri.com/foods/171477/chicken-broilers-or-fryers-breast-meat-only-cooked-roasted",
-        "https://www.kindeediet.com/thai-food-calorie/"
-      ],
-      "ingredients": [
-        {
-          "name": "อกไก่ ผ่าบางครึ่งชิ้น",
           "amount": 120,
           "unit": "กรัม"
         },
         {
-          "name": "ข้าวสวยญี่ปุ่นหรือข้าวหอมมะลิ",
-          "amount": 200,
+          "name": "บรอกโคลี",
+          "amount": 100,
           "unit": "กรัม"
         },
         {
-          "name": "ซีอิ๊วขาวญี่ปุ่น",
+          "name": "น้ำปลา",
           "amount": 1,
           "unit": "ช้อนโต๊ะ"
         },
         {
-          "name": "มิริน",
+          "name": "น้ำมะนาว",
           "amount": 1,
-          "unit": "ช้อนโต๊ะ",
-          "note": "แทนด้วยน้ำเชื่อม 1 ชช."
-        },
-        {
-          "name": "น้ำตาลทราย",
-          "amount": 1,
-          "unit": "ช้อนชา"
-        },
-        {
-          "name": "ขิงขูด",
-          "amount": 0.5,
-          "unit": "ช้อนชา"
-        },
-        {
-          "name": "กระเทียมขูด",
-          "amount": 1,
-          "unit": "กลีบ"
-        },
-        {
-          "name": "น้ำเปล่า",
-          "amount": 2,
           "unit": "ช้อนโต๊ะ"
-        },
-        {
-          "name": "แตงกวาหั่นเฉียง",
-          "amount": 0.5,
-          "unit": "ลูก"
-        },
-        {
-          "name": "งาขาวคั่ว",
-          "amount": 1,
-          "unit": "ช้อนชา"
-        },
-        {
-          "name": "น้ำมันรำข้าว",
-          "amount": 0.5,
-          "unit": "ช้อนชา"
         }
       ],
       "steps": [
         {
-          "text": "หุงข้าวให้เสร็จก่อน ใช้น้ำหนักพอดีตามหม้อ ระหว่างที่รอให้เตรียมไก่และซอส",
-          "photo": {
-            "path": "images/teriyaki-gai-rice-step-rice.jpg",
-            "mime": "image/jpeg",
-            "credit": "SnapMeUp",
-            "source": "https://commons.wikimedia.org/wiki/File:Rice_in_Electric_Cooker.jpg",
-            "license": "CC BY-SA 4.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-            "match": "ingredient"
-          }
+          "text": "ย่างหรืออบอกไก่จนสุก หั่นชิ้น"
         },
         {
-          "text": "ผ่าอกไก่ตามแนวขวางให้เป็นแผ่นบางอย่างน้อยหนาประมาณ 1.5 ซม. เลาะหนังออก ใช้ส้อมจิ้มผิวเนื้อทั่วทั้งชิ้นให้ซอสเข้าง่ายและเนื้อไม่หดตัว",
-          "photo": {
-            "path": "images/teriyaki-gai-rice-step-chicken.jpg",
-            "mime": "image/jpeg",
-            "credit": "kakyusei",
-            "source": "https://commons.wikimedia.org/wiki/File:Raw_chicken_slices.jpg",
-            "license": "CC0",
-            "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
-            "match": "ingredient"
-          }
+          "text": "ลวกบรอกโคลีสั้นๆ"
         },
         {
-          "text": "ผสมซีอิ๊วขาว มิริน น้ำตาล ขิง กระเทียม และน้ำในถ้วย คนจนน้ำตาลละลาย แล้วหมักไก่ 10 นาทีในซอสครึ่งหนึ่ง เก็บซอสอีกครึ่งไว้เคี่ยวราด",
-          "timerSeconds": 600
+          "text": "ราดข้าวกล้อง วางไก่และบรอกโคลี"
         },
         {
-          "text": "ตั้งกระทะเทฟลอนไฟกลาง ใส่น้ำมันครึ่งช้อนชา เช็ดให้ทั่ว วางไก่ลงโดยให้ด้านที่สวยกว่าลงก่อน ย่างโดยไม่ขยับประมาณ 3–4 นาทีจนผิวเหลืองทอง",
-          "timerSeconds": 210
-        },
-        {
-          "text": "พลิกอีกด้าน ปิดฝา ลดไฟอ่อน ย่างอีก 3–4 นาทีจนไก่สุกทั่ว ตัดดูตรงกลางต้องขาวไม่มีสีชมพู ถ้ายังมีน้ำสีใสจากไก่ให้เช็ดทิ้ง",
-          "timerSeconds": 210
-        },
-        {
-          "text": "เทซอสที่เหลือลงกระทะ เคี่ยวให้เดือดเบา ๆ ประมาณ 1–2 นาที ช้อนซอสราดและกลับไก่ไปมาให้เคลือบ จนซอสข้นเป็นเงาเกาะช้อนเมื่อยกขึ้น",
-          "timerSeconds": 90,
-          "photo": {
-            "path": "images/teriyaki-gai-rice-step-sauce.jpg",
-            "mime": "image/jpeg",
-            "credit": "David J",
-            "source": "https://commons.wikimedia.org/wiki/File:Teriyaki_sauce.jpg",
-            "license": "CC BY 2.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
-            "match": "technique"
-          }
-        },
-        {
-          "text": "พักไก่ 2 นาทีให้น้ำเนื้อนิ่ง แล้วหั่นเป็นชิ้นหนาประมาณ 1 ซม. ตัดขวางเสี้ยนเพื่อให้นุ่ม",
-          "timerSeconds": 120
-        },
-        {
-          "text": "หั่นแตงกวาเฉียงบาง ๆ จัดบนข้าวสวยร้อน วางไก่ ราดซอสที่เหลือในกระทะ โรยงา",
-          "photo": {
-            "path": "images/teriyaki-gai-rice-step-cucumber.jpg",
-            "mime": "image/jpeg",
-            "credit": "Jeremy Keith from Brighton & Hove, United Kingdom",
-            "source": "https://commons.wikimedia.org/wiki/File:Slicing_cucumber_(5442160654).jpg",
-            "license": "CC BY 2.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
-            "match": "technique"
-          }
+          "text": "รดน้ำปลาผสมมะนาวเล็กน้อย"
         }
       ],
-      "createdAt": "2026-10-17T14:00:00+07:00",
-      "updatedAt": "2026-10-17T14:00:00+07:00"
+      "createdAt": "2026-10-19T10:00:00+07:00",
+      "updatedAt": "2026-10-19T10:00:00+07:00"
     },
     {
-      "id": "b2f0186b-0bb4-5e10-997d-f548fc747c8f",
-      "title": "ราดหน้าไก่คะน้าเส้นใหญ่ลวก",
-      "category": "อาหารจานเดียว",
+      "id": "b4020002-4a20-4f80-a002-000000000002",
+      "title": "ไข่ตุ๋นหมูสับเห็ดน้ำใส",
+      "category": "อาหารลดน้ำหนัก",
       "tags": [
-        "ราดหน้า",
-        "เส้นใหญ่",
-        "น้ำเกรวี่",
-        "ผักคะน้า"
+        "ลดน้ำหนัก",
+        "คลีน",
+        "ไข่",
+        "หมูสับ"
       ],
-      "prepMinutes": 15,
+      "prepMinutes": 10,
       "cookMinutes": 15,
       "servings": 1,
       "difficulty": "easy",
-      "notes": "ประมาณ 410 กิโลแคลอรี/จาน (เส้นใหญ่ 150 ก. ≈ 200 + ไก่ 80 ก. ≈ 100 + น้ำมัน 1 ชช. ≈ 40 + แป้งมัน 1 ชต. ≈ 30 + ผัก/ซอส ≈ 40 ; ราดหน้าไก่ร้านทั่วไป ~400) (ค่าประมาณจากการรวมวัตถุดิบ ไม่ใช่ค่าที่ตรวจวัด) | แหล่งอ้างอิง: https://www.nanitalk.com/food-calorie-chart/ ; https://hdmall.co.th/blog/table-of-calories-in-food-types/ ; https://datanutri.com/foods/171477/chicken-broilers-or-fryers-breast-meat-only-cooked-roasted | เคล็ดลับ: (1) ซอสข้นเกินไปแก้ด้วยน้ำซุปร้อนเล็กน้อย ถ้าเหลวเกินให้ผสมแป้งเพิ่มครั้งละ 1 ช้อนชา ; (2) ถ้าอยากได้ราดหน้าแบบเส้นไหม้หอมให้ผัดเส้นแห้งแต่ใช้น้ำมันเพิ่มเล็กน้อย ; (3) ลดคาร์บด้วยเส้นเล็กหรือเส้นบุก | หมายเหตุภาพ: รูปขั้นตอนส่วนใหญ่เป็นภาพเทคนิค/วัตถุดิบที่ใช้ร่วมกันจาก Wikimedia Commons ไม่ใช่ภาพจากการทำสูตรนี้โดยตรง (ดู photo.match ของแต่ละขั้น)",
+      "notes": "ประมาณ 310 กิโลแคลอรี/เสิร์ฟ โปรตีนราว 22 ก. (ค่าประมาณจากส่วนผสมหลัก ปรับตามแบรนด์และปริมาณจริง)",
       "tips": [
-        "ซอสข้นเกินไปแก้ด้วยน้ำซุปร้อนเล็กน้อย ถ้าเหลวเกินให้ผสมแป้งเพิ่มครั้งละ 1 ช้อนชา",
-        "ถ้าอยากได้ราดหน้าแบบเส้นไหม้หอมให้ผัดเส้นแห้งแต่ใช้น้ำมันเพิ่มเล็กน้อย",
-        "ลดคาร์บด้วยเส้นเล็กหรือเส้นบุก"
+        "ใช้ไฟกลาง–แรงและน้ำมันน้อยที่สุดที่ทำได้",
+        "ชิมรสก่อนเสิร์ฟ ปรับเค็มหวานให้พอดี"
       ],
       "photo": {
-        "path": "images/rad-na-cover.jpg",
-        "mime": "image/jpeg",
-        "credit": "Takeaway",
-        "source": "https://commons.wikimedia.org/wiki/File:Kuai-tiao_rat_na_mu.JPG",
-        "license": "CC BY-SA 3.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+        "path": "images/khao-tom-cover.jpg",
+        "mime": "image/jpeg"
       },
-      "photoCredit": "Takeaway",
-      "photoSource": "https://commons.wikimedia.org/wiki/File:Kuai-tiao_rat_na_mu.JPG",
-      "photoLicense": "CC BY-SA 3.0",
-      "sources": [
-        "https://www.nanitalk.com/food-calorie-chart/",
-        "https://hdmall.co.th/blog/table-of-calories-in-food-types/",
-        "https://datanutri.com/foods/171477/chicken-broilers-or-fryers-breast-meat-only-cooked-roasted"
-      ],
       "ingredients": [
         {
-          "name": "เส้นใหญ่สด",
-          "amount": 150,
+          "name": "ไข่ไก่",
+          "amount": 2,
+          "unit": "ฟอง"
+        },
+        {
+          "name": "หมูสับ",
+          "amount": 60,
           "unit": "กรัม"
         },
         {
-          "name": "อกไก่หั่นชิ้นบาง",
+          "name": "เห็ดนางฟ้า",
           "amount": 80,
           "unit": "กรัม"
         },
         {
-          "name": "คะน้าหั่นท่อน",
+          "name": "น้ำซุป",
+          "amount": 500,
+          "unit": "มล."
+        },
+        {
+          "name": "ต้นหอม",
           "amount": 1,
-          "unit": "ถ้วย"
-        },
-        {
-          "name": "กระเทียมสับ",
-          "amount": 2,
-          "unit": "กลีบ"
-        },
-        {
-          "name": "เต้าเจี้ยวขาวบด",
-          "amount": 1,
-          "unit": "ช้อนชา"
-        },
-        {
-          "name": "ซีอิ๊วขาว",
-          "amount": 1,
-          "unit": "ช้อนชา"
-        },
-        {
-          "name": "น้ำปลา",
-          "amount": 0.5,
-          "unit": "ช้อนชา"
-        },
-        {
-          "name": "น้ำซุปไก่",
-          "amount": 1,
-          "unit": "ถ้วย"
-        },
-        {
-          "name": "แป้งมันสำปะหลัง",
-          "amount": 1,
-          "unit": "ช้อนโต๊ะ"
-        },
-        {
-          "name": "น้ำเย็น",
-          "amount": 2,
-          "unit": "ช้อนโต๊ะ"
-        },
-        {
-          "name": "น้ำมันรำข้าว",
-          "amount": 1,
-          "unit": "ช้อนชา"
-        },
-        {
-          "name": "พริกน้ำส้มพริกป่น",
-          "unit": "ปรุงที่โต๊ะ"
+          "unit": "ต้น"
         }
       ],
       "steps": [
         {
-          "text": "ต้มน้ำให้เดือดจัดแล้วลวกเส้นใหญ่ 15–20 วินาทีให้นุ่ม ตักสะเด็ดน้ำใส่ชามไว้ ถ้าเส้นสดติดกันให้คลายด้วยน้ำเดือดก่อนลวก",
-          "timerSeconds": 20
+          "text": "ต้มน้ำซุป ใส่เห็ดและหมูสับ"
         },
         {
-          "text": "หั่นคะน้าเป็นท่อน ลวกในน้ำเดือด 30 วินาทีให้สีเขียวสดแต่ยังกรอบ แล้วจุ่มน้ำเย็นทันทีเพื่อหยุดสุก วางบนเส้น",
-          "timerSeconds": 30,
-          "photo": {
-            "path": "images/rad-na-step-kale.jpg",
-            "mime": "image/jpeg",
-            "credit": "Nthaci",
-            "source": "https://commons.wikimedia.org/wiki/File:Gai_lan.jpg",
-            "license": "CC BY-SA 4.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-            "match": "ingredient"
-          }
+          "text": "ตีไข่ลงเรื่อยๆ ขณะซุปเดือดอ่อน"
         },
         {
-          "text": "เตรียมสารละลายแป้ง ผสมแป้งมัน 1 ช้อนโต๊ะกับน้ำเย็น 2 ช้อนโต๊ะในถ้วย คนให้เข้ากันจนไม่มีก้อน ต้องใช้น้ำเย็นเสมอ ถ้าใช้น้ำร้อนแป้งจะจับเป็นก้อน คนอีกครั้งก่อนเทลงกระทะทุกครั้งเพราะแป้งจะตกตะกอน",
-          "photo": {
-            "path": "images/rad-na-step-slurry.jpg",
-            "mime": "image/jpeg",
-            "credit": "Picasa author kalaya",
-            "source": "https://commons.wikimedia.org/wiki/File:Cornstarch_mixed_with_water.jpg",
-            "license": "CC BY-SA 3.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
-            "match": "technique"
-          }
-        },
-        {
-          "text": "สับกระเทียมให้ละเอียดพอประมาณ ผสมกับเต้าเจี้ยวบดในถ้วยเล็ก",
-          "photo": {
-            "path": "images/rad-na-step-garlic.jpg",
-            "mime": "image/jpeg",
-            "credit": "Betsssssy",
-            "source": "https://commons.wikimedia.org/wiki/File:Chopping_garlic-01.jpg",
-            "license": "CC BY 2.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
-            "match": "technique"
-          }
-        },
-        {
-          "text": "ตั้งกระทะไฟกลางค่อนแรง ใส่น้ำมัน ผัดกระเทียมกับเต้าเจี้ยวประมาณ 15 วินาทีให้หอม ใส่ไก่หั่นบางลงผัดประมาณ 1–2 นาทีจนเปลี่ยนเป็นสีขาวทั่ว",
-          "timerSeconds": 120,
-          "photo": {
-            "path": "images/rad-na-step-wok.jpg",
-            "mime": "image/jpeg",
-            "credit": "Jvdc (Wikimedia Commons uploader)",
-            "source": "https://commons.wikimedia.org/wiki/File:Wok_Cooking.jpg",
-            "license": "CC BY-SA 2.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
-            "match": "technique"
-          }
-        },
-        {
-          "text": "เทน้ำซุปลงไป ปรุงด้วยซีอิ๊วขาวและน้ำปลา ต้มจนเดือดเบา ๆ ชิมรสให้เค็มนำนิดหน่อยเพราะเมื่อราดบนเส้นแล้วจะจืดลง",
-          "timerSeconds": 60
-        },
-        {
-          "text": "คนแป้งที่ผสมไว้ให้เข้ากัน แล้วค่อย ๆ เทลงในน้ำซุปที่เดือดเบาพร้อมกวนตลอดเวลา เห็นน้ำเริ่มข้นใสเป็นเงา ใช้เวลาประมาณ 30–60 วินาที ได้ความข้นพอเคลือบหลังช้อนแล้วปิดไฟทันที",
-          "timerSeconds": 45
-        },
-        {
-          "text": "ราดน้ำเกรวี่ร้อน ๆ ลงบนเส้นและคะน้า เสิร์ฟทันที ปรุงพริกน้ำส้ม พริกป่น และน้ำตาลที่โต๊ะตามชอบ"
+          "text": "ปรุงรส โรยต้นหอม"
         }
       ],
-      "createdAt": "2026-10-17T14:00:00+07:00",
-      "updatedAt": "2026-10-17T14:00:00+07:00"
+      "createdAt": "2026-10-19T10:00:00+07:00",
+      "updatedAt": "2026-10-19T10:00:00+07:00"
     },
     {
-      "id": "eec6295f-931d-565f-b7d6-8f037832facc",
-      "title": "สุกี้น้ำไก่วุ้นเส้น",
-      "category": "อาหารจานเดียว",
+      "id": "b4020003-4a20-4f80-a002-000000000003",
+      "title": "บรอกโคลีผัดหมูสับพริกขี้หนู",
+      "category": "อาหารลดน้ำหนัก",
       "tags": [
-        "สุกี้",
-        "น้ำซุป",
-        "ผักเยอะ",
-        "วุ้นเส้น"
-      ],
-      "prepMinutes": 15,
-      "cookMinutes": 10,
-      "servings": 1,
-      "difficulty": "easy",
-      "notes": "ประมาณ 290 กิโลแคลอรี/ชาม (วุ้นเส้นแห้ง 30 ก. ≈ 105 + ไก่ 70 ก. ≈ 90 + ผัก/เห็ด ≈ 40 + ไข่ ≈ 70 + น้ำจิ้มเล็กน้อย ≈ 20 ; สุกี้น้ำไก่ร้านทั่วไป 165–345) (ค่าประมาณจากการรวมวัตถุดิบ ไม่ใช่ค่าที่ตรวจวัด) | แหล่งอ้างอิง: https://www.ocean.co.th/articles/calories-thai-food ; https://hdmall.co.th/blog/table-of-calories-in-food-types/ ; https://datanutri.com/foods/171477/chicken-broilers-or-fryers-breast-meat-only-cooked-roasted | เคล็ดลับ: (1) วุ้นเส้นดูดน้ำซุปมาก ถ้ากินไม่หมดทันทีให้แยกเก็บ ; (2) น้ำจิ้มสุกี้สำเร็จรูปมีน้ำตาลและโซเดียมสูง ใช้เพียง 1 ช้อนโต๊ะหรือเปลี่ยนเป็นพริกสด มะนาว ; (3) เพิ่มผักบุ้ง ข้าวโพดอ่อนได้ตามชอบ | หมายเหตุภาพ: รูปขั้นตอนส่วนใหญ่เป็นภาพเทคนิค/วัตถุดิบที่ใช้ร่วมกันจาก Wikimedia Commons ไม่ใช่ภาพจากการทำสูตรนี้โดยตรง (ดู photo.match ของแต่ละขั้น)",
-      "tips": [
-        "วุ้นเส้นดูดน้ำซุปมาก ถ้ากินไม่หมดทันทีให้แยกเก็บ",
-        "น้ำจิ้มสุกี้สำเร็จรูปมีน้ำตาลและโซเดียมสูง ใช้เพียง 1 ช้อนโต๊ะหรือเปลี่ยนเป็นพริกสด มะนาว",
-        "เพิ่มผักบุ้ง ข้าวโพดอ่อนได้ตามชอบ"
-      ],
-      "photo": {
-        "path": "images/suki-nam-cover.jpg",
-        "mime": "image/jpeg",
-        "credit": "Vyacheslav Argenberg",
-        "source": "https://commons.wikimedia.org/wiki/File:Thai_suki,_Thai_hot_pot_ingredients,_Bangkok,_Thailand.jpg",
-        "license": "CC BY 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
-      },
-      "photoCredit": "Vyacheslav Argenberg",
-      "photoSource": "https://commons.wikimedia.org/wiki/File:Thai_suki,_Thai_hot_pot_ingredients,_Bangkok,_Thailand.jpg",
-      "photoLicense": "CC BY 4.0",
-      "sources": [
-        "https://www.ocean.co.th/articles/calories-thai-food",
-        "https://hdmall.co.th/blog/table-of-calories-in-food-types/",
-        "https://datanutri.com/foods/171477/chicken-broilers-or-fryers-breast-meat-only-cooked-roasted"
-      ],
-      "ingredients": [
-        {
-          "name": "อกไก่ หั่นบาง",
-          "amount": 70,
-          "unit": "กรัม"
-        },
-        {
-          "name": "วุ้นเส้นแห้ง",
-          "amount": 30,
-          "unit": "กรัม"
-        },
-        {
-          "name": "ผักกาดขาว",
-          "amount": 1,
-          "unit": "ถ้วย"
-        },
-        {
-          "name": "เห็ดหอมสดหรือเห็ดเข็มทอง",
-          "amount": 50,
-          "unit": "กรัม"
-        },
-        {
-          "name": "ต้นหอม ผักชี",
-          "amount": 1,
-          "unit": "ช้อนโต๊ะ"
-        },
-        {
-          "name": "กระเทียมสับ",
-          "amount": 2,
-          "unit": "กลีบ"
-        },
-        {
-          "name": "ไข่ไก่",
-          "amount": 1,
-          "unit": "ฟอง"
-        },
-        {
-          "name": "น้ำซุปไก่",
-          "amount": 1.5,
-          "unit": "ถ้วย"
-        },
-        {
-          "name": "ซีอิ๊วขาว",
-          "amount": 1,
-          "unit": "ช้อนชา"
-        },
-        {
-          "name": "เต้าหู้ขาว",
-          "amount": 50,
-          "unit": "กรัม"
-        },
-        {
-          "name": "น้ำจิ้มสุกี้ (ลดน้ำตาล)",
-          "amount": 1,
-          "unit": "ช้อนโต๊ะ"
-        }
-      ],
-      "steps": [
-        {
-          "text": "แช่วุ้นเส้นในน้ำเย็น 5–10 นาทีจนนุ่ม แล้วตัดให้สั้นลงด้วยกรรไกร ตักสะเด็ดน้ำ ไม่ต้องแช่น้ำร้อนเพราะวุ้นเส้นจะเละเมื่อเดือด"
-        },
-        {
-          "text": "ล้างผักกาดขาวแล้วหั่นเป็นชิ้นพอคำ ชิ้นผักกาดขาวหนาประมาณ 3 ซม. จะนุ่มโดยไม่เละ ส่วนก้านจะใช้เวลาสุกนานกว่าใบ แยกกองไว้",
-          "photo": {
-            "path": "images/suki-nam-step-cabbage.jpg",
-            "mime": "image/jpeg",
-            "credit": "Fumikas Sagisavas",
-            "source": "https://commons.wikimedia.org/wiki/File:Chinese_cabbages.jpg",
-            "license": "CC0",
-            "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
-            "match": "ingredient"
-          }
-        },
-        {
-          "text": "เช็ดเห็ดหอมให้สะอาดไม่ต้องล้างแรง หั่นเป็นชิ้นบาง หากเป็นเห็ดเข็มทองให้ตัดโคนทิ้งแล้วแยกเป็นกลุ่มเล็ก",
-          "photo": {
-            "path": "images/suki-nam-step-mushroom.jpg",
-            "mime": "image/jpeg",
-            "credit": "Fumikas Sagisavas",
-            "source": "https://commons.wikimedia.org/wiki/File:Fresh_shiitake_mushrooms.jpg",
-            "license": "CC0",
-            "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
-            "match": "ingredient"
-          }
-        },
-        {
-          "text": "หั่นอกไก่ตามขวางเป็นแผ่นบาง ๆ หนาไม่เกิน 3 มม. คลุกกับซีอิ๊วขาวครึ่งช้อนชาพักไว้ 5 นาที เนื้อบางจะสุกเร็วและนุ่ม",
-          "timerSeconds": 300
-        },
-        {
-          "text": "ตั้งหม้อกับน้ำซุปไฟแรงจนเดือดจัดเป็นฟอง ใส่กระเทียมสับ ปรุงด้วยซีอิ๊วขาวครึ่งช้อนชา ลดไฟเหลือกลาง",
-          "photo": {
-            "path": "images/suki-nam-step-boil.jpg",
-            "mime": "image/jpeg",
-            "credit": "GRAN",
-            "source": "https://commons.wikimedia.org/wiki/File:Boiling_water.jpg",
-            "license": "CC BY 3.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
-            "match": "technique"
-          }
-        },
-        {
-          "text": "ใส่เต้าหู้และก้านผักกาดขาวลงก่อน ต้ม 1 นาที จากนั้นใส่เห็ดและวุ้นเส้น ต้มอีก 1–2 นาทีจนวุ้นเส้นใสนุ่ม",
-          "timerSeconds": 120
-        },
-        {
-          "text": "ใส่ไก่ลงทีละแผ่นไม่ให้จับก้อน เมื่อเนื้อเปลี่ยนเป็นขาวขุ่น (ประมาณ 1 นาที) ใส่ใบผักกาด ตอกไข่ลงกลางหม้อ ปิดไฟแล้วปิดฝา 1 นาทีให้ไข่เซ็ตอ่อน ๆ",
-          "timerSeconds": 60
-        },
-        {
-          "text": "ตักใส่ชาม โรยต้นหอมผักชี เสิร์ฟร้อน ๆ พร้อมน้ำจิ้มสุกี้ปริมาณน้อย ได้บรรยากาศเหมือนกินสุกี้ที่ร้าน",
-          "photo": {
-            "path": "images/suki-nam-step-table.jpg",
-            "mime": "image/jpeg",
-            "credit": "Vyacheslav Argenberg",
-            "source": "https://commons.wikimedia.org/wiki/File:Thai_suki,_Thai_hot_pot_preparation,_Dining_in_Bangkok,_Thailand.jpg",
-            "license": "CC BY 4.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
-            "match": "serving-example"
-          }
-        }
-      ],
-      "createdAt": "2026-10-17T14:00:00+07:00",
-      "updatedAt": "2026-10-17T14:00:00+07:00"
-    },
-    {
-      "id": "4c1b180d-fec6-51af-83ca-893ed67873f2",
-      "title": "ข้าวผัดปูเนื้อปูไข่ฟู",
-      "category": "อาหารจานเดียว",
-      "tags": [
-        "ข้าวผัด",
-        "ปู",
-        "ซีฟู้ด"
+        "ลดน้ำหนัก",
+        "คลีน",
+        "หมูสับ",
+        "บรอกโคลี"
       ],
       "prepMinutes": 10,
       "cookMinutes": 8,
       "servings": 1,
       "difficulty": "easy",
-      "notes": "ประมาณ 440 กิโลแคลอรี/จาน (ข้าวสวย 200 ก. ≈ 260 + เนื้อปู 60 ก. ≈ 60 + ไข่ ≈ 72 + น้ำมัน 1 ชช. ≈ 40 ; ข้าวผัดปู/กุ้งใส่ไข่ร้านทั่วไป ~530) (ค่าประมาณจากการรวมวัตถุดิบ ไม่ใช่ค่าที่ตรวจวัด) | แหล่งอ้างอิง: https://www.kindeediet.com/thai-food-calorie/ ; https://www.nanitalk.com/food-calorie-chart/ | เคล็ดลับ: (1) ใส่ปูทีหลังเสมอ เนื้อปูนึ่งสุกแล้ว ผัดนานเนื้อจะแห้ง ; (2) บีบมะนาวตอนกินช่วยตัดรสและลดความเค็มได้ ; (3) แทนปูด้วยปูอัดที่ฉีกเป็นเส้นได้ แต่เช็คโซเดียม | หมายเหตุภาพ: รูปขั้นตอนส่วนใหญ่เป็นภาพเทคนิค/วัตถุดิบที่ใช้ร่วมกันจาก Wikimedia Commons ไม่ใช่ภาพจากการทำสูตรนี้โดยตรง (ดู photo.match ของแต่ละขั้น)",
+      "notes": "ประมาณ 340 กิโลแคลอรี/เสิร์ฟ โปรตีนราว 24 ก. (ค่าประมาณจากส่วนผสมหลัก ปรับตามแบรนด์และปริมาณจริง)",
       "tips": [
-        "ใส่ปูทีหลังเสมอ เนื้อปูนึ่งสุกแล้ว ผัดนานเนื้อจะแห้ง",
-        "บีบมะนาวตอนกินช่วยตัดรสและลดความเค็มได้",
-        "แทนปูด้วยปูอัดที่ฉีกเป็นเส้นได้ แต่เช็คโซเดียม"
+        "ใช้ไฟกลาง–แรงและน้ำมันน้อยที่สุดที่ทำได้",
+        "ชิมรสก่อนเสิร์ฟ ปรับเค็มหวานให้พอดี"
       ],
       "photo": {
-        "path": "images/khao-pad-pu-cover.jpg",
-        "mime": "image/jpeg",
-        "credit": "Suiren2022",
-        "source": "https://commons.wikimedia.org/wiki/File:Crab_fried_rice.jpg",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+        "path": "images/kra-pao-gai-cover.jpg",
+        "mime": "image/jpeg"
       },
-      "photoCredit": "Suiren2022",
-      "photoSource": "https://commons.wikimedia.org/wiki/File:Crab_fried_rice.jpg",
-      "photoLicense": "CC BY-SA 4.0",
-      "sources": [
-        "https://www.kindeediet.com/thai-food-calorie/",
-        "https://www.nanitalk.com/food-calorie-chart/"
-      ],
       "ingredients": [
         {
-          "name": "ข้าวสวยเย็น",
-          "amount": 200,
+          "name": "หมูสับ",
+          "amount": 100,
           "unit": "กรัม"
         },
         {
-          "name": "เนื้อปูนึ่ง",
-          "amount": 60,
-          "unit": "กรัม",
-          "note": "ใช้เนื้อปูก้อนหรือเนื้อปูแพ็ค"
+          "name": "บรอกโคลี",
+          "amount": 180,
+          "unit": "กรัม"
         },
         {
-          "name": "ไข่ไก่",
-          "amount": 1,
-          "unit": "ฟอง"
-        },
-        {
-          "name": "กระเทียมสับ",
-          "amount": 2,
+          "name": "กระเทียม",
+          "amount": 3,
           "unit": "กลีบ"
         },
         {
-          "name": "ต้นหอมซอย",
+          "name": "พริกขี้หนู",
+          "amount": 3,
+          "unit": "เม็ด"
+        },
+        {
+          "name": "น้ำมันรำข้าว",
           "amount": 1,
-          "unit": "ต้น"
+          "unit": "ช้อนชา"
+        },
+        {
+          "name": "ซอสปรุงรส",
+          "amount": 1,
+          "unit": "ช้อนโต๊ะ"
+        }
+      ],
+      "steps": [
+        {
+          "text": "สับกระเทียมพริก ผัดในน้ำมันน้อย"
+        },
+        {
+          "text": "ใส่หมูสับ ผัดจนสุก"
+        },
+        {
+          "text": "ใส่บรอกโคลี ผัดไฟแรง ปรุงรส"
+        }
+      ],
+      "createdAt": "2026-10-19T10:00:00+07:00",
+      "updatedAt": "2026-10-19T10:00:00+07:00"
+    },
+    {
+      "id": "b4020004-4a20-4f80-a002-000000000004",
+      "title": "เนื้อสับผัดพริกหอมผักบุ้ง",
+      "category": "อาหารลดน้ำหนัก",
+      "tags": [
+        "ลดน้ำหนัก",
+        "โปรตีนสูง",
+        "เนื้อสับ"
+      ],
+      "prepMinutes": 10,
+      "cookMinutes": 8,
+      "servings": 1,
+      "difficulty": "easy",
+      "notes": "ประมาณ 360 กิโลแคลอรี/เสิร์ฟ โปรตีนราว 26 ก. (ค่าประมาณจากส่วนผสมหลัก ปรับตามแบรนด์และปริมาณจริง)",
+      "tips": [
+        "ใช้ไฟกลาง–แรงและน้ำมันน้อยที่สุดที่ทำได้",
+        "ชิมรสก่อนเสิร์ฟ ปรับเค็มหวานให้พอดี"
+      ],
+      "photo": {
+        "path": "images/kra-pao-gai-cover.jpg",
+        "mime": "image/jpeg"
+      },
+      "ingredients": [
+        {
+          "name": "เนื้อสับ",
+          "amount": 120,
+          "unit": "กรัม"
+        },
+        {
+          "name": "ผักบุ้ง",
+          "amount": 150,
+          "unit": "กรัม"
+        },
+        {
+          "name": "พริกหอม",
+          "amount": 2,
+          "unit": "เม็ด"
+        },
+        {
+          "name": "กระเทียม",
+          "amount": 2,
+          "unit": "กลีบ"
         },
         {
           "name": "น้ำมันรำข้าว",
@@ -1364,159 +257,65 @@
         {
           "name": "ซีอิ๊วขาว",
           "amount": 1,
-          "unit": "ช้อนชา"
-        },
-        {
-          "name": "น้ำปลา",
-          "amount": 0.5,
-          "unit": "ช้อนชา"
-        },
-        {
-          "name": "พริกไทยป่น",
-          "unit": "เล็กน้อย"
-        },
-        {
-          "name": "มะนาวและแตงกวา",
-          "unit": "เสิร์ฟข้าง"
+          "unit": "ช้อนโต๊ะ"
         }
       ],
       "steps": [
         {
-          "text": "ตรวจเนื้อปูหาเศษเปลือกแข็งด้วยนิ้วมือ ดึงเปลือกเล็ก ๆ ออกให้หมด แล้วฉีกเนื้อเป็นเส้นสวย ๆ ไม่ต้องขยี้ ถ้าเนื้อปูแช่เย็นให้ซับน้ำที่เกาะให้แห้ง",
-          "photo": {
-            "path": "images/khao-pad-pu-step-crab.jpg",
-            "mime": "image/jpeg",
-            "credit": "François Nguyen",
-            "source": "https://commons.wikimedia.org/wiki/File:Crab_legs_meat.jpg",
-            "license": "CC BY 2.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
-            "match": "ingredient"
-          }
+          "text": "ผัดกระเทียมพริกหอม"
         },
         {
-          "text": "ตีไข่ใส่ถ้วย ปรุงพริกไทยเล็กน้อย ใช้ส้อมตีให้ไข่แดงไข่ขาวเข้ากัน",
-          "photo": {
-            "path": "images/khao-pad-pu-step-egg.jpg",
-            "mime": "image/jpeg",
-            "credit": "Mark Bonica",
-            "source": "https://commons.wikimedia.org/wiki/File:Pre-omelet_eggs.jpg",
-            "license": "CC BY 2.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
-            "match": "technique"
-          }
+          "text": "ใส่เนื้อสับ ผัดจนสุก"
         },
         {
-          "text": "ซอยต้นหอมสีขาวและเขียว แยกส่วนโคนขาวสำหรับผัดและส่วนเขียวสำหรับโรยตอนจบ",
-          "photo": {
-            "path": "images/khao-pad-pu-step-scallion.jpg",
-            "mime": "image/jpeg",
-            "credit": "褒忠國中 雲端網",
-            "source": "https://commons.wikimedia.org/wiki/File:Chopped_scallions_2014-09-26.jpg",
-            "license": "CC BY 2.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
-            "match": "ingredient"
-          }
-        },
-        {
-          "text": "ร่อนข้าวสวยเย็นให้เม็ดแยกจากกันก่อนเปิดไฟ ข้าวที่เป็นก้อนจะผัดยากและไม่ร่วน"
-        },
-        {
-          "text": "ตั้งกระทะไฟกลางค่อนแรงจนร้อนจัด ใส่น้ำมัน กระเทียมและโคนต้นหอม ผัดประมาณ 15 วินาทีจนหอมแต่ไม่เปลี่ยนสี",
-          "timerSeconds": 15,
-          "photo": {
-            "path": "images/khao-pad-pu-step-wok.jpg",
-            "mime": "image/jpeg",
-            "credit": "Jvdc (Wikimedia Commons uploader)",
-            "source": "https://commons.wikimedia.org/wiki/File:Wok_Cooking.jpg",
-            "license": "CC BY-SA 2.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
-            "match": "technique"
-          }
-        },
-        {
-          "text": "เทไข่ลงกลางกระทะ รอ 10 วินาทีให้ขอบเซ็ต แล้วใส่ข้าวลงทันที ใช้ตะหลิวกดและตัดข้าวให้แตกกับไข่ ผัดไฟแรง 2 นาทีจนข้าวร่วนเม็ดละเม็ด",
-          "timerSeconds": 120
-        },
-        {
-          "text": "เทซีอิ๊วขาวและน้ำปลาตามขอบกระทะ คลุกให้สีเสมอ ลดไฟลงนิดหน่อย",
-          "timerSeconds": 30
-        },
-        {
-          "text": "ใส่เนื้อปูเป็นลำดับสุดท้าย คนพลิกเบา ๆ เพียง 20–30 วินาทีให้ปูอุ่นทั่ว ไม่ควรผัดนานเพราะเนื้อปูจะแตกและแห้ง โรยต้นหอมเขียว เสิร์ฟกับมะนาวและแตงกวา",
-          "timerSeconds": 30
+          "text": "ใส่ผักบุ้ง ผัดเร็ว ปรุงซีอิ๊ว"
         }
       ],
-      "createdAt": "2026-10-17T14:00:00+07:00",
-      "updatedAt": "2026-10-17T14:00:00+07:00"
+      "createdAt": "2026-10-19T10:00:00+07:00",
+      "updatedAt": "2026-10-19T10:00:00+07:00"
     },
     {
-      "id": "0a3b64eb-4122-5710-a08c-867d35e44762",
-      "title": "ข้าวมันไก่ลวก (อกไก่ น้ำมันน้อย)",
-      "category": "อาหารจานเดียว",
+      "id": "b4020005-4a20-4f80-a002-000000000005",
+      "title": "หมูสับผัดผักรวมข้าวกล้อง",
+      "category": "อาหารลดน้ำหนัก",
       "tags": [
-        "ข้าวมันไก่",
-        "ไก่ลวก",
-        "ไขมันต่ำ",
-        "น้ำซุปใส"
+        "ลดน้ำหนัก",
+        "คลีน",
+        "หมูสับ"
       ],
-      "prepMinutes": 15,
-      "cookMinutes": 30,
+      "prepMinutes": 12,
+      "cookMinutes": 10,
       "servings": 1,
-      "difficulty": "medium",
-      "notes": "ประมาณ 460 กิโลแคลอรี/จาน (ข้าวมัน 180 ก. ≈ 260 + น้ำมันไก่/กระเทียม 1 ชช. ≈ 40 + อกไก่ 100 ก. ≈ 130–165 + น้ำจิ้ม ≈ 30 ; ข้าวมันไก่ร้านทั่วไป 585–657 เพราะมีหนังและไขมันมากกว่า) (ค่าประมาณจากการรวมวัตถุดิบ ไม่ใช่ค่าที่ตรวจวัด) | แหล่งอ้างอิง: https://toasthealth.app/calories/khao-man-gai ; https://www.ocean.co.th/articles/calories-thai-food ; https://www.nanitalk.com/food-calorie-chart/ ; https://datanutri.com/foods/171477/chicken-broilers-or-fryers-breast-meat-only-cooked-roasted | เคล็ดลับ: (1) ไก่ที่เคี่ยวเดือดแรงจะเหนียวแห้ง ให้ใช้ไฟอ่อนและแช่ในน้ำร้อนต่อ ; (2) เก็บน้ำต้มไก่ไว้ทำน้ำซุปและหุงข้าวเพื่อเพิ่มรสโดยไม่ต้องใช้น้ำมัน ; (3) เลือกน้ำจิ้มที่ไม่ผสมน้ำตาลมากเพื่อลดแคลอรี | หมายเหตุภาพ: รูปขั้นตอนส่วนใหญ่เป็นภาพเทคนิค/วัตถุดิบที่ใช้ร่วมกันจาก Wikimedia Commons ไม่ใช่ภาพจากการทำสูตรนี้โดยตรง (ดู photo.match ของแต่ละขั้น)",
+      "difficulty": "easy",
+      "notes": "ประมาณ 430 กิโลแคลอรี/เสิร์ฟ โปรตีนราว 25 ก. (ค่าประมาณจากส่วนผสมหลัก ปรับตามแบรนด์และปริมาณจริง)",
       "tips": [
-        "ไก่ที่เคี่ยวเดือดแรงจะเหนียวแห้ง ให้ใช้ไฟอ่อนและแช่ในน้ำร้อนต่อ",
-        "เก็บน้ำต้มไก่ไว้ทำน้ำซุปและหุงข้าวเพื่อเพิ่มรสโดยไม่ต้องใช้น้ำมัน",
-        "เลือกน้ำจิ้มที่ไม่ผสมน้ำตาลมากเพื่อลดแคลอรี"
+        "ใช้ไฟกลาง–แรงและน้ำมันน้อยที่สุดที่ทำได้",
+        "ชิมรสก่อนเสิร์ฟ ปรับเค็มหวานให้พอดี"
       ],
       "photo": {
-        "path": "images/khao-man-gai-luak-cover.jpg",
-        "mime": "image/jpeg",
-        "credit": "Simon Tsu",
-        "source": "https://commons.wikimedia.org/wiki/File:Khao_Man_Gai_at_Nong%27s_Khao_Man_Gai.jpg",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+        "path": "images/khao-pad-gai-cover.jpg",
+        "mime": "image/jpeg"
       },
-      "photoCredit": "Simon Tsu",
-      "photoSource": "https://commons.wikimedia.org/wiki/File:Khao_Man_Gai_at_Nong%27s_Khao_Man_Gai.jpg",
-      "photoLicense": "CC BY-SA 4.0",
-      "sources": [
-        "https://toasthealth.app/calories/khao-man-gai",
-        "https://www.ocean.co.th/articles/calories-thai-food",
-        "https://www.nanitalk.com/food-calorie-chart/",
-        "https://datanutri.com/foods/171477/chicken-broilers-or-fryers-breast-meat-only-cooked-roasted"
-      ],
       "ingredients": [
         {
-          "name": "อกไก่ไม่ติดหนัง",
+          "name": "ข้าวกล้อง",
           "amount": 150,
           "unit": "กรัม"
         },
         {
-          "name": "ข้าวหอมมะลิ",
-          "amount": 80,
-          "unit": "กรัม",
-          "note": "ประมาณข้าวสวย 200 ก."
+          "name": "หมูสับ",
+          "amount": 90,
+          "unit": "กรัม"
         },
         {
-          "name": "กระเทียมสับ",
-          "amount": 3,
-          "unit": "กลีบ"
-        },
-        {
-          "name": "ขิงหั่นแว่น",
-          "amount": 3,
-          "unit": "แว่น"
-        },
-        {
-          "name": "รากผักชีทุบ",
-          "amount": 2,
-          "unit": "ต้น"
-        },
-        {
-          "name": "เกลือ",
+          "name": "แครอทหั่น",
           "amount": 0.25,
-          "unit": "ช้อนชา"
+          "unit": "หัว"
+        },
+        {
+          "name": "ถั่วลันเตา",
+          "amount": 3,
+          "unit": "ช้อนโต๊ะ"
         },
         {
           "name": "น้ำมันรำข้าว",
@@ -1524,102 +323,344 @@
           "unit": "ช้อนชา"
         },
         {
-          "name": "แตงกวา",
-          "amount": 0.5,
-          "unit": "ลูก"
-        },
-        {
-          "name": "ต้นหอม ผักชี",
+          "name": "ซอสปรุงรส",
           "amount": 1,
           "unit": "ช้อนโต๊ะ"
-        },
-        {
-          "name": "น้ำจิ้ม: เต้าเจี้ยวขาว",
-          "amount": 1,
-          "unit": "ช้อนโต๊ะ"
-        },
-        {
-          "name": "น้ำจิ้ม: ขิง กระเทียม พริกสด น้ำส้มสายชู",
-          "unit": "อย่างละเล็กน้อย"
         }
       ],
       "steps": [
         {
-          "text": "ซาวข้าวหอมมะลิให้ใสประมาณ 2–3 ครั้ง สะเด็ดน้ำ แล้วเตรียมหุง",
-          "photo": {
-            "path": "images/khao-man-gai-luak-step-rice.jpg",
-            "mime": "image/jpeg",
-            "credit": "Obsidian Soul",
-            "source": "https://commons.wikimedia.org/wiki/File:Rice_wash_(Philippines)_01.jpg",
-            "license": "CC0",
-            "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
-            "match": "technique"
-          }
+          "text": "ผัดหมูสับกับน้ำมันน้อย"
         },
         {
-          "text": "ปอกกระเทียม 3 กลีบ วางไว้ ใช้เขียงและมีดสับให้ละเอียดครึ่งหนึ่ง อีกครึ่งทุบหยาบสำหรับน้ำต้มไก่",
-          "photo": {
-            "path": "images/khao-man-gai-luak-step-garlic.jpg",
-            "mime": "image/jpeg",
-            "credit": "Fumikas Sagisavas",
-            "source": "https://commons.wikimedia.org/wiki/File:Peeled_garlic_cloves.jpg",
-            "license": "CC0",
-            "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
-            "match": "ingredient"
-          }
+          "text": "ใส่ผัก ผัดจนสุก"
         },
         {
-          "text": "ตั้งกระทะ ใส่น้ำมัน 1 ชช. ไฟอ่อน ผัดกระเทียมสับให้หอมประมาณ 30 วินาที ใส่ข้าวสารผัดต่ออีก 1 นาทีให้เม็ดข้าวเคลือบน้ำมัน แล้วย้ายใส่หม้อหุงข้าว",
-          "timerSeconds": 90
-        },
-        {
-          "text": "เติมน้ำต้มไก่หรือน้ำเปล่าตามสัดส่วนข้าว ใส่ขิง เกลือ และรากผักชีทุบ แล้วหุงให้สุก (หากหุงเตาให้ปิดฝาไฟอ่อน 15 นาที)",
-          "timerSeconds": 900
-        },
-        {
-          "text": "ต้มน้ำ 800 มล. กับขิงและรากผักชีไฟกลางจนเดือดเบา ๆ ใส่อกไก่ทั้งชิ้นให้จมน้ำ ลดไฟอ่อนจนผิวน้ำแค่เคลื่อนเบา ๆ เคี่ยว 12–15 นาที หรือจนแทงเนื้อแล้วน้ำใส ปิดไฟ ปิดฝา แช่ต่ออีก 10 นาทีให้เนื้อนุ่ม",
-          "timerSeconds": 1500,
-          "photo": {
-            "path": "images/khao-man-gai-luak-step-poach.jpg",
-            "mime": "image/jpeg",
-            "credit": "Jvdc (Wikimedia Commons uploader)",
-            "source": "https://commons.wikimedia.org/wiki/File:Poached_chicken.jpg",
-            "license": "CC BY-SA 2.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
-            "match": "technique"
-          }
-        },
-        {
-          "text": "ตักไก่ขึ้นแช่น้ำเย็นจัด 1–2 นาทีให้เนื้อแน่นและผิวสวย สะเด็ดน้ำ หั่นตามขวางเสี้ยนเป็นชิ้นหนา 0.7–1 ซม. จัดเรียงบนจาน",
-          "timerSeconds": 120,
-          "photo": {
-            "path": "images/khao-man-gai-luak-step-sliced.jpg",
-            "mime": "image/jpeg",
-            "credit": "N509FZ",
-            "source": "https://commons.wikimedia.org/wiki/File:White_cut_chicken_at_Xiaoshaoxing,_Shanghai_(20191113183809).jpg",
-            "license": "CC BY-SA 4.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-            "match": "serving-example"
-          }
-        },
-        {
-          "text": "ผสมน้ำจิ้ม: เต้าเจี้ยวขาว ขิงและกระเทียมโขลกละเอียด พริกสด น้ำส้มสายชูเล็กน้อยและน้ำต้มไก่ 2 ช้อนโต๊ะ ชิมให้เค็มเปรี้ยวเผ็ดนำ"
-        },
-        {
-          "text": "หั่นแตงกวาเป็นแว่น ตักข้าวมันใส่จาน เรียงไก่ แตงกวา และโรยต้นหอมผักชี เสิร์ฟกับน้ำซุปร้อนที่ปรุงด้วยเกลือและซีอิ๊วขาวนิดหน่อยในถ้วยแยก",
-          "photo": {
-            "path": "images/khao-man-gai-luak-step-cucumber.jpg",
-            "mime": "image/jpeg",
-            "credit": "Jeremy Keith from Brighton & Hove, United Kingdom",
-            "source": "https://commons.wikimedia.org/wiki/File:Slicing_cucumber_(5442160654).jpg",
-            "license": "CC BY 2.0",
-            "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
-            "match": "technique"
-          }
+          "text": "ราดบนข้าวกล้อง"
         }
       ],
-      "createdAt": "2026-10-17T14:00:00+07:00",
-      "updatedAt": "2026-10-17T14:00:00+07:00"
+      "createdAt": "2026-10-19T10:00:00+07:00",
+      "updatedAt": "2026-10-19T10:00:00+07:00"
+    },
+    {
+      "id": "b4020006-4a20-4f80-a002-000000000006",
+      "title": "ไข่เจียวขาวผักชีล่อน",
+      "category": "อาหารลดน้ำหนัก",
+      "tags": [
+        "ลดน้ำหนัก",
+        "โปรตีนสูง",
+        "ไข่"
+      ],
+      "prepMinutes": 5,
+      "cookMinutes": 8,
+      "servings": 1,
+      "difficulty": "easy",
+      "notes": "ประมาณ 250 กิโลแคลอรี/เสิร์ฟ โปรตีนราว 20 ก. (ค่าประมาณจากส่วนผสมหลัก ปรับตามแบรนด์และปริมาณจริง)",
+      "tips": [
+        "ใช้ไฟกลาง–แรงและน้ำมันน้อยที่สุดที่ทำได้",
+        "ชิมรสก่อนเสิร์ฟ ปรับเค็มหวานให้พอดี"
+      ],
+      "photo": {
+        "path": "images/khao-khai-jiao-pak-cover.jpg",
+        "mime": "image/jpeg"
+      },
+      "ingredients": [
+        {
+          "name": "ไข่ขาว",
+          "amount": 3,
+          "unit": "ฟอง"
+        },
+        {
+          "name": "ไข่ไก่",
+          "amount": 1,
+          "unit": "ฟอง"
+        },
+        {
+          "name": "ผักชีล่อน",
+          "amount": 1,
+          "unit": "ถ้วย"
+        },
+        {
+          "name": "น้ำมันรำข้าว",
+          "amount": 1,
+          "unit": "ช้อนชา"
+        }
+      ],
+      "steps": [
+        {
+          "text": "ตีไข่กับผักชี"
+        },
+        {
+          "text": "ร้อนกระทะ ทอดไข่ไฟกลางจนสุกทั้งสองด้าน"
+        }
+      ],
+      "createdAt": "2026-10-19T10:00:00+07:00",
+      "updatedAt": "2026-10-19T10:00:00+07:00"
+    },
+    {
+      "id": "b4020007-4a20-4f80-a002-000000000007",
+      "title": "อกไก่ผัดขิงบรอกโคลี",
+      "category": "อาหารลดน้ำหนัก",
+      "tags": [
+        "ลดน้ำหนัก",
+        "โปรตีนสูง",
+        "ไก่",
+        "บรอกโคลี"
+      ],
+      "prepMinutes": 12,
+      "cookMinutes": 10,
+      "servings": 1,
+      "difficulty": "easy",
+      "notes": "ประมาณ 320 กิโลแคลอรี/เสิร์ฟ โปรตีนราว 34 ก. (ค่าประมาณจากส่วนผสมหลัก ปรับตามแบรนด์และปริมาณจริง)",
+      "tips": [
+        "ใช้ไฟกลาง–แรงและน้ำมันน้อยที่สุดที่ทำได้",
+        "ชิมรสก่อนเสิร์ฟ ปรับเค็มหวานให้พอดี"
+      ],
+      "photo": {
+        "path": "images/khao-pad-gai-cover.jpg",
+        "mime": "image/jpeg"
+      },
+      "ingredients": [
+        {
+          "name": "อกไก่หั่น",
+          "amount": 140,
+          "unit": "กรัม"
+        },
+        {
+          "name": "บรอกโคลี",
+          "amount": 150,
+          "unit": "กรัม"
+        },
+        {
+          "name": "ขิงฝาน",
+          "amount": 1,
+          "unit": "ช้อนโต๊ะ"
+        },
+        {
+          "name": "กระเทียม",
+          "amount": 2,
+          "unit": "กลีบ"
+        },
+        {
+          "name": "น้ำมันรำข้าว",
+          "amount": 1,
+          "unit": "ช้อนชา"
+        },
+        {
+          "name": "ซอสปรุงรส",
+          "amount": 1,
+          "unit": "ช้อนโต๊ะ"
+        }
+      ],
+      "steps": [
+        {
+          "text": "ผัดกระเทียมขิง"
+        },
+        {
+          "text": "ใส่ไก่ ผัดจนสุก"
+        },
+        {
+          "text": "ใส่บรอกโคลี ปรุงรส"
+        }
+      ],
+      "createdAt": "2026-10-19T10:00:00+07:00",
+      "updatedAt": "2026-10-19T10:00:00+07:00"
+    },
+    {
+      "id": "b4020008-4a20-4f80-a002-000000000008",
+      "title": "ต้มจืดหมูสับฟองน้ำมะเขือ",
+      "category": "อาหารลดน้ำหนัก",
+      "tags": [
+        "ลดน้ำหนัก",
+        "คลีน",
+        "หมูสับ"
+      ],
+      "prepMinutes": 10,
+      "cookMinutes": 15,
+      "servings": 2,
+      "difficulty": "easy",
+      "notes": "ประมาณ 280 กิโลแคลอรี/เสิร์ฟ โปรตีนราว 16 ก. (ค่าประมาณจากส่วนผสมหลัก ปรับตามแบรนด์และปริมาณจริง)",
+      "tips": [
+        "ใช้ไฟกลาง–แรงและน้ำมันน้อยที่สุดที่ทำได้",
+        "ชิมรสก่อนเสิร์ฟ ปรับเค็มหวานให้พอดี"
+      ],
+      "photo": {
+        "path": "images/suki-nam-cover.jpg",
+        "mime": "image/jpeg"
+      },
+      "ingredients": [
+        {
+          "name": "หมูสับ",
+          "amount": 100,
+          "unit": "กรัม"
+        },
+        {
+          "name": "ฟองน้ำแห้ง",
+          "amount": 20,
+          "unit": "กรัม"
+        },
+        {
+          "name": "มะเขือเทศ",
+          "amount": 2,
+          "unit": "ลูก"
+        },
+        {
+          "name": "น้ำซุป",
+          "amount": 700,
+          "unit": "มล."
+        },
+        {
+          "name": "ซอสปรุงรส",
+          "amount": 1,
+          "unit": "ช้อนโต๊ะ"
+        }
+      ],
+      "steps": [
+        {
+          "text": "แช่ฟองน้ำให้นิ่ม"
+        },
+        {
+          "text": "ต้มน้ำซุป ใส่หมูสับเป็นก้อน"
+        },
+        {
+          "text": "ใส่ฟองน้ำ มะเขือเทอ ปรุงรส"
+        }
+      ],
+      "createdAt": "2026-10-19T10:00:00+07:00",
+      "updatedAt": "2026-10-19T10:00:00+07:00"
+    },
+    {
+      "id": "b4020009-4a20-4f80-a002-000000000009",
+      "title": "ไข่ดาวหมูสับราดข้าวกล้อง",
+      "category": "อาหารลดน้ำหนัก",
+      "tags": [
+        "ลดน้ำหนัก",
+        "คลีน",
+        "ไข่",
+        "หมูสับ"
+      ],
+      "prepMinutes": 10,
+      "cookMinutes": 12,
+      "servings": 1,
+      "difficulty": "easy",
+      "notes": "ประมาณ 440 กิโลแคลอรี/เสิร์ฟ โปรตีนราว 24 ก. (ค่าประมาณจากส่วนผสมหลัก ปรับตามแบรนด์และปริมาณจริง)",
+      "tips": [
+        "ใช้ไฟกลาง–แรงและน้ำมันน้อยที่สุดที่ทำได้",
+        "ชิมรสก่อนเสิร์ฟ ปรับเค็มหวานให้พอดี"
+      ],
+      "photo": {
+        "path": "images/khao-pad-gai-step-egg.jpg",
+        "mime": "image/jpeg"
+      },
+      "ingredients": [
+        {
+          "name": "ข้าวกล้อง",
+          "amount": 140,
+          "unit": "กรัม"
+        },
+        {
+          "name": "หมูสับ",
+          "amount": 70,
+          "unit": "กรัม"
+        },
+        {
+          "name": "ไข่ไก่",
+          "amount": 1,
+          "unit": "ฟอง"
+        },
+        {
+          "name": "น้ำมันรำข้าว",
+          "amount": 1,
+          "unit": "ช้อนชา"
+        },
+        {
+          "name": "ซอสปรุงรส",
+          "amount": 1,
+          "unit": "ช้อนโต๊ะ"
+        },
+        {
+          "name": "พริกไทย",
+          "amount": 1,
+          "unit": "pinch"
+        }
+      ],
+      "steps": [
+        {
+          "text": "ผัดหมูสับปรุงรส"
+        },
+        {
+          "text": "ทอดไข่ดาวด้วยน้ำมันน้อย"
+        },
+        {
+          "text": "ราดข้าวกล้อง วางไข่และหมูสับ"
+        }
+      ],
+      "createdAt": "2026-10-19T10:00:00+07:00",
+      "updatedAt": "2026-10-19T10:00:00+07:00"
+    },
+    {
+      "id": "b4020010-4a20-4f80-a002-000000000010",
+      "title": "หมูนึ่งบรอกโคลีน้ำจิ้มแจ่ว",
+      "category": "อาหารลดน้ำหนัก",
+      "tags": [
+        "ลดน้ำหนัก",
+        "คลีน",
+        "หมู",
+        "บรอกโคลี"
+      ],
+      "prepMinutes": 12,
+      "cookMinutes": 25,
+      "servings": 1,
+      "difficulty": "easy",
+      "notes": "ประมาณ 390 กิโลแคลอรี/เสิร์ฟ โปรตีนราว 30 ก. (ค่าประมาณจากส่วนผสมหลัก ปรับตามแบรนด์และปริมาณจริง)",
+      "tips": [
+        "ใช้ไฟกลาง–แรงและน้ำมันน้อยที่สุดที่ทำได้",
+        "ชิมรสก่อนเสิร์ฟ ปรับเค็มหวานให้พอดี"
+      ],
+      "photo": {
+        "path": "images/suki-nam-cover.jpg",
+        "mime": "image/jpeg"
+      },
+      "ingredients": [
+        {
+          "name": "หมูสามชั้นอ่อน (ตัดมัน)",
+          "amount": 100,
+          "unit": "กรัม"
+        },
+        {
+          "name": "บรอกโคลี",
+          "amount": 200,
+          "unit": "กรัม"
+        },
+        {
+          "name": "น้ำปลา",
+          "amount": 1,
+          "unit": "ช้อนโต๊ะ"
+        },
+        {
+          "name": "พริกป่น",
+          "amount": 1,
+          "unit": "ช้อนโต๊ะ"
+        },
+        {
+          "name": "ข้าวคั่ว",
+          "amount": 0.5,
+          "unit": "ช้อนโต๊ะ"
+        }
+      ],
+      "steps": [
+        {
+          "text": "นึ่งหมูและบรอกโคลี 20 นาทีจนสุก"
+        },
+        {
+          "text": "ผสมน้ำจิ้มแจ่ว"
+        },
+        {
+          "text": "เสิร์ฟร้อน"
+        }
+      ],
+      "createdAt": "2026-10-19T10:00:00+07:00",
+      "updatedAt": "2026-10-19T10:00:00+07:00"
     }
   ]
 }
