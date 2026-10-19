@@ -178,6 +178,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderColor: colors.border,
     fontFamily: fonts.bold,
     fontSize: 28,
+    lineHeight: 36,
     color: colors.ink,
     textAlign: 'center',
     paddingVertical: spacing.sm,

@@ -80,9 +80,9 @@ export function RecipeMenuCard({
         <Ionicons name="restaurant" size={isList ? 26 : 40} color={colors.orange} />
       )}
       <Pressable
-        style={styles.heartBtn}
+        style={[styles.heartBtn, isList ? styles.heartBtnList : styles.heartBtnGrid]}
         accessibilityLabel="โปรด"
-        hitSlop={10}
+        hitSlop={8}
         onPress={(e) => {
           e?.stopPropagation?.();
           void toggleFavorite(recipe.id);
@@ -90,8 +90,8 @@ export function RecipeMenuCard({
       >
         <Ionicons
           name={recipe.isFavorite ? 'heart' : 'heart-outline'}
-          size={18}
-          color={recipe.isFavorite ? colors.orange : colors.ink}
+          size={isList ? 16 : 18}
+          color={recipe.isFavorite ? colors.orange : colors.textOnStatus}
         />
       </Pressable>
     </View>
@@ -223,16 +223,25 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   heartBtn: {
     position: 'absolute',
-    top: 4,
-    left: 4,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(14,13,12,0.55)',
-    borderWidth: 1,
-    borderColor: colors.glassBorder,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'rgba(14, 13, 12, 0.62)',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255, 255, 255, 0.35)',
+  },
+  heartBtnList: {
+    top: 4,
+    right: 4,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+  },
+  heartBtnGrid: {
+    top: 8,
+    right: 8,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
   },
   bodyGrid: {
     padding: spacing.md,
