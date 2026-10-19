@@ -1,13 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import {
-  Alert,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
@@ -16,6 +10,8 @@ import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useRecipes } from '@/context/RecipesContext';
+import { useSnackbar } from '@/context/SnackbarContext';
+import { recordBackupNow } from '@/lib/backupReminder';
 import { createExportZip, shareExportFile } from '@/lib/export/exportZip';
 import { shareRecipeJsonExport } from '@/lib/export/exportRecipeJson';
 
@@ -23,8 +19,10 @@ export default function ExportSelectScreen() {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const { recipes } = useRecipes();
+  const { showErrorSnackbar, showSnackbar } = useSnackbar();
   const insets = useSafeAreaInsets();
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selectionError, setSelectionError] = useState('');
 
   const selectedRecipes = useMemo(
     () => recipes.filter((r) => selected.has(r.id)),
@@ -42,9 +40,10 @@ export default function ExportSelectScreen() {
 
   const ensureSelection = () => {
     if (selectedRecipes.length === 0) {
-      Alert.alert('เลือกสูตร', 'กรุณาเลือกอย่างน้อย 1 สูตร');
+      setSelectionError('กรุณาเลือกอย่างน้อย 1 สูตร');
       return false;
     }
+    setSelectionError('');
     return true;
   };
 
@@ -52,6 +51,9 @@ export default function ExportSelectScreen() {
     <>
       <Stack.Screen options={{ title: 'เลือกสูตรส่งออก' }} />
       <View style={[styles.screen, { paddingBottom: insets.bottom + spacing.md }]}>
+        {selectionError ? (
+          <AppText variant="caption" style={styles.selectionError}>{selectionError}</AppText>
+        ) : null}
         <FlatList
           data={recipes}
           keyExtractor={(item) => item.id}
@@ -78,8 +80,10 @@ export default function ExportSelectScreen() {
               try {
                 const path = await createExportZip(selectedRecipes);
                 await shareExportFile(path, 'application/zip');
+                await recordBackupNow();
+                showSnackbar('ส่งออกไฟล์สำรองแล้ว');
               } catch (e) {
-                Alert.alert('ส่งออกไม่สำเร็จ', e instanceof Error ? e.message : '');
+                showErrorSnackbar(e instanceof Error ? e.message : 'ส่งออกไม่สำเร็จ');
               }
             }}
           >
@@ -92,7 +96,7 @@ export default function ExportSelectScreen() {
               try {
                 await shareRecipeJsonExport(selectedRecipes);
               } catch (e) {
-                Alert.alert('ส่งออกไม่สำเร็จ', e instanceof Error ? e.message : '');
+                showErrorSnackbar(e instanceof Error ? e.message : 'ส่งออกไม่สำเร็จ');
               }
             }}
           >
@@ -109,6 +113,11 @@ export default function ExportSelectScreen() {
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
+  selectionError: {
+    color: colors.danger,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.sm,
+  },
   list: { padding: spacing.md, paddingBottom: spacing.md },
   row: {
     flexDirection: 'row',

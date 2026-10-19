@@ -60,12 +60,24 @@ export function MealPlanProvider({ children }: { children: React.ReactNode }) {
   }, [recipes, fridgeItems]);
 
   useEffect(() => {
-    refresh().finally(() => setLoading(false));
+    let cancelled = false;
+    refresh().finally(() => {
+      if (!cancelled) setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [refresh]);
 
   useEffect(() => {
     if (loading || !plan) return;
-    void syncShoppingFromPlan(plan, recipes, fridgeItems).then(setShopping);
+    let cancelled = false;
+    void syncShoppingFromPlan(plan, recipes, fridgeItems).then((items) => {
+      if (!cancelled) setShopping(items);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [recipes, fridgeItems, plan?.weekStart, loading]);
 
   const assignMeal = useCallback(async (date: string, slot: MealSlot, recipeId?: string) => {

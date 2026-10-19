@@ -1,18 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  Alert,
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { ConfirmModal } from '@/components/ConfirmModal';
 import { FloatingHeader, floatingHeaderClearance } from '@/components/FloatingHeader';
 import { ScreenShell } from '@/components/ScreenShell';
 import { accentGlow } from '@/lib/design';
@@ -99,6 +92,7 @@ export default function PlannerScreen() {
     toggleShoppingItem,
     rebuildShoppingList,
     repeatMealWeekdays,
+    copyMeal,
     addManualShopping,
     clearPurchasedShopping,
     takeCheckedForFridge,
@@ -109,6 +103,18 @@ export default function PlannerScreen() {
   const [picker, setPicker] = useState<{ date: string; slot: MealSlot } | null>(null);
   const [manualName, setManualName] = useState('');
   const [manualAddOpen, setManualAddOpen] = useState(false);
+  const [confirmClearWeek, setConfirmClearWeek] = useState(false);
+  const [mealMenu, setMealMenu] = useState<{
+    date: string;
+    slot: MealSlot;
+    recipeId: string;
+  } | null>(null);
+  const [copyMealSource, setCopyMealSource] = useState<{
+    fromDate: string;
+    fromSlot: MealSlot;
+  } | null>(null);
+  const [copyTargetDate, setCopyTargetDate] = useState('');
+  const [copyTargetSlot, setCopyTargetSlot] = useState<MealSlot>('lunch');
   const [kcalGoal, setKcalGoal] = useState(1800);
   const params = useLocalSearchParams<{ section?: string }>();
   const [section, setSection] = useState<'plan' | 'shop'>(
@@ -206,21 +212,18 @@ export default function PlannerScreen() {
   }, [days, recipes, assignMeal]);
 
   const clearWeek = useCallback(() => {
-    Alert.alert('ล้างแพลนสัปดาห์นี้', 'ลบเมนูทุกมื้อในสัปดาห์ที่แสดง?', [
-      { text: 'ยกเลิก', style: 'cancel' },
-      {
-        text: 'ล้าง',
-        style: 'destructive',
-        onPress: async () => {
-          for (const day of days) {
-            for (const slot of ['breakfast', 'lunch', 'dinner'] as MealSlot[]) {
-              if (day.meals[slot]) await assignMeal(day.date, slot, undefined);
-            }
-          }
-        },
-      },
-    ]);
-  }, [days, assignMeal]);
+    setConfirmClearWeek(true);
+  }, []);
+
+  const runClearWeek = useCallback(async () => {
+    for (const day of days) {
+      for (const slot of ['breakfast', 'lunch', 'dinner'] as MealSlot[]) {
+        if (day.meals[slot]) await assignMeal(day.date, slot, undefined);
+      }
+    }
+    setConfirmClearWeek(false);
+    showSnackbar('ล้างแพลนสัปดาห์นี้แล้ว');
+  }, [days, assignMeal, showSnackbar]);
 
   const randomizeSlot = useCallback(
     async (date: string, slot: MealSlot) => {
@@ -230,37 +233,16 @@ export default function PlannerScreen() {
     [recipes, assignMeal],
   );
 
-  const openMealMenu = useCallback(
-    (date: string, slot: MealSlot, recipeId: string) => {
-      Alert.alert(SLOT_LABELS[slot], undefined, [
-        { text: 'เปลี่ยนเมนู', onPress: () => setPicker({ date, slot }) },
-        {
-          text: 'เปิดสูตร',
-          onPress: () => router.push(`/recipe/${recipeId}`),
-        },
-        {
-          text: 'ทำซ้ำ จ–ศ',
-          onPress: async () => {
-            await repeatMealWeekdays(date, slot, [0, 1, 2, 3, 4]);
-            showSnackbar('คัดลอกเมนูไปวันจันทร์–ศุกร์');
-          },
-        },
-        {
-          text: 'ลบออกจากแพลน',
-          style: 'destructive',
-          onPress: async () => {
-            const prev = recipeId;
-            await assignMeal(date, slot, undefined);
-            showSnackbar('ลบออกจากแพลนแล้ว', async () => {
-              await assignMeal(date, slot, prev);
-            });
-          },
-        },
-        { text: 'ยกเลิก', style: 'cancel' },
-      ]);
-    },
-    [assignMeal, repeatMealWeekdays, showSnackbar],
-  );
+  const openMealMenu = useCallback((date: string, slot: MealSlot, recipeId: string) => {
+    setMealMenu({ date, slot, recipeId });
+  }, []);
+
+  const openCopyMealSheet = useCallback((fromDate: string, fromSlot: MealSlot) => {
+    setCopyMealSource({ fromDate, fromSlot });
+    setCopyTargetDate(fromDate);
+    setCopyTargetSlot(fromSlot);
+    setMealMenu(null);
+  }, []);
 
   const weekLabel = useMemo(() => {
     if (days.length === 0) return '';
@@ -290,17 +272,9 @@ export default function PlannerScreen() {
                 {
                   icon: 'sparkles-outline',
                   accessibilityLabel: 'สุ่มเติมแพลนทั้งสัปดาห์',
-                  onPress: () => {
-                    Alert.alert('สุ่มเติมแพลน', 'เติมเมนูสุ่มในช่องว่างทุกมื้อของสัปดาห์นี้?', [
-                      { text: 'ยกเลิก', style: 'cancel' },
-                      {
-                        text: 'เติมเลย',
-                        onPress: async () => {
-                          await autoFillWeek();
-                          showSnackbar('เติมแพลนสัปดาห์แล้ว');
-                        },
-                      },
-                    ]);
+                  onPress: async () => {
+                    await autoFillWeek();
+                    showSnackbar('เติมแพลนสัปดาห์แล้ว');
                   },
                 },
                 {
@@ -593,6 +567,150 @@ export default function PlannerScreen() {
             )}
           </View>
         )}
+
+        <ConfirmModal
+          visible={confirmClearWeek}
+          title="ล้างแพลนสัปดาห์นี้"
+          message="ลบเมนูทุกมื้อในสัปดาห์ที่แสดง?"
+          confirmLabel="ล้าง"
+          destructive
+          onCancel={() => setConfirmClearWeek(false)}
+          onConfirm={() => void runClearWeek()}
+        />
+
+        <Modal visible={mealMenu != null} transparent animationType="fade">
+          <Pressable style={styles.modalBackdrop} onPress={() => setMealMenu(null)}>
+            <View style={styles.modalSheet}>
+              {mealMenu && (
+                <>
+                  <AppText variant="title" style={{ marginBottom: spacing.md }}>
+                    {SLOT_LABELS[mealMenu.slot]}
+                  </AppText>
+                  <Pressable
+                    style={styles.menuRow}
+                    onPress={() => {
+                      setPicker({ date: mealMenu.date, slot: mealMenu.slot });
+                      setMealMenu(null);
+                    }}
+                  >
+                    <AppText variant="label">เปลี่ยนเมนู</AppText>
+                  </Pressable>
+                  <Pressable
+                    style={styles.menuRow}
+                    onPress={() => {
+                      router.push(`/recipe/${mealMenu.recipeId}`);
+                      setMealMenu(null);
+                    }}
+                  >
+                    <AppText variant="label">เปิดสูตร</AppText>
+                  </Pressable>
+                  <Pressable
+                    style={styles.menuRow}
+                    onPress={() => openCopyMealSheet(mealMenu.date, mealMenu.slot)}
+                  >
+                    <AppText variant="label">คัดลอกไปวัน/มื้ออื่น</AppText>
+                  </Pressable>
+                  <Pressable
+                    style={styles.menuRow}
+                    onPress={async () => {
+                      const { date, slot } = mealMenu;
+                      await repeatMealWeekdays(date, slot, [0, 1, 2, 3, 4]);
+                      setMealMenu(null);
+                      showSnackbar('คัดลอกเมนูไปวันจันทร์–ศุกร์');
+                    }}
+                  >
+                    <AppText variant="label">ทำซ้ำ จ–ศ</AppText>
+                  </Pressable>
+                  <Pressable
+                    style={styles.menuRow}
+                    onPress={async () => {
+                      const { date, slot, recipeId } = mealMenu;
+                      await assignMeal(date, slot, undefined);
+                      setMealMenu(null);
+                      showSnackbar('ลบออกจากแพลนแล้ว', async () => {
+                        await assignMeal(date, slot, recipeId);
+                      });
+                    }}
+                  >
+                    <AppText variant="label" style={{ color: colors.danger }}>ลบออกจากแพลน</AppText>
+                  </Pressable>
+                  <Pressable onPress={() => setMealMenu(null)} style={styles.menuCancel}>
+                    <AppText muted style={{ textAlign: 'center' }}>ปิด</AppText>
+                  </Pressable>
+                </>
+              )}
+            </View>
+          </Pressable>
+        </Modal>
+
+        <Modal visible={copyMealSource != null} transparent animationType="slide">
+          <View style={styles.modalBackdrop}>
+            <View style={styles.modalSheet}>
+              <AppText variant="title" style={{ marginBottom: spacing.sm }}>คัดลอกไปวัน/มื้อ</AppText>
+              <AppText variant="caption" muted style={{ marginBottom: spacing.md }}>
+                เลือกวันและมื้อปลายทาง
+              </AppText>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.md }}>
+                <View style={styles.copyDayRow}>
+                  {days.map((day, idx) => {
+                    const selected = day.date === copyTargetDate;
+                    return (
+                      <Pressable
+                        key={day.date}
+                        onPress={() => setCopyTargetDate(day.date)}
+                        style={[styles.copyDayChip, selected && styles.copyDayChipOn]}
+                      >
+                        <AppText variant="caption" style={{ color: selected ? colors.surface : colors.inkMuted }}>
+                          {DAY_LABELS[idx]}
+                        </AppText>
+                        <AppText variant="label" style={{ color: selected ? colors.surface : colors.ink }}>
+                          {day.date.slice(8, 10)}
+                        </AppText>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </ScrollView>
+              <View style={styles.copySlotRow}>
+                {(['breakfast', 'lunch', 'dinner'] as MealSlot[]).map((slot) => {
+                  const on = copyTargetSlot === slot;
+                  return (
+                    <Pressable
+                      key={slot}
+                      onPress={() => setCopyTargetSlot(slot)}
+                      style={[styles.copySlotBtn, on && styles.copySlotBtnOn]}
+                    >
+                      <AppText variant="label" style={{ color: on ? colors.surface : colors.ink }}>
+                        {SLOT_LABELS[slot]}
+                      </AppText>
+                    </Pressable>
+                  );
+                })}
+              </View>
+              <Pressable
+                style={styles.manualSave}
+                onPress={async () => {
+                  if (!copyMealSource || !copyTargetDate) return;
+                  await copyMeal(
+                    copyMealSource.fromDate,
+                    copyMealSource.fromSlot,
+                    copyTargetDate,
+                    copyTargetSlot,
+                  );
+                  setCopyMealSource(null);
+                  showSnackbar('คัดลอกเมนูแล้ว');
+                }}
+              >
+                <AppText style={{ color: colors.onAccent, fontFamily: fonts.semiBold, textAlign: 'center' }}>
+                  คัดลอก
+                </AppText>
+              </Pressable>
+              <Pressable onPress={() => setCopyMealSource(null)}>
+                <AppText muted style={{ textAlign: 'center', marginTop: spacing.md }}>ยกเลิก</AppText>
+              </Pressable>
+            </View>
+          </View>
+        </Modal>
 
         <Modal visible={manualAddOpen} transparent animationType="fade">
           <View style={styles.modalBackdrop}>
@@ -1094,4 +1212,35 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   pickThumb: { width: 48, height: 48 },
   pickTitle: { flex: 1, fontFamily: fonts.medium },
   clearMeal: { marginTop: spacing.md, alignItems: 'center' },
+  menuRow: {
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingVertical: spacing.sm,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
+  },
+  menuCancel: { marginTop: spacing.md, minHeight: 44, justifyContent: 'center' },
+  copyDayRow: { flexDirection: 'row', gap: spacing.sm },
+  copyDayChip: {
+    width: 52,
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  copyDayChipOn: { backgroundColor: colors.orange, borderColor: colors.orange },
+  copySlotRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.md },
+  copySlotBtn: {
+    flex: 1,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  copySlotBtnOn: { backgroundColor: colors.orange, borderColor: colors.orange },
 });

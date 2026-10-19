@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '@/components/AppText';
 import { HomeTopBar, homeTopBarClearance } from '@/components/HomeTopBar';
 import { HomeFilterChips, type HomeFilterId } from '@/components/HomeFilterChips';
+import { BackupNudgeBanner } from '@/components/BackupNudgeBanner';
 import { EmptyState } from '@/components/EmptyState';
 import { RecipeMenuCard } from '@/components/RecipeMenuCard';
 import { ScreenShell } from '@/components/ScreenShell';
@@ -73,6 +74,8 @@ export default function HomeScreen() {
         ]}
         showsVerticalScrollIndicator={false}
       >
+        <BackupNudgeBanner onExportPress={() => router.push('/(tabs)/settings')} />
+
         <HomeFilterChips selected={filter} onSelect={setFilter} />
 
         <View style={styles.sectionHeader}>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { fonts, radius, spacing } from '@/constants/theme';
@@ -12,6 +12,7 @@ import {
   usagePresetLabel,
   usageSubtractAmount,
 } from '@/lib/fridgeQuantity';
+import { emitFeedback } from '@/lib/feedbackBus';
 import type { FridgeItem } from '@/types/fridge';
 
 type Props = {
@@ -23,11 +24,12 @@ export function FridgeUseAmountPanel({ item, onSubtract }: Props) {
   const styles = useThemedStyles(createStyles);
   const { colors, keyboardAppearance } = useTheme();
   const [useText, setUseText] = useState('');
+  const [useError, setUseError] = useState('');
 
   const applySubtract = async (amount: number) => {
     if (amount <= 0) return;
     if (amount > item.quantity) {
-      Alert.alert('มากกว่าที่มี', `มีอยู่ ${formatQuantityLabel(item.quantity)} ${item.unit}`);
+      emitFeedback(`มีอยู่ ${formatQuantityLabel(item.quantity)} ${item.unit}`, { error: true });
       return;
     }
     await onSubtract(amount);
@@ -67,9 +69,10 @@ export function FridgeUseAmountPanel({ item, onSubtract }: Props) {
           onPress={async () => {
             const n = parseQuantityInput(useText);
             if (n == null || n <= 0) {
-              Alert.alert('กรุณาใส่จำนวน');
+              setUseError('กรุณาใส่จำนวน');
               return;
             }
+            setUseError('');
             await applySubtract(n);
             setUseText('');
           }}
@@ -77,6 +80,7 @@ export function FridgeUseAmountPanel({ item, onSubtract }: Props) {
           <AppText style={styles.applyText}>ใช้</AppText>
         </Pressable>
       </View>
+      {useError ? <AppText variant="caption" style={styles.useError}>{useError}</AppText> : null}
     </View>
   );
 }
@@ -98,6 +102,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.md,
     alignItems: 'center',
   },
+  useError: { color: colors.danger, marginTop: spacing.xs },
   useInput: {
     flex: 1,
     backgroundColor: colors.surface,

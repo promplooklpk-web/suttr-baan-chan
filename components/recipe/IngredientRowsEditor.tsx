@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { Alert, Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { FRIDGE_UNIT_OPTIONS } from '@/lib/fridgeQuantity';
@@ -19,6 +19,7 @@ type Props = {
   amountTexts: string[];
   onChange: (ings: RecipeIngredient[], amounts: string[]) => void;
   keyboardAppearance: 'default' | 'light' | 'dark';
+  onPasteError?: (message: string) => void;
 };
 
 export function IngredientRowsEditor({
@@ -26,6 +27,7 @@ export function IngredientRowsEditor({
   amountTexts,
   onChange,
   keyboardAppearance,
+  onPasteError,
 }: Props) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
@@ -52,7 +54,7 @@ export function IngredientRowsEditor({
   const applyPaste = () => {
     const parsed = parseIngredientLines(pasteText);
     if (parsed.length === 0) {
-      Alert.alert('ไม่พบรายการ', 'ลองวางทีละบรรทัด เช่น "ไข่ไก่ 2 ฟอง"');
+      onPasteError?.('ไม่พบรายการ — ลองวางทีละบรรทัด เช่น "ไข่ไก่ 2 ฟอง"');
       return;
     }
     onChange(

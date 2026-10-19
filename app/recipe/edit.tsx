@@ -4,8 +4,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
-  Alert,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -22,6 +22,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useRecipes } from '@/context/RecipesContext';
 import { useSnackbar } from '@/context/SnackbarContext';
+import { ConfirmModal } from '@/components/ConfirmModal';
 import { IngredientRowsEditor } from '@/components/recipe/IngredientRowsEditor';
 import { parseAmountInput } from '@/lib/amountParse';
 import { clearRecipeDraft, loadRecipeDraft, saveRecipeDraft } from '@/lib/recipeDraft';
@@ -37,7 +38,14 @@ export default function RecipeEditScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const insets = useSafeAreaInsets();
   const { getRecipe, addRecipe, updateRecipe } = useRecipes();
-  const { showSnackbar } = useSnackbar();
+  const { showSnackbar, showErrorSnackbar } = useSnackbar();
+  const [fieldErrors, setFieldErrors] = useState<{
+    title?: string;
+    ingredients?: string;
+    steps?: string;
+    photo?: string;
+  }>({});
+  const [discardOpen, setDiscardOpen] = useState(false);
   const existing = id ? getRecipe(id) : undefined;
   const isEdit = Boolean(existing);
 
@@ -122,9 +130,10 @@ export default function RecipeEditScreen() {
   const pickImage = async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('ต้องการสิทธิ์', 'กรุณาอนุญาตการเข้าถึงคลังภาพ');
+      setFieldErrors((e) => ({ ...e, photo: 'กรุณาอนุญาตการเข้าถึงคลังภาพ' }));
       return;
     }
+    setFieldErrors((e) => ({ ...e, photo: undefined }));
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       quality: 0.85,
@@ -135,20 +144,17 @@ export default function RecipeEditScreen() {
 
   const onSave = async () => {
     const trimmedTitle = title.trim();
-    if (!trimmedTitle) {
-      Alert.alert('กรุณากรอกชื่อสูตร');
-      return;
-    }
+    const nextErrors: typeof fieldErrors = {};
+    if (!trimmedTitle) nextErrors.title = 'กรุณากรอกชื่อสูตร';
     const ing = ingredients.filter((i) => i.name.trim());
     const st = steps.filter((s) => s.text.trim());
-    if (ing.length === 0) {
-      Alert.alert('กรุณาเพิ่มส่วนผสมอย่างน้อย 1 รายการ');
+    if (ing.length === 0) nextErrors.ingredients = 'กรุณาเพิ่มส่วนผสมอย่างน้อย 1 รายการ';
+    if (st.length === 0) nextErrors.steps = 'กรุณาเพิ่มขั้นตอนอย่างน้อย 1 ขั้น';
+    if (Object.keys(nextErrors).length > 0) {
+      setFieldErrors(nextErrors);
       return;
     }
-    if (st.length === 0) {
-      Alert.alert('กรุณาเพิ่มขั้นตอนอย่างน้อย 1 ขั้น');
-      return;
-    }
+    setFieldErrors({});
 
     setSaving(true);
     try {
@@ -203,7 +209,7 @@ export default function RecipeEditScreen() {
         router.back();
       }
     } catch (e) {
-      Alert.alert('บันทึกไม่สำเร็จ', e instanceof Error ? e.message : 'เกิดข้อผิดพลาด');
+      showErrorSnackbar(e instanceof Error ? e.message : 'บันทึกไม่สำเร็จ');
     } finally {
       setSaving(false);
     }
@@ -223,10 +229,7 @@ export default function RecipeEditScreen() {
               ingredients.some((i) => i.name.trim()) ||
               steps.some((s) => s.text.trim());
             if (dirty && !isEdit) {
-              Alert.alert('ทิ้งแบบร่าง?', 'การเปลี่ยนแปลงจะไม่ถูกบันทึก', [
-                { text: 'แก้ต่อ', style: 'cancel' },
-                { text: 'ทิ้ง', style: 'destructive', onPress: () => router.back() },
-              ]);
+              setDiscardOpen(true);
               return;
             }
             router.back();
@@ -254,14 +257,21 @@ export default function RecipeEditScreen() {
           )}
         </Pressable>
 
-        <Field label="ชื่อสูตร">
+        {fieldErrors.photo ? (
+          <AppText variant="caption" style={styles.inlineError}>{fieldErrors.photo}</AppText>
+        ) : null}
+
+        <Field label="ชื่อสูตร" error={fieldErrors.title}>
           <TextInput
           keyboardAppearance={keyboardAppearance}
             value={title}
-            onChangeText={setTitle}
+            onChangeText={(v) => {
+              setTitle(v);
+              if (fieldErrors.title) setFieldErrors((e) => ({ ...e, title: undefined }));
+            }}
             placeholder="เช่น ผัดกะเพราหมูสับ"
             placeholderTextColor={colors.inkLight}
-            style={styles.input}
+            style={[styles.input, fieldErrors.title && styles.inputError]}
           />
         </Field>
 
@@ -331,10 +341,18 @@ export default function RecipeEditScreen() {
           onChange={(ings, amounts) => {
             setIngredients(ings);
             setAmountTexts(amounts);
+            if (fieldErrors.ingredients) setFieldErrors((e) => ({ ...e, ingredients: undefined }));
           }}
+          onPasteError={(msg) => showErrorSnackbar(msg)}
         />
+        {fieldErrors.ingredients ? (
+          <AppText variant="caption" style={styles.inlineError}>{fieldErrors.ingredients}</AppText>
+        ) : null}
 
         <SectionTitle title="วิธีทำ" />
+        {fieldErrors.steps ? (
+          <AppText variant="caption" style={styles.inlineError}>{fieldErrors.steps}</AppText>
+        ) : null}
         {steps.map((step, i) => (
           <View key={i} style={styles.stepEdit}>
             <AppText variant="label" muted>{i + 1}.</AppText>
@@ -345,6 +363,7 @@ export default function RecipeEditScreen() {
                 const next = [...steps];
                 next[i] = { ...next[i], text: v };
                 setSteps(next);
+                if (fieldErrors.steps) setFieldErrors((e) => ({ ...e, steps: undefined }));
               }}
               placeholder="อธิบายขั้นตอน"
               placeholderTextColor={colors.inkLight}
@@ -387,6 +406,19 @@ export default function RecipeEditScreen() {
           <AppText style={styles.saveBtnText}>{saving ? 'กำลังบันทึก...' : 'บันทึกสูตร'}</AppText>
         </Pressable>
       </View>
+
+      <ConfirmModal
+        visible={discardOpen}
+        title="ทิ้งแบบร่าง?"
+        message="การเปลี่ยนแปลงจะไม่ถูกบันทึก"
+        confirmLabel="ทิ้ง"
+        destructive
+        onCancel={() => setDiscardOpen(false)}
+        onConfirm={() => {
+          setDiscardOpen(false);
+          router.back();
+        }}
+      />
     </KeyboardAvoidingView>
   );
 }
@@ -395,16 +427,19 @@ function Field({
   label,
   children,
   style,
+  error,
 }: {
   label: string;
   children: React.ReactNode;
   style?: object;
+  error?: string;
 }) {
   const styles = useThemedStyles(createStyles);
   return (
     <View style={[styles.field, style]}>
       <AppText variant="label" style={styles.fieldLabel}>{label}</AppText>
       {children}
+      {error ? <AppText variant="caption" style={styles.inlineError}>{error}</AppText> : null}
     </View>
   );
 }
@@ -460,6 +495,14 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   fieldLabel: {
     marginBottom: spacing.sm,
+  },
+  inlineError: {
+    color: colors.danger,
+    marginTop: 4,
+    marginBottom: spacing.xs,
+  },
+  inputError: {
+    borderColor: colors.danger,
   },
   input: {
     backgroundColor: colors.surface,

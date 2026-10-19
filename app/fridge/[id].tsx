@@ -1,7 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -21,6 +20,7 @@ import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useFridge } from '@/context/FridgeContext';
+import { useSnackbar } from '@/context/SnackbarContext';
 import { useRecipes } from '@/context/RecipesContext';
 import { daysUntilExpiry, formatExpiryLine, fridgeItemStatus } from '@/lib/fridgeStatus';
 import { addDaysLocal, localDateToIso, todayLocalIso } from '@/utils/localDate';
@@ -33,7 +33,9 @@ export default function FridgeItemDetailScreen() {
   const { colors, keyboardAppearance } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
-  const { items, updateItem, removeItem, subtractAmount } = useFridge();
+  const { items, updateItem, removeItem, subtractAmount, addItem } = useFridge();
+  const { showSnackbar } = useSnackbar();
+  const [fieldErrors, setFieldErrors] = useState<{ name?: string; quantity?: string }>({});
   const { recipes } = useRecipes();
   const item = items.find((i) => i.id === id);
   const [itemName, setItemName] = useState(item?.name ?? '');
@@ -85,15 +87,15 @@ export default function FridgeItemDetailScreen() {
         : colors.cardGreen;
 
   const save = async () => {
-    if (quantity <= 0) {
-      Alert.alert('จำนวนต้องมากกว่า 0');
-      return;
-    }
+    const errors: { name?: string; quantity?: string } = {};
+    if (quantity <= 0) errors.quantity = 'จำนวนต้องมากกว่า 0';
     const trimmed = itemName.trim();
-    if (!trimmed) {
-      Alert.alert('กรุณากรอกชื่อของ');
+    if (!trimmed) errors.name = 'กรุณากรอกชื่อของ';
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
       return;
     }
+    setFieldErrors({});
     await updateItem(item.id, {
       name: trimmed,
       note,
@@ -102,7 +104,7 @@ export default function FridgeItemDetailScreen() {
       place,
       expiresAt,
     });
-    Alert.alert('บันทึกแล้ว');
+    showSnackbar('บันทึกแล้ว');
   };
 
   const onSubtract = async (amount: number) => {
@@ -126,9 +128,15 @@ export default function FridgeItemDetailScreen() {
         <TextInput
           keyboardAppearance={keyboardAppearance}
           value={itemName}
-          onChangeText={setItemName}
-          style={styles.input}
+          onChangeText={(v) => {
+            setItemName(v);
+            if (fieldErrors.name) setFieldErrors((e) => ({ ...e, name: undefined }));
+          }}
+          style={[styles.input, fieldErrors.name && styles.inputError]}
         />
+        {fieldErrors.name ? (
+          <AppText variant="caption" style={styles.fieldError}>{fieldErrors.name}</AppText>
+        ) : null}
         <AppText variant="caption" style={{ color: barColor, marginTop: spacing.xs }}>
           {formatExpiryLine({ ...item, name: itemName, expiresAt })}
         </AppText>
@@ -145,9 +153,15 @@ export default function FridgeItemDetailScreen() {
           label="จำนวนคงเหลือ"
           quantity={quantity}
           unit={unit}
-          onQuantityChange={setQuantity}
+          onQuantityChange={(v) => {
+            setQuantity(v);
+            if (fieldErrors.quantity) setFieldErrors((e) => ({ ...e, quantity: undefined }));
+          }}
           onUnitChange={setUnit}
         />
+        {fieldErrors.quantity ? (
+          <AppText variant="caption" style={styles.fieldError}>{fieldErrors.quantity}</AppText>
+        ) : null}
 
         <AppText variant="label" style={{ marginTop: spacing.lg }}>ที่เก็บ</AppText>
         <View style={styles.placeRow}>
@@ -205,18 +219,21 @@ export default function FridgeItemDetailScreen() {
 
         <View style={styles.footer}>
           <Pressable
-            onPress={() => {
-              Alert.alert('ลบรายการ?', item.name, [
-                { text: 'ยกเลิก', style: 'cancel' },
-                {
-                  text: 'ลบ',
-                  style: 'destructive',
-                  onPress: async () => {
-                    await removeItem(item.id);
-                    router.back();
-                  },
-                },
-              ]);
+            onPress={async () => {
+              const snapshot = { ...item, name: itemName, note, quantity, unit, place, expiresAt };
+              await removeItem(item.id);
+              showSnackbar(`ลบ ${item.name} แล้ว`, async () => {
+                await addItem({
+                  name: snapshot.name,
+                  quantity: snapshot.quantity,
+                  unit: snapshot.unit,
+                  place: snapshot.place,
+                  expiresAt: snapshot.expiresAt,
+                  note: snapshot.note,
+                  ingredientId: snapshot.ingredientId,
+                });
+              });
+              router.back();
             }}
           >
             <AppText style={{ color: colors.danger, fontFamily: fonts.semiBold }}>ลบ</AppText>
@@ -252,6 +269,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderColor: colors.border,
   },
   placeChipOn: { backgroundColor: colors.orange, borderColor: colors.orange },
+  fieldError: { color: colors.danger, marginTop: 4 },
+  inputError: { borderColor: colors.danger },
   input: {
     backgroundColor: colors.surface,
     borderRadius: radius.md,

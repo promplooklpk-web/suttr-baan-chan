@@ -4,7 +4,6 @@ import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { BlurView } from 'expo-blur';
 import {
-  Alert,
   Modal,
   Platform,
   Pressable,
@@ -47,7 +46,7 @@ export default function RecipeDetailScreen() {
   const { colors } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
-  const { getRecipe, toggleFavorite, deleteRecipe } = useRecipes();
+  const { getRecipe, toggleFavorite, deleteRecipe, addRecipe } = useRecipes();
   const { items: fridgeItems } = useFridge();
   const { assignMeal, refresh: refreshPlan } = useMealPlan();
   const { showSnackbar } = useSnackbar();
@@ -91,18 +90,14 @@ export default function RecipeDetailScreen() {
   const minutes = totalMinutes(recipe);
   const calories = parseRecipeCalories(recipe);
 
-  const onDelete = () => {
-    Alert.alert('ลบสูตรนี้?', 'การลบไม่สามารถย้อนกลับได้', [
-      { text: 'ยกเลิก', style: 'cancel' },
-      {
-        text: 'ลบสูตร',
-        style: 'destructive',
-        onPress: async () => {
-          await deleteRecipe(recipe.id);
-          router.navigate('/(tabs)');
-        },
-      },
-    ]);
+  const onDelete = async () => {
+    const snapshot = JSON.parse(JSON.stringify(recipe)) as typeof recipe;
+    await deleteRecipe(recipe.id);
+    showSnackbar(`ลบ "${recipe.title}" แล้ว`, async () => {
+      const { id, createdAt, updatedAt, ...input } = snapshot;
+      await addRecipe(input, id);
+    });
+    router.navigate('/(tabs)');
   };
 
   return (

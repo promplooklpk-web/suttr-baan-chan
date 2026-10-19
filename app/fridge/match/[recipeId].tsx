@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
@@ -12,6 +12,7 @@ import { useRecipes } from '@/context/RecipesContext';
 import { useMealPlan } from '@/context/MealPlanContext';
 import { matchRecipeToFridge, missingShoppingEntries } from '@/lib/fridgeMatch';
 import { mergeIntoShoppingList } from '@/lib/shoppingList';
+import { useSnackbar } from '@/context/SnackbarContext';
 
 export default function FridgeMatchDetailScreen() {
   const styles = useThemedStyles(createStyles);
@@ -21,6 +22,7 @@ export default function FridgeMatchDetailScreen() {
   const { items } = useFridge();
   const { recipes } = useRecipes();
   const { refresh: refreshPlan } = useMealPlan();
+  const { showSnackbar } = useSnackbar();
   const recipe = recipes.find((r) => r.id === recipeId);
 
   if (!recipe) {
@@ -42,7 +44,7 @@ export default function FridgeMatchDetailScreen() {
     }));
     await mergeIntoShoppingList(entries);
     await refreshPlan();
-    Alert.alert('เพิ่มแล้ว', `เพิ่มของที่ขาด ${entries.length} อย่างลงรายการซื้อของ`);
+    showSnackbar(`เพิ่มของที่ขาด ${entries.length} อย่างลงรายการซื้อของ`);
   };
 
   return (

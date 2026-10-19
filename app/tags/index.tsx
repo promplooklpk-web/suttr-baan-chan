@@ -1,7 +1,6 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import {
-  Alert,
   FlatList,
   Pressable,
   StyleSheet,
@@ -18,14 +17,17 @@ import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useRecipes } from '@/context/RecipesContext';
+import { useSnackbar } from '@/context/SnackbarContext';
 import { collectAllTags, removeTag, renameTag } from '@/lib/tags';
 import { saveRecipes } from '@/lib/storage';
+import type { Recipe } from '@/types/recipe';
 
 export default function TagsManagementScreen() {
   const styles = useThemedStyles(createStyles);
   const { colors, keyboardAppearance } = useTheme();
   const insets = useSafeAreaInsets();
   const { recipes, refresh } = useRecipes();
+  const { showSnackbar } = useSnackbar();
   const tags = useMemo(() => collectAllTags(recipes), [recipes]);
   const [editing, setEditing] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
@@ -43,19 +45,15 @@ export default function TagsManagementScreen() {
     setEditing(null);
   };
 
-  const deleteTag = (tag: string) => {
-    Alert.alert('ลบแท็ก', `ลบแท็ก "${tag}" จากทุกสูตร?`, [
-      { text: 'ยกเลิก', style: 'cancel' },
-      {
-        text: 'ลบ',
-        style: 'destructive',
-        onPress: async () => {
-          const next = removeTag(recipes, tag);
-          await saveRecipes(next);
-          await refresh();
-        },
-      },
-    ]);
+  const deleteTag = async (tag: string) => {
+    const snapshot: Recipe[] = JSON.parse(JSON.stringify(recipes));
+    const next = removeTag(recipes, tag);
+    await saveRecipes(next);
+    await refresh();
+    showSnackbar(`ลบแท็ก "${tag}" แล้ว`, async () => {
+      await saveRecipes(snapshot);
+      await refresh();
+    });
   };
 
   return (

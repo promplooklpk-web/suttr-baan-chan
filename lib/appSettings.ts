@@ -6,8 +6,12 @@ export type AppSettings = {
   dailyKcalGoal: number;
   expiryRemindersEnabled: boolean;
   expiryReminderDays: number;
+  /** @deprecated one-time prompt replaced by recurring nudge */
   backupReminderShown: boolean;
   cookAutoStartTimers: boolean;
+  lastBackupAtIso?: string;
+  backupNudgeEnabled: boolean;
+  backupNudgeDays: number;
 };
 
 const DEFAULTS: AppSettings = {
@@ -16,6 +20,9 @@ const DEFAULTS: AppSettings = {
   expiryReminderDays: 3,
   backupReminderShown: false,
   cookAutoStartTimers: false,
+  lastBackupAtIso: undefined,
+  backupNudgeEnabled: true,
+  backupNudgeDays: 7,
 };
 
 export async function loadAppSettings(): Promise<AppSettings> {

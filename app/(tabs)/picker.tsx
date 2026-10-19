@@ -3,7 +3,6 @@ import { useLocalSearchParams, router } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Animated,
   Pressable,
   ScrollView,
@@ -29,6 +28,7 @@ import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useFridge } from '@/context/FridgeContext';
 import { useMealPlan } from '@/context/MealPlanContext';
 import { useRecipes } from '@/context/RecipesContext';
+import { useSnackbar } from '@/context/SnackbarContext';
 import { fridgeProgressColor } from '@/lib/fridgeMatchDisplay';
 import { matchRecipeToFridge } from '@/lib/fridgeMatch';
 import {
@@ -140,6 +140,7 @@ export default function PickerScreen() {
   const { recipes, toggleFavorite } = useRecipes();
   const { items: fridgeItems } = useFridge();
   const { assignMeal } = useMealPlan();
+  const { showSnackbar, showErrorSnackbar } = useSnackbar();
 
   const [category, setCategory] = useState<PickerCategoryFilter>('ทั้งหมด');
   const [maxMinutes, setMaxMinutes] = useState<number | null>(null);
@@ -269,9 +270,9 @@ export default function PickerScreen() {
     if (!recipe) return;
     try {
       await assignMeal(todayIso(), meal, recipe.id);
-      Alert.alert('บันทึกแล้ว', `เพิ่ม "${recipe.title}" ในแผน${MEAL_SHORT[meal]}วันนี้`);
+      showSnackbar(`เพิ่ม "${recipe.title}" ในแผน${MEAL_SHORT[meal]}วันนี้`);
     } catch (e) {
-      Alert.alert('บันทึกไม่สำเร็จ', e instanceof Error ? e.message : 'เกิดข้อผิดพลาด');
+      showErrorSnackbar(e instanceof Error ? e.message : 'บันทึกไม่สำเร็จ');
     }
   };
 

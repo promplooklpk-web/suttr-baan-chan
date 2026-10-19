@@ -1,12 +1,6 @@
 import { Stack, router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import {
-  Alert,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
@@ -36,7 +30,7 @@ export default function ImportPreviewScreen() {
   const { refresh } = useRecipes();
   const { refresh: refreshPlan } = useMealPlan();
   const { refresh: refreshFridge } = useFridge();
-  const { showSnackbar } = useSnackbar();
+  const { showSnackbar, showErrorSnackbar } = useSnackbar();
   const pending = getPendingImport();
   const [plans, setPlans] = useState<ImportPlan[]>(pending?.plans ?? []);
   const [globalPolicy, setGlobalPolicy] = useState<DuplicatePolicy>('skip');
@@ -94,7 +88,7 @@ export default function ImportPreviewScreen() {
       showSnackbar(msg);
       router.replace('/(tabs)/settings');
     } catch (e) {
-      Alert.alert('นำเข้าไม่สำเร็จ', e instanceof Error ? e.message : 'เกิดข้อผิดพลาด');
+      showErrorSnackbar(e instanceof Error ? e.message : 'นำเข้าไม่สำเร็จ');
     }
   };
 

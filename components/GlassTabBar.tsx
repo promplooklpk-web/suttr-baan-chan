@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { router } from 'expo-router';
-import { Alert, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
@@ -21,14 +22,6 @@ const TAB_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
 
 const BAR_TAB_NAMES = ['index', 'fridge', 'planner', 'settings'] as const;
 
-function openFabMenu() {
-  Alert.alert('เพิ่มหรือสุ่ม', undefined, [
-    { text: 'เพิ่มสูตรใหม่', onPress: () => router.push('/recipe/edit') },
-    { text: 'วันนี้กินอะไรดี?', onPress: () => router.push('/(tabs)/picker') },
-    { text: 'ยกเลิก', style: 'cancel' },
-  ]);
-}
-
 export function GlassTabBar({ state, descriptors, navigation }: {
   state: { routes: { key: string; name: string }[]; index: number };
   descriptors: Record<string, { options: { title?: string } }>;
@@ -39,6 +32,7 @@ export function GlassTabBar({ state, descriptors, navigation }: {
   const insets = useSafeAreaInsets();
   const bottom = Math.max(insets.bottom, spacing.sm);
   const { alertCount } = useFridge();
+  const [fabOpen, setFabOpen] = useState(false);
 
   const barRoutes = BAR_TAB_NAMES
     .map((name) => state.routes.find((r) => r.name === name))
@@ -119,7 +113,7 @@ export function GlassTabBar({ state, descriptors, navigation }: {
             {leftRoutes.map(renderTab)}
             <View style={styles.fabSlot}>
               <Pressable
-                onPress={openFabMenu}
+                onPress={() => setFabOpen(true)}
                 style={[styles.fab, accentGlow(colors, true)]}
                 accessibilityLabel="เพิ่มหรือสุ่มเมนู"
               >
@@ -130,6 +124,33 @@ export function GlassTabBar({ state, descriptors, navigation }: {
           </View>
         </BlurView>
       </View>
+      <Modal visible={fabOpen} transparent animationType="fade" onRequestClose={() => setFabOpen(false)}>
+        <Pressable style={styles.fabBackdrop} onPress={() => setFabOpen(false)}>
+          <View style={styles.fabSheet}>
+            <Pressable
+              style={styles.fabRow}
+              onPress={() => {
+                setFabOpen(false);
+                router.push('/recipe/edit');
+              }}
+            >
+              <AppText variant="label">เพิ่มสูตรใหม่</AppText>
+            </Pressable>
+            <Pressable
+              style={styles.fabRow}
+              onPress={() => {
+                setFabOpen(false);
+                router.push('/(tabs)/picker');
+              }}
+            >
+              <AppText variant="label">วันนี้กินอะไรดี?</AppText>
+            </Pressable>
+            <Pressable style={styles.fabCancel} onPress={() => setFabOpen(false)}>
+              <AppText muted>ปิด</AppText>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
@@ -225,6 +246,32 @@ const createStyles = (colors: ThemeColors) =>
       alignItems: 'center',
       justifyContent: 'flex-end',
       marginBottom: 2,
+    },
+    fabBackdrop: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.45)',
+      justifyContent: 'flex-end',
+      padding: spacing.md,
+    },
+    fabSheet: {
+      backgroundColor: colors.cream,
+      borderRadius: radius.xl,
+      padding: spacing.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    fabRow: {
+      minHeight: 44,
+      justifyContent: 'center',
+      paddingVertical: spacing.sm,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.border,
+    },
+    fabCancel: {
+      minHeight: 44,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: spacing.sm,
     },
     fab: {
       width: 52,

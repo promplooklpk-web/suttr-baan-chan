@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -7,14 +7,11 @@ import { fonts, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
-
-type SnackbarPayload = {
-  message: string;
-  onUndo?: () => void | Promise<void>;
-};
+import { emitFeedback, setFeedbackListener, type FeedbackPayload } from '@/lib/feedbackBus';
 
 type SnackbarContextValue = {
   showSnackbar: (message: string, onUndo?: () => void | Promise<void>) => void;
+  showErrorSnackbar: (message: string) => void;
 };
 
 const SnackbarContext = createContext<SnackbarContextValue | null>(null);
@@ -23,8 +20,9 @@ const UNDO_MS = 5000;
 
 export function SnackbarProvider({ children }: { children: React.ReactNode }) {
   const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const [payload, setPayload] = useState<SnackbarPayload | null>(null);
+  const [payload, setPayload] = useState<FeedbackPayload | null>(null);
   const opacity = useRef(new Animated.Value(0)).current;
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -35,17 +33,41 @@ export function SnackbarProvider({ children }: { children: React.ReactNode }) {
     );
   }, [opacity]);
 
-  const showSnackbar = useCallback(
-    (message: string, onUndo?: () => void | Promise<void>) => {
+  const present = useCallback(
+    (next: FeedbackPayload) => {
       if (timer.current) clearTimeout(timer.current);
-      setPayload({ message, onUndo });
+      setPayload(next);
       Animated.timing(opacity, { toValue: 1, duration: 180, useNativeDriver: true }).start();
       timer.current = setTimeout(hide, UNDO_MS);
     },
     [hide, opacity],
   );
 
-  const value = useMemo(() => ({ showSnackbar }), [showSnackbar]);
+  const showSnackbar = useCallback(
+    (message: string, onUndo?: () => void | Promise<void>) => {
+      present({ message, variant: 'default', onUndo });
+    },
+    [present],
+  );
+
+  const showErrorSnackbar = useCallback(
+    (message: string) => {
+      present({ message, variant: 'error' });
+    },
+    [present],
+  );
+
+  useEffect(() => {
+    setFeedbackListener((p) => present(p));
+    return () => setFeedbackListener(null);
+  }, [present]);
+
+  const value = useMemo(
+    () => ({ showSnackbar, showErrorSnackbar }),
+    [showSnackbar, showErrorSnackbar],
+  );
+
+  const isError = payload?.variant === 'error';
 
   return (
     <SnackbarContext.Provider value={value}>
@@ -55,8 +77,17 @@ export function SnackbarProvider({ children }: { children: React.ReactNode }) {
           style={[styles.wrap, { bottom: insets.bottom + spacing.md, opacity }]}
           pointerEvents="box-none"
         >
-          <View style={styles.bar}>
-            <AppText variant="label" style={styles.msg} numberOfLines={2}>
+          <View
+            style={[
+              styles.bar,
+              isError && { borderColor: colors.danger, backgroundColor: colors.surface },
+            ]}
+          >
+            <AppText
+              variant="label"
+              style={[styles.msg, isError && { color: colors.danger }]}
+              numberOfLines={3}
+            >
               {payload.message}
             </AppText>
             {payload.onUndo ? (
@@ -117,3 +148,5 @@ const createStyles = (colors: ThemeColors) =>
     },
     undoText: { color: colors.orange, fontFamily: fonts.semiBold },
   });
+
+export { emitFeedback };

@@ -2,10 +2,12 @@ import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { BackupNudgeBanner } from '@/components/BackupNudgeBanner';
+import { ConfirmModal } from '@/components/ConfirmModal';
 import { ScreenShell } from '@/components/ScreenShell';
 import { SegmentPills } from '@/components/SegmentPills';
 import { radius, spacing } from '@/constants/theme';
@@ -33,6 +35,7 @@ import {
   syncExpiryReminderSchedule,
 } from '@/lib/expiryNotifications';
 import { useSnackbar } from '@/context/SnackbarContext';
+import { recordBackupNow } from '@/lib/backupReminder';
 
 const APP_VERSION = '2.4.0';
 
@@ -44,37 +47,31 @@ export default function SettingsScreen() {
   const { items: fridgeItems } = useFridge();
   const { refresh: refreshPlan } = useMealPlan();
   const { refresh: refreshFridge } = useFridge();
-  const { showSnackbar } = useSnackbar();
+  const { showSnackbar, showErrorSnackbar } = useSnackbar();
   const [kcalGoal, setKcalGoal] = useState('1800');
+  const [kcalError, setKcalError] = useState('');
   const [expiryOn, setExpiryOn] = useState(false);
   const [cookAutoTimers, setCookAutoTimers] = useState(false);
+  const [backupNudgeOn, setBackupNudgeOn] = useState(true);
+  const [confirmClearAll, setConfirmClearAll] = useState(false);
+  const [backupBannerKey, setBackupBannerKey] = useState(0);
 
   useEffect(() => {
     loadAppSettings().then((s) => {
       setKcalGoal(String(s.dailyKcalGoal));
       setExpiryOn(s.expiryRemindersEnabled);
       setCookAutoTimers(s.cookAutoStartTimers);
-      if (!s.backupReminderShown) {
-        Alert.alert(
-          'สำรองข้อมูลเป็นประจำ',
-          'แนะนำส่งออกไฟล์ .zip ทุกสัปดาห์เพื่อกู้คืนได้หากเปลี่ยนเครื่อง',
-          [
-            {
-              text: 'เข้าใจแล้ว',
-              onPress: () => saveAppSettings({ backupReminderShown: true }),
-            },
-          ],
-        );
-      }
+      setBackupNudgeOn(s.backupNudgeEnabled);
     });
   }, []);
 
   const saveKcalGoal = async () => {
     const n = parseInt(kcalGoal, 10);
     if (!Number.isFinite(n) || n < 500 || n > 6000) {
-      Alert.alert('เป้าแคลไม่ถูกต้อง', 'ใส่ตัวเลขระหว่าง 500–6000');
+      setKcalError('ใส่ตัวเลขระหว่าง 500–6000');
       return;
     }
+    setKcalError('');
     await saveAppSettings({ dailyKcalGoal: n });
     showSnackbar('บันทึกเป้าแคลต่อวันแล้ว');
   };
@@ -84,7 +81,7 @@ export default function SettingsScreen() {
       const Notifications = await import('expo-notifications');
       const { status } = await Notifications.requestPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('ต้องการสิทธิ์', 'เปิดการแจ้งเตือนในระบบเพื่อเตือนของใกล้หมดอายุ');
+        showErrorSnackbar('เปิดการแจ้งเตือนในระบบเพื่อเตือนของใกล้หมดอายุ');
         return;
       }
     }
@@ -99,8 +96,11 @@ export default function SettingsScreen() {
     try {
       const path = await createFullBackupZip(recipes);
       await shareExportFile(path, 'application/zip');
+      await recordBackupNow();
+      setBackupBannerKey((k) => k + 1);
+      showSnackbar('ส่งออกไฟล์สำรองแล้ว');
     } catch (e) {
-      Alert.alert('ส่งออกไม่สำเร็จ', e instanceof Error ? e.message : 'เกิดข้อผิดพลาด');
+      showErrorSnackbar(e instanceof Error ? e.message : 'ส่งออกไม่สำเร็จ');
     }
   };
 
@@ -114,7 +114,7 @@ export default function SettingsScreen() {
       const asset = result.assets[0];
       const parsed = await parseImportFile(asset.uri, asset.mimeType, asset.name);
       if (!parsed.ok) {
-        Alert.alert('ไฟล์ไม่ถูกต้อง', parsed.errors.join('\n'));
+        showErrorSnackbar(parsed.errors.join(' · '));
         return;
       }
       const plans = buildImportPlan(parsed.envelope.recipes, recipes);
@@ -127,12 +127,30 @@ export default function SettingsScreen() {
       );
       router.push('/import/preview');
     } catch {
-      Alert.alert('นำเข้าไม่สำเร็จ', 'ไฟล์เสียหายหรือไม่ใช่ไฟล์สำรองของแอป');
+      showErrorSnackbar('ไฟล์เสียหายหรือไม่ใช่ไฟล์สำรองของแอป');
     }
+  };
+
+  const runClearAll = async () => {
+    await clearAllAppData();
+    await refresh();
+    await refreshPlan();
+    await refreshFridge();
+    setConfirmClearAll(false);
+    showSnackbar('ล้างข้อมูลแล้ว — โหลดชุดตัวอย่างใหม่');
   };
 
   return (
     <ScreenShell>
+      <ConfirmModal
+        visible={confirmClearAll}
+        title="ล้างข้อมูลทั้งหมด?"
+        message="การกระทำนี้ไม่สามารถย้อนกลับได้"
+        confirmLabel="ล้าง"
+        destructive
+        onCancel={() => setConfirmClearAll(false)}
+        onConfirm={() => void runClearAll()}
+      />
       <ScrollView
         style={styles.screen}
         contentContainerStyle={{
@@ -143,6 +161,8 @@ export default function SettingsScreen() {
       >
         <AppText variant="caption" muted>บัญชีและแอป</AppText>
         <AppText variant="heading" style={styles.settingsTitle}>ตั้งค่า</AppText>
+
+        <BackupNudgeBanner key={backupBannerKey} onExportPress={() => void exportAllZip()} />
 
         <Pressable
           style={[styles.profileCard, accentGlow(colors, false)]}
@@ -175,12 +195,35 @@ export default function SettingsScreen() {
               <AppText variant="label">เป้าแคลต่อวัน</AppText>
               <AppText variant="caption" muted>แสดงในแพลนมื้อ</AppText>
             </View>
-            <TextInput
-              value={kcalGoal}
-              onChangeText={setKcalGoal}
-              keyboardType="number-pad"
-              style={styles.kcalInput}
-              onEndEditing={saveKcalGoal}
+            <View>
+              <TextInput
+                value={kcalGoal}
+                onChangeText={(v) => {
+                  setKcalGoal(v);
+                  if (kcalError) setKcalError('');
+                }}
+                keyboardType="number-pad"
+                style={[styles.kcalInput, kcalError ? styles.kcalInputError : null]}
+                onEndEditing={saveKcalGoal}
+              />
+              {kcalError ? (
+                <AppText variant="caption" style={styles.fieldError}>{kcalError}</AppText>
+              ) : null}
+            </View>
+          </View>
+          <View style={styles.switchRow}>
+            <View style={styles.rowText}>
+              <AppText variant="label">เตือนให้สำรองข้อมูล</AppText>
+              <AppText variant="caption" muted>แสดงเมื่อไม่ได้สำรองเกิน 7 วัน</AppText>
+            </View>
+            <Switch
+              value={backupNudgeOn}
+              onValueChange={async (v) => {
+                setBackupNudgeOn(v);
+                await saveAppSettings({ backupNudgeEnabled: v });
+                setBackupBannerKey((k) => k + 1);
+              }}
+              trackColor={{ true: colors.orange, false: colors.border }}
             />
           </View>
           <View style={styles.switchRow}>
@@ -241,21 +284,7 @@ export default function SettingsScreen() {
             icon="trash-outline"
             label="ล้างข้อมูลทั้งหมด"
             subtitle="โหลด seed ใหม่หลังล้าง"
-            onPress={() => {
-              Alert.alert('ล้างข้อมูลทั้งหมด?', 'การกระทำนี้ไม่สามารถย้อนกลับได้', [
-                { text: 'ยกเลิก', style: 'cancel' },
-                {
-                  text: 'ล้าง',
-                  style: 'destructive',
-                  onPress: async () => {
-                    await clearAllAppData();
-                    await refresh();
-                    await refreshPlan();
-                    await refreshFridge();
-                  },
-                },
-              ]);
-            }}
+            onPress={() => setConfirmClearAll(true)}
           />
         </Section>
 
@@ -373,6 +402,14 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     textAlign: 'center',
     fontFamily: fonts.semiBold,
     color: colors.ink,
+  },
+  kcalInputError: {
+    borderColor: colors.danger,
+  },
+  fieldError: {
+    color: colors.danger,
+    marginTop: 4,
+    textAlign: 'right',
   },
   switchRow: {
     flexDirection: 'row',

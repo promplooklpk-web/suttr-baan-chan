@@ -1,6 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { Alert } from 'react-native';
-
+import { emitFeedback } from '@/lib/feedbackBus';
 import {
   addRecipe as addRecipeStorage,
   deleteRecipe as deleteRecipeStorage,
@@ -75,7 +74,7 @@ export function RecipesProvider({ children }: { children: React.ReactNode }) {
     try {
       await updateRecipe(id, { isFavorite: !current.isFavorite });
     } catch {
-      Alert.alert('บันทึกไม่สำเร็จ', 'ไม่สามารถอัปเดตสูตรโปรดได้');
+      emitFeedback('ไม่สามารถอัปเดตสูตรโปรดได้', { error: true });
     }
   }, [recipes, updateRecipe]);
 

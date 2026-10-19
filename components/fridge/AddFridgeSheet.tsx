@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useEffect, useMemo, useState } from 'react';
 import {
-  Alert,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -20,6 +19,7 @@ import { fonts, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
+import { emitFeedback } from '@/lib/feedbackBus';
 import { catalogEntryForName, searchIngredientCatalog } from '@/lib/ingredientCatalog';
 import {
   defaultExpiryForPlace,
@@ -60,6 +60,7 @@ export function AddFridgeSheet({ visible, onClose, catalog, initialName, onSubmi
   const [note, setNote] = useState('');
   const [showPicker, setShowPicker] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<{ name?: string; quantity?: string }>({});
   const [presetLabel, setPresetLabel] = useState<string | null>(null);
 
   const suggestions = useMemo(() => searchIngredientCatalog(catalog, name), [catalog, name]);
@@ -111,15 +112,15 @@ export function AddFridgeSheet({ visible, onClose, catalog, initialName, onSubmi
 
   const save = async (continueAdding = false) => {
     const trimmed = name.trim();
-    if (!trimmed) {
-      Alert.alert('กรุณากรอกชื่อของ');
-      return;
-    }
+    const errors: { name?: string; quantity?: string } = {};
+    if (!trimmed) errors.name = 'กรุณากรอกชื่อของ';
     const q = quantity > 0 ? quantity : parseQuantityInput(String(quantity)) ?? 0;
-    if (q <= 0) {
-      Alert.alert('จำนวนต้องมากกว่า 0');
+    if (q <= 0) errors.quantity = 'จำนวนต้องมากกว่า 0';
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
       return;
     }
+    setFieldErrors({});
     setSaving(true);
     try {
       const entry = catalogEntryForName(catalog, trimmed);
@@ -145,7 +146,7 @@ export function AddFridgeSheet({ visible, onClose, catalog, initialName, onSubmi
         onClose();
       }
     } catch (e) {
-      Alert.alert('บันทึกไม่สำเร็จ', e instanceof Error ? e.message : 'เกิดข้อผิดพลาด');
+      emitFeedback(e instanceof Error ? e.message : 'บันทึกไม่สำเร็จ', { error: true });
     } finally {
       setSaving(false);
     }
@@ -170,11 +171,17 @@ export function AddFridgeSheet({ visible, onClose, catalog, initialName, onSubmi
             <TextInput
           keyboardAppearance={keyboardAppearance}
               value={name}
-              onChangeText={setName}
+              onChangeText={(v) => {
+                setName(v);
+                if (fieldErrors.name) setFieldErrors((e) => ({ ...e, name: undefined }));
+              }}
               placeholder="เช่น เนื้อสับ"
               placeholderTextColor={colors.inkLight}
-              style={styles.input}
+              style={[styles.input, fieldErrors.name && styles.inputError]}
             />
+            {fieldErrors.name ? (
+              <AppText variant="caption" style={styles.fieldError}>{fieldErrors.name}</AppText>
+            ) : null}
             {suggestions.length > 0 && name.trim().length > 0 && (
               <View style={styles.suggestBox}>
                 {suggestions.map((s) => (
@@ -189,9 +196,15 @@ export function AddFridgeSheet({ visible, onClose, catalog, initialName, onSubmi
             <FridgeQuantityEditor
               quantity={quantity}
               unit={unit}
-              onQuantityChange={setQuantity}
+              onQuantityChange={(v) => {
+                setQuantity(v);
+                if (fieldErrors.quantity) setFieldErrors((e) => ({ ...e, quantity: undefined }));
+              }}
               onUnitChange={setUnit}
             />
+            {fieldErrors.quantity ? (
+              <AppText variant="caption" style={styles.fieldError}>{fieldErrors.quantity}</AppText>
+            ) : null}
 
             <AppText variant="label" style={styles.labelTop}>ที่เก็บ</AppText>
             <View style={styles.chipRow}>
@@ -290,6 +303,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   sheetTitle: { marginBottom: spacing.md },
   scrollContent: { paddingBottom: spacing.xl },
+  fieldError: { color: colors.danger, marginTop: 4 },
+  inputError: { borderColor: colors.danger },
   input: {
     backgroundColor: colors.surface,
     borderRadius: radius.md,
