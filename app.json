@@ -2,7 +2,14 @@
   "expo": {
     "name": "สูตรบ้านฉัน",
     "slug": "suttr-baan-chan",
+    "owner": "yanyonglpk",
     "version": "1.0.0",
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/6a44120e-b934-4c78-a6a3-902c410cbae4"
+    },
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "suttrbaanchan",
@@ -46,6 +53,11 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "6a44120e-b934-4c78-a6a3-902c410cbae4"
+      }
     }
   }
 }

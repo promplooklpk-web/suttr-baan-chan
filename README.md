@@ -17,6 +17,16 @@ npx expo start
 
 สแกน QR ด้วย **Expo Go** (SDK 57) บนมือถือ หรือกด `a` / `i` ในเทอร์มินัลสำหรับ Android / iOS Simulator
 
+### EAS Update (Expo Go)
+
+โปรเจกต์ใช้ `runtimeVersion` แบบ `sdkVersion` (รันไทม์ `exposdk:57.0.0` สำหรับ Expo Go) หลังแก้โค้ดให้เผยแพร่อัปเดตบน branch `main` แล้วเปิดใน Expo Go:
+
+```bash
+eas update --branch main --message "คำอธิบายสั้นๆ"
+```
+
+จากนั้นเปิดโปรเจกต์ใน Expo Go (สแกน QR หรือลิงก์โปรเจกต์) เพื่อดึงอัปเดตล่าสุด
+
 ## ฟีเจอร์
 
 ### รอบที่ 1
