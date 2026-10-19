@@ -19,6 +19,7 @@ import { fonts, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
+import { useCookTimers } from '@/context/CookTimerContext';
 import { useRecipes } from '@/context/RecipesContext';
 function scaleAmount(amount: number | undefined, factor: number): string {
   if (amount == null) return '';
@@ -32,6 +33,7 @@ export default function CookingModeScreen() {
   const { id, servings: servingsParam } = useLocalSearchParams<{ id: string; servings?: string }>();
   const insets = useSafeAreaInsets();
   const { getRecipe } = useRecipes();
+  const { clearAllTimers } = useCookTimers();
   const recipe = getRecipe(id);
 
   const [stepIndex, setStepIndex] = useState(0);
@@ -49,8 +51,9 @@ export default function CookingModeScreen() {
     activateKeepAwakeAsync('cooking-mode');
     return () => {
       deactivateKeepAwake('cooking-mode');
+      clearAllTimers();
     };
-  }, []);
+  }, [clearAllTimers]);
 
   useEffect(() => {
     const fromParam = servingsParam ? parseInt(servingsParam, 10) : NaN;

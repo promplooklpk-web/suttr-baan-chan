@@ -1,26 +1,18 @@
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { fonts, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useCookTimers } from '@/context/CookTimerContext';
-import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { formatTimerSeconds } from '@/lib/format';
 
-function remaining(timer: { endAt: number; pausedRemaining?: number }): number {
-  if (timer.pausedRemaining != null) return timer.pausedRemaining;
-  if (!timer.endAt) return 0;
-  return Math.max(0, Math.ceil((timer.endAt - Date.now()) / 1000));
-}
-
 export function CookTimerBar() {
   const styles = useThemedStyles(createStyles);
-  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { timers } = useCookTimers();
+  const { timers, setBarHeight, remainingSeconds, dismissTimer } = useCookTimers();
   const [, tick] = useState(0);
 
   useEffect(() => {
@@ -32,22 +24,35 @@ export function CookTimerBar() {
   if (timers.length === 0) return null;
 
   return (
-    <View style={[styles.wrap, { top: insets.top + spacing.sm }]}>
-      {timers.map((t) => (
-        <View key={t.id} style={styles.chip}>
-          <AppText variant="caption" style={styles.chipText} numberOfLines={1}>
-            ⏱ {t.label} · {formatTimerSeconds(remaining(t))}
-          </AppText>
-        </View>
-      ))}
+    <View
+      style={[styles.wrap, { top: insets.top + spacing.sm }]}
+      onLayout={(e) => setBarHeight(e.nativeEvent.layout.height)}
+    >
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
+        {timers.map((t) => {
+          const left = remainingSeconds(t.id);
+          const done = t.finished || left <= 0;
+          return (
+            <Pressable
+              key={t.id}
+              style={styles.chip}
+              onPress={() => done && dismissTimer(t.id)}
+            >
+              <AppText variant="caption" style={styles.chipText} numberOfLines={1}>
+                ⏱ {t.label} · {done ? 'หมดเวลา · แตะปิด' : formatTimerSeconds(left)}
+              </AppText>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
     </View>
   );
 }
 
 export function CookTimerBarSpacer() {
-  const { timers } = useCookTimers();
+  const { timers, barHeight } = useCookTimers();
   if (timers.length === 0) return null;
-  return <View style={{ height: 44 }} />;
+  return <View style={{ height: Math.max(barHeight, 44) }} />;
 }
 
 const createStyles = (colors: ThemeColors) =>
@@ -57,7 +62,11 @@ const createStyles = (colors: ThemeColors) =>
       left: spacing.md,
       right: spacing.md,
       zIndex: 30,
+      maxHeight: 52,
+    },
+    row: {
       gap: spacing.xs,
+      alignItems: 'center',
     },
     chip: {
       backgroundColor: colors.surface2,
