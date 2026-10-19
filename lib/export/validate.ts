@@ -8,7 +8,7 @@ function isObject(v: unknown): v is Record<string, unknown> {
 
 export function validateExportEnvelope(
   data: unknown,
-): { ok: true; envelope: RecipeExportEnvelope } | { ok: false; errors: string[] } {
+): { ok: true; envelope: RecipeExportEnvelope; skippedCount: number } | { ok: false; errors: string[] } {
   const errors: string[] = [];
   if (!isObject(data)) {
     return { ok: false, errors: ['ไฟล์เสียหายหรือไม่ใช่ไฟล์สำรองของแอป'] };
@@ -50,5 +50,5 @@ export function validateExportEnvelope(
     format: data.format === 'recipe.json' ? 'recipe.json' : 'zip',
     recipes,
   };
-  return { ok: true, envelope };
+  return { ok: true, envelope, skippedCount: skipped.length };
 }

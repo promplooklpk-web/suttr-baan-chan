@@ -10,13 +10,18 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 
+import { CookTimerProvider } from '@/context/CookTimerContext';
 import { FridgeProvider } from '@/context/FridgeContext';
 import { MealPlanProvider } from '@/context/MealPlanContext';
 import { RecipesProvider } from '@/context/RecipesContext';
+import { SnackbarProvider } from '@/context/SnackbarContext';
 import { ThemeProvider, useTheme } from '@/context/ThemeContext';
+import { configureExpiryNotifications } from '@/lib/expiryNotifications';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -76,7 +81,22 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
+      configureExpiryNotifications().catch(() => undefined);
     }
+  }, [loaded]);
+
+  useEffect(() => {
+    if (!loaded) return;
+    let sub: { remove: () => void } | undefined;
+    void import('expo-notifications').then((Notifications) => {
+      sub = Notifications.addNotificationResponseReceivedListener((response) => {
+        const screen = response.notification.request.content.data?.screen;
+        if (screen === 'fridge-expiring') {
+          router.push('/(tabs)/fridge?expiring=1');
+        }
+      });
+    });
+    return () => sub?.remove();
   }, [loaded]);
 
   if (!loaded) {
@@ -84,16 +104,22 @@ export default function RootLayout() {
   }
 
   return (
-    <SafeAreaProvider>
-      <ThemeProvider>
-        <RecipesProvider>
-          <FridgeProvider>
-            <MealPlanProvider>
-              <RootStack />
-            </MealPlanProvider>
-          </FridgeProvider>
-        </RecipesProvider>
-      </ThemeProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <ThemeProvider>
+          <SnackbarProvider>
+            <CookTimerProvider>
+              <RecipesProvider>
+                <FridgeProvider>
+                  <MealPlanProvider>
+                    <RootStack />
+                  </MealPlanProvider>
+                </FridgeProvider>
+              </RecipesProvider>
+            </CookTimerProvider>
+          </SnackbarProvider>
+        </ThemeProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

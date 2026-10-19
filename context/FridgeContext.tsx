@@ -11,6 +11,7 @@ import {
   updateFridgeItem,
 } from '@/lib/fridgeStorage';
 import { useRecipes } from '@/context/RecipesContext';
+import { syncExpiryReminderSchedule } from '@/lib/expiryNotifications';
 import type { FridgeItem, IngredientCatalogEntry } from '@/types/fridge';
 
 type FridgeContextValue = {
@@ -44,6 +45,11 @@ export function FridgeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     refresh().finally(() => setLoading(false));
   }, [refresh]);
+
+  useEffect(() => {
+    if (loading) return;
+    void syncExpiryReminderSchedule(items);
+  }, [items, loading]);
 
   const addItem = useCallback(async (input: Omit<FridgeItem, 'id' | 'addedAt' | 'updatedAt'>) => {
     const item = await addFridgeItem(input);

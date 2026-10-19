@@ -193,3 +193,37 @@ export async function shiftMealPlanWeek(offsetWeeks: number): Promise<MealPlanSt
 export function weekStartFromAnchor(anchor: Date): string {
   return localDateToIso(startOfWeekMondayLocal(anchor));
 }
+
+export async function copyMealSlot(
+  fromDate: string,
+  fromSlot: MealSlot,
+  toDate: string,
+  toSlot: MealSlot,
+): Promise<MealPlanStore> {
+  const file = await loadFile();
+  const fromWeek = file.weeks[weekStartIsoForDate(fromDate)] ?? emptyWeeks(weekStartIsoForDate(fromDate));
+  const sourceDay = fromWeek.find((d) => d.date === fromDate);
+  const recipeId = sourceDay?.meals[fromSlot];
+  if (!recipeId) return toStoreView(file);
+  return setMealForDate(toDate, toSlot, recipeId);
+}
+
+export async function repeatMealOnWeekdays(
+  sourceDate: string,
+  sourceSlot: MealSlot,
+  weekdayIndexes: number[],
+): Promise<MealPlanStore> {
+  const file = await loadFile();
+  const fromWeek = file.weeks[weekStartIsoForDate(sourceDate)] ?? [];
+  const sourceDay = fromWeek.find((d) => d.date === sourceDate);
+  const recipeId = sourceDay?.meals[sourceSlot];
+  if (!recipeId) return toStoreView(file);
+  let view = toStoreView(file);
+  for (const day of view.days) {
+    const dow = (parseLocalDateIso(day.date).getDay() + 6) % 7;
+    if (weekdayIndexes.includes(dow)) {
+      view = await setMealForDate(day.date, sourceSlot, recipeId);
+    }
+  }
+  return view;
+}

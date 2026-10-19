@@ -140,6 +140,32 @@ export async function mergeIntoShoppingList(
   return items;
 }
 
+export async function addManualShoppingItem(
+  name: string,
+  amount?: number,
+  unit?: string,
+): Promise<ShoppingItem[]> {
+  const trimmed = name.trim();
+  if (!trimmed) return (await loadShoppingList()).items;
+  return mergeIntoShoppingList([{ name: trimmed, amount, unit }]);
+}
+
+export async function clearCheckedShoppingItems(): Promise<ShoppingItem[]> {
+  const prev = await loadShoppingList();
+  const items = prev.items.filter((i) => !i.checked);
+  await saveShoppingList(items);
+  return items;
+}
+
+/** Checked rows removed from list; caller adds them to the fridge. */
+export async function takeCheckedShoppingItems(): Promise<ShoppingItem[]> {
+  const prev = await loadShoppingList();
+  const taken = prev.items.filter((i) => i.checked);
+  const remaining = prev.items.filter((i) => !i.checked);
+  await saveShoppingList(remaining);
+  return taken;
+}
+
 export async function syncShoppingFromPlan(
   _plan: MealPlanStore,
   recipes: Recipe[],

@@ -96,9 +96,14 @@ export function rankRecipeMatches(
 export function missingShoppingEntries(
   match: RecipeFridgeMatch,
   recipe: Recipe,
+  servingsFactor = 1,
 ): { name: string; amount?: number; unit?: string }[] {
   const missingNames = new Set(match.missing);
   return recipe.ingredients
     .filter((i) => missingNames.has(i.name))
-    .map((i) => ({ name: i.name, amount: i.amount, unit: i.unit }));
+    .map((i) => ({
+      name: i.name,
+      amount: i.amount != null ? i.amount * servingsFactor : undefined,
+      unit: i.unit,
+    }));
 }

@@ -7,17 +7,20 @@ let pendingEnvelope: RecipeExportEnvelope | null = null;
 let pendingPlans: ImportPlan[] | null = null;
 let pendingZip: JSZip | null = null;
 let pendingZipUri: string | null = null;
+let pendingSkippedCount = 0;
 
 export function setPendingImport(
   envelope: RecipeExportEnvelope,
   plans: ImportPlan[],
   zip?: JSZip | null,
   zipUri?: string | null,
+  skippedRecipeCount = 0,
 ): void {
   pendingEnvelope = envelope;
   pendingPlans = plans;
   pendingZip = zip ?? null;
   pendingZipUri = zipUri ?? null;
+  pendingSkippedCount = skippedRecipeCount;
 }
 
 export function getPendingImport(): {
@@ -25,6 +28,7 @@ export function getPendingImport(): {
   plans: ImportPlan[];
   zip: JSZip | null;
   zipUri: string | null;
+  skippedRecipeCount: number;
 } | null {
   if (!pendingEnvelope || !pendingPlans) return null;
   return {
@@ -32,6 +36,7 @@ export function getPendingImport(): {
     plans: pendingPlans,
     zip: pendingZip,
     zipUri: pendingZipUri,
+    skippedRecipeCount: pendingSkippedCount,
   };
 }
 
@@ -40,4 +45,5 @@ export function clearPendingImport(): void {
   pendingPlans = null;
   pendingZip = null;
   pendingZipUri = null;
+  pendingSkippedCount = 0;
 }

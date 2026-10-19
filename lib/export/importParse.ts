@@ -9,7 +9,13 @@ import type { RecipeExportEnvelope } from '@/types/export';
 import type { Recipe } from '@/types/recipe';
 
 export type ParsedImport =
-  | { ok: true; envelope: RecipeExportEnvelope; zip: JSZip | null; zipUri: string | null }
+  | {
+      ok: true;
+      envelope: RecipeExportEnvelope;
+      zip: JSZip | null;
+      zipUri: string | null;
+      skippedRecipeCount: number;
+    }
   | { ok: false; errors: string[] };
 
 export async function parseImportFile(
@@ -48,6 +54,7 @@ export async function parseImportFile(
       envelope: { ...validated.envelope, recipes, format: 'zip' },
       zip,
       zipUri: uri,
+      skippedRecipeCount: validated.skippedCount,
     };
   }
 
@@ -71,5 +78,6 @@ export async function parseImportFile(
     envelope: { ...validated.envelope, format: 'recipe.json' },
     zip: null,
     zipUri: null,
+    skippedRecipeCount: validated.skippedCount,
   };
 }

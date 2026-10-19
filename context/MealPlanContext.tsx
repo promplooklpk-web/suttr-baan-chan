@@ -2,12 +2,20 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 
 import { useFridge } from '@/context/FridgeContext';
 import {
+  copyMealSlot,
   loadMealPlan,
+  repeatMealOnWeekdays,
   setMealForDate,
   shiftMealPlanWeek,
   toggleMealDone as toggleMealDoneStorage,
 } from '@/lib/mealPlanStorage';
-import { loadShoppingList, saveShoppingList, syncShoppingFromPlan } from '@/lib/shoppingList';
+import {
+  addManualShoppingItem,
+  clearCheckedShoppingItems,
+  saveShoppingList,
+  syncShoppingFromPlan,
+  takeCheckedShoppingItems,
+} from '@/lib/shoppingList';
 import { useRecipes } from '@/context/RecipesContext';
 import type { MealPlanStore, MealSlot, ShoppingItem } from '@/types/mealPlan';
 
@@ -21,6 +29,12 @@ type MealPlanContextValue = {
   changeWeek: (offset: number) => Promise<void>;
   toggleShoppingItem: (id: string) => Promise<void>;
   rebuildShoppingList: () => Promise<void>;
+  copyMeal: (fromDate: string, fromSlot: MealSlot, toDate: string, toSlot: MealSlot) => Promise<void>;
+  repeatMealWeekdays: (date: string, slot: MealSlot, weekdayIndexes: number[]) => Promise<void>;
+  addManualShopping: (name: string, amount?: number, unit?: string) => Promise<void>;
+  clearPurchasedShopping: () => Promise<void>;
+  takeCheckedForFridge: () => Promise<ShoppingItem[]>;
+  setShoppingItems: (items: ShoppingItem[]) => Promise<void>;
 };
 
 const MealPlanContext = createContext<MealPlanContextValue | null>(null);
@@ -79,6 +93,43 @@ export function MealPlanProvider({ children }: { children: React.ReactNode }) {
     await saveShoppingList(next);
   }, [shopping]);
 
+  const copyMeal = useCallback(
+    async (fromDate: string, fromSlot: MealSlot, toDate: string, toSlot: MealSlot) => {
+      const next = await copyMealSlot(fromDate, fromSlot, toDate, toSlot);
+      setPlan(next);
+      const items = await syncShoppingFromPlan(next, recipes, fridgeItems);
+      setShopping(items);
+    },
+    [recipes, fridgeItems],
+  );
+
+  const repeatMealWeekdays = useCallback(
+    async (date: string, slot: MealSlot, weekdayIndexes: number[]) => {
+      const next = await repeatMealOnWeekdays(date, slot, weekdayIndexes);
+      setPlan(next);
+      const items = await syncShoppingFromPlan(next, recipes, fridgeItems);
+      setShopping(items);
+    },
+    [recipes, fridgeItems],
+  );
+
+  const addManualShopping = useCallback(async (name: string, amount?: number, unit?: string) => {
+    const items = await addManualShoppingItem(name, amount, unit);
+    setShopping(items);
+  }, []);
+
+  const clearPurchasedShopping = useCallback(async () => {
+    const items = await clearCheckedShoppingItems();
+    setShopping(items);
+  }, []);
+
+  const takeCheckedForFridge = useCallback(async () => takeCheckedShoppingItems(), []);
+
+  const setShoppingItems = useCallback(async (items: ShoppingItem[]) => {
+    setShopping(items);
+    await saveShoppingList(items);
+  }, []);
+
   const value = useMemo(
     () => ({
       plan,
@@ -90,8 +141,30 @@ export function MealPlanProvider({ children }: { children: React.ReactNode }) {
       changeWeek,
       toggleShoppingItem,
       rebuildShoppingList,
+      copyMeal,
+      repeatMealWeekdays,
+      addManualShopping,
+      clearPurchasedShopping,
+      takeCheckedForFridge,
+      setShoppingItems,
     }),
-    [plan, shopping, loading, refresh, assignMeal, toggleMealDone, changeWeek, toggleShoppingItem, rebuildShoppingList],
+    [
+      plan,
+      shopping,
+      loading,
+      refresh,
+      assignMeal,
+      toggleMealDone,
+      changeWeek,
+      toggleShoppingItem,
+      rebuildShoppingList,
+      copyMeal,
+      repeatMealWeekdays,
+      addManualShopping,
+      clearPurchasedShopping,
+      takeCheckedForFridge,
+      setShoppingItems,
+    ],
   );
 
   return <MealPlanContext.Provider value={value}>{children}</MealPlanContext.Provider>;
