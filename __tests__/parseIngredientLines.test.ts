@@ -26,6 +26,11 @@ describe('parseIngredientLines', () => {
   it('parses glued amount+unit', () => {
     expect(parseIngredientLines('5 เม็ด')[0]).toMatchObject({ amount: 5, unit: 'เม็ด' });
     expect(parseIngredientLines('3กลีบ')[0]).toMatchObject({ amount: 3, unit: 'กลีบ' });
+    expect(parseIngredientLines('กระเทียม 3กลีบ')[0]).toMatchObject({
+      name: 'กระเทียม',
+      amount: 3,
+      unit: 'กลีบ',
+    });
   });
 
   it('keeps lines without amount as name-only', () => {

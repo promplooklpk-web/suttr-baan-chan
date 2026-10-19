@@ -54,8 +54,18 @@ export async function createExportZip(recipes: Recipe[]): Promise<string> {
   return outPath;
 }
 
-export async function shareExportFile(uri: string, mimeType: string): Promise<void> {
+/** @returns true when the user likely completed sharing (not dismissed). */
+export async function shareExportFile(uri: string, mimeType: string): Promise<boolean> {
   const can = await Sharing.isAvailableAsync();
   if (!can) throw new Error('อุปกรณ์นี้ไม่รองรับการแชร์ไฟล์');
+  const { Platform, Share } = await import('react-native');
+  if (Platform.OS === 'ios' || Platform.OS === 'android') {
+    const result = await Share.share({
+      url: uri,
+      title: 'สำรองสูตรบ้านฉัน',
+    });
+    return result.action === Share.sharedAction;
+  }
   await Sharing.shareAsync(uri, { mimeType, UTI: mimeType });
+  return true;
 }

@@ -72,23 +72,33 @@ async function ensureImagesDir(): Promise<void> {
   }
 }
 
-async function readStore(): Promise<RecipeStore> {
+type ReadStoreOutcome = { store: RecipeStore; recipesCorrupt?: boolean };
+
+async function readStore(): Promise<ReadStoreOutcome> {
   const path = recipesPath();
-  const info = await getInfoAsync(path);
-  if (!info.exists) return emptyStore();
   const result = await readJsonFileResult<RecipeStore>(path);
   if (!result.ok) {
-    return emptyStore();
+    const corruptInfo = await getInfoAsync(`${path}.corrupt`);
+    if (result.quarantined || corruptInfo.exists) {
+      emitFeedback(
+        'ไฟล์สูตรเสียหาย — เก็บไฟล์เดิมเป็น recipes.json.corrupt แล้ว สูตรของคุณอาจหายไป',
+        { error: true },
+      );
+      return { store: emptyStore(), recipesCorrupt: true };
+    }
+    return { store: emptyStore() };
   }
   if (result.source === 'backup') {
     emitFeedback('กู้คืนไฟล์สูตรจากสำรอง (.bak) แล้ว');
+  } else if (result.source === 'tmp') {
+    emitFeedback('กู้คืนไฟล์สูตรจากไฟล์ที่กำลังบันทึก (.tmp) แล้ว');
   }
   const parsed = result.data;
   if (!parsed.recipes || !Array.isArray(parsed.recipes)) {
-    return emptyStore();
+    return { store: emptyStore() };
   }
   parsed.recipes = sanitizeRecipes(parsed.recipes);
-  return parsed;
+  return { store: parsed };
 }
 
 async function writeStore(recipes: Recipe[], seedVersion = CURRENT_SEED_VERSION): Promise<void> {
@@ -182,7 +192,11 @@ async function loadWebSeedRecipes(): Promise<Recipe[]> {
 export async function initializeStorage(): Promise<Recipe[]> {
   if (webSeedEnabled()) return loadWebSeedRecipes();
   await ensureImagesDir();
-  const store = await readStore();
+  const { store, recipesCorrupt } = await readStore();
+  if (recipesCorrupt) {
+    const seeded = await migrateSeedData(emptyStore());
+    return sanitizeRecipes(seeded);
+  }
   const effectiveVersion = getEffectiveSeedVersion(store);
 
   if (effectiveVersion < CURRENT_SEED_VERSION) {
@@ -199,7 +213,7 @@ export async function initializeStorage(): Promise<Recipe[]> {
 export async function loadRecipes(): Promise<Recipe[]> {
   if (webSeedEnabled()) return loadWebSeedRecipes();
   await ensureImagesDir();
-  const store = await readStore();
+  const { store } = await readStore();
   return sanitizeRecipes(store.recipes);
 }
 

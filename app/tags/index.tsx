@@ -96,10 +96,10 @@ export default function TagsManagementScreen() {
               >
                 <AppText variant="label">#{item}</AppText>
               </Pressable>
-              <Pressable onPress={() => startEdit(item)}>
+              <Pressable onPress={() => startEdit(item)} style={styles.tagAction}>
                 <AppText style={{ color: colors.orange }}>แก้ไข</AppText>
               </Pressable>
-              <Pressable onPress={() => deleteTag(item)}>
+              <Pressable onPress={() => deleteTag(item)} style={styles.tagAction}>
                 <AppText style={{ color: colors.danger }}>ลบ</AppText>
               </Pressable>
             </View>
@@ -123,6 +123,13 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderColor: colors.border,
   },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  tagAction: {
+    minWidth: 44,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.sm,
+  },
   tagPress: { flex: 1 },
   editRow: { flexDirection: 'row', gap: spacing.sm, alignItems: 'center' },
   input: {

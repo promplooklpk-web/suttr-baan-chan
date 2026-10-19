@@ -22,7 +22,7 @@ import { totalMinutes } from '@/lib/storage';
 
 function greeting(): string {
   const hour = new Date().getHours();
-  if (hour < 5) return 'สวัสดีตอนดึก';
+  if (hour < 6) return 'สวัสดีตอนดึก';
   if (hour < 11) return 'สวัสดีตอนเช้า';
   if (hour < 15) return 'สวัสดีตอนเที่ยง';
   if (hour < 18) return 'สวัสดีตอนบ่าย';

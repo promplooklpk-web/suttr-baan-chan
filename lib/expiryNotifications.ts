@@ -3,20 +3,23 @@ import { Platform } from 'react-native';
 import type { FridgeItem } from '@/types/fridge';
 import { daysUntilExpiry } from '@/lib/fridgeStatus';
 import { loadAppSettings } from '@/lib/appSettings';
-import { addDaysLocal, todayLocalIso } from '@/utils/localDate';
+import { addDaysLocal, parseLocalDateIso, todayLocalIso } from '@/utils/localDate';
 
 const LEGACY_DAILY_ID = 'expiry-daily-09';
 const DAILY_ID_PREFIX = 'expiry-daily-09';
 
-export function buildExpiryNotificationBody(items: FridgeItem[], reminderDays: number): string {
+export function buildExpiryNotificationBody(
+  items: FridgeItem[],
+  reminderDays: number,
+  asOfDayIso = todayLocalIso(),
+): string | null {
+  const asOf = parseLocalDateIso(asOfDayIso);
   const within = items.filter((i) => {
-    const d = daysUntilExpiry(i.expiresAt);
+    const d = daysUntilExpiry(i.expiresAt, asOf);
     return d != null && d >= 0 && d <= reminderDays;
   });
+  if (within.length === 0) return null;
   const names = within.slice(0, 5).map((i) => i.name).join(', ');
-  if (within.length === 0) {
-    return 'ไม่มีของใกล้หมดอายุในช่วงที่ตั้งไว้';
-  }
   return `ใกล้หมดอายุ ${within.length} รายการ: ${names}${within.length > 5 ? '…' : ''}`;
 }
 
@@ -54,7 +57,6 @@ export async function syncExpiryReminderSchedule(items: FridgeItem[]): Promise<v
     const { status } = await Notifications.requestPermissionsAsync();
     if (status !== 'granted') return;
 
-    const body = buildExpiryNotificationBody(items, settings.expiryReminderDays);
     const today = todayLocalIso();
     await Notifications.cancelScheduledNotificationAsync(LEGACY_DAILY_ID).catch(() => undefined);
 
@@ -62,8 +64,10 @@ export async function syncExpiryReminderSchedule(items: FridgeItem[]): Promise<v
       const day = addDaysLocal(today, offset);
       const id = `${DAILY_ID_PREFIX}-${day}`;
       const when = nineAmLocal(day);
-      if (when.getTime() <= Date.now()) continue;
       await Notifications.cancelScheduledNotificationAsync(id).catch(() => undefined);
+      if (when.getTime() <= Date.now()) continue;
+      const body = buildExpiryNotificationBody(items, settings.expiryReminderDays, day);
+      if (!body) continue;
       await Notifications.scheduleNotificationAsync({
         identifier: id,
         content: {

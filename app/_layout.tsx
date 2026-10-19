@@ -88,14 +88,16 @@ export default function RootLayout() {
   useEffect(() => {
     if (!loaded) return;
     let sub: { remove: () => void } | undefined;
-    void import('expo-notifications').then((Notifications) => {
-      sub = Notifications.addNotificationResponseReceivedListener((response) => {
-        const screen = response.notification.request.content.data?.screen;
-        if (screen === 'fridge-expiring') {
-          router.push('/(tabs)/fridge?expiring=1');
-        }
-      });
-    });
+    void import('expo-notifications')
+      .then((Notifications) => {
+        sub = Notifications.addNotificationResponseReceivedListener((response) => {
+          const screen = response.notification.request.content.data?.screen;
+          if (screen === 'fridge-expiring') {
+            router.push('/(tabs)/fridge?expiring=1');
+          }
+        });
+      })
+      .catch(() => undefined);
     return () => sub?.remove();
   }, [loaded]);
 
