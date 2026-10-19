@@ -66,6 +66,8 @@ export function GlassTabBar({ state, descriptors, navigation }: {
     };
 
     const badge = route.name === 'fridge' && alertCount > 0 ? alertCount : 0;
+    const badgeLabel = badge > 0 ? formatFridgeAlertBadge(badge) : '';
+    const badgeWide = badge > 99;
 
     return (
       <Pressable
@@ -87,13 +89,14 @@ export function GlassTabBar({ state, descriptors, navigation }: {
             <View
               style={[
                 styles.badge,
+                badgeWide && styles.badgeWide,
                 {
                   borderColor: focused ? colors.tabBarActivePill : colors.tabBarFill,
                 },
               ]}
             >
-              <AppText style={styles.badgeText}>
-                {formatFridgeAlertBadge(badge)}
+              <AppText style={[styles.badgeText, badgeWide && styles.badgeTextWide]}>
+                {badgeLabel}
               </AppText>
             </View>
           )}
@@ -177,6 +180,7 @@ const createStyles = (colors: ThemeColors) =>
     },
     barShadow: {
       borderRadius: radius.xl,
+      overflow: 'visible',
       shadowColor: colors.tabBarShadow,
       shadowOffset: { width: 0, height: 10 },
       shadowOpacity: 0.35,
@@ -201,10 +205,12 @@ const createStyles = (colors: ThemeColors) =>
       paddingHorizontal: 2,
       paddingTop: 8,
       paddingBottom: 6,
+      overflow: 'visible',
     },
     tabHit: {
       flex: 1,
       minWidth: 0,
+      overflow: 'visible',
     },
     tabPill: {
       position: 'relative',
@@ -238,7 +244,8 @@ const createStyles = (colors: ThemeColors) =>
     badge: {
       position: 'absolute',
       top: 0,
-      right: 2,
+      left: '50%',
+      marginLeft: 12,
       minWidth: 20,
       height: 20,
       borderRadius: 10,
@@ -247,6 +254,14 @@ const createStyles = (colors: ThemeColors) =>
       justifyContent: 'center',
       paddingHorizontal: 5,
       borderWidth: 1,
+      zIndex: 2,
+    },
+    badgeWide: {
+      height: 18,
+      minWidth: 18,
+      borderRadius: 9,
+      paddingHorizontal: 4,
+      marginLeft: 11,
     },
     badgeText: {
       color: colors.textOnStatus,
@@ -257,6 +272,10 @@ const createStyles = (colors: ThemeColors) =>
       ...(Platform.OS === 'android'
         ? { includeFontPadding: false, textAlignVertical: 'center' as const }
         : {}),
+    },
+    badgeTextWide: {
+      fontSize: 9,
+      lineHeight: 18,
     },
     fabSlot: {
       width: 58,
