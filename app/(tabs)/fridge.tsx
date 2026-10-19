@@ -123,7 +123,7 @@ export default function FridgeScreen() {
               <Ionicons name="snow-outline" size={64} color={colors.inkMuted} />
               <AppText variant="title" style={styles.emptyTitle}>ตู้เย็นยังว่างอยู่</AppText>
               <Pressable style={styles.emptyBtn} onPress={() => openAdd()}>
-                <Ionicons name="add" size={20} color={colors.white} />
+                <Ionicons name="add" size={20} color={colors.surface} />
                 <AppText style={styles.emptyBtnText}>เพิ่มของชิ้นแรก</AppText>
               </Pressable>
               <View style={styles.popularRow}>
@@ -226,7 +226,7 @@ export default function FridgeScreen() {
                 style={[styles.filterChip, matchFilter === id && styles.filterChipOn]}
                 onPress={() => setMatchFilter(id)}
               >
-                <AppText variant="caption" style={{ color: matchFilter === id ? colors.white : colors.ink }}>
+                <AppText variant="caption" style={{ color: matchFilter === id ? colors.surface : colors.ink }}>
                   {label}
                 </AppText>
               </Pressable>
@@ -380,12 +380,12 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.md,
     borderRadius: radius.pill,
   },
-  emptyBtnText: { color: colors.white, fontFamily: fonts.semiBold },
+  emptyBtnText: { color: colors.surface, fontFamily: fonts.semiBold },
   popularRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, justifyContent: 'center' },
   popChip: {
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.pill,
     borderWidth: 1,
     borderColor: colors.border,
@@ -395,7 +395,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: radius.pill,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
   },
@@ -407,7 +407,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     gap: spacing.md,
   },
   matchCard: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.xl,
     padding: spacing.md,
     marginBottom: spacing.md,
@@ -433,7 +433,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.sm,
     alignItems: 'center',
   },
-  cookBtnText: { color: colors.white, fontFamily: fonts.semiBold },
+  cookBtnText: { color: colors.surface, fontFamily: fonts.semiBold },
   shopBtn: {
     borderRadius: radius.pill,
     paddingVertical: spacing.sm,

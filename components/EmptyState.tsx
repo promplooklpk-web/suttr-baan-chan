@@ -30,7 +30,7 @@ export function EmptyState({ title, subtitle, showAdd }: EmptyStateProps) {
       {showAdd && (
         <Link href="/recipe/edit" asChild>
           <LinkPressable style={styles.button}>
-            <Ionicons name="add" size={20} color={colors.white} />
+            <Ionicons name="add" size={20} color={colors.surface} />
             <AppText style={styles.buttonText}>เพิ่มสูตรใหม่</AppText>
           </LinkPressable>
         </Link>
@@ -49,7 +49,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     width: 88,
     height: 88,
     borderRadius: 44,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.md,
@@ -72,7 +72,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.pill,
   },
   buttonText: {
-    color: colors.white,
+    color: colors.surface,
     fontFamily: 'Sarabun_600SemiBold',
     fontSize: 16,
   },

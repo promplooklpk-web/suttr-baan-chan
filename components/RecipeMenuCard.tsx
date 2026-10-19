@@ -17,6 +17,7 @@ import {
   fridgeProgressColor,
   matchPercentColor,
 } from '@/lib/fridgeMatchDisplay';
+import { useRecipes } from '@/context/RecipesContext';
 import { photoUri, totalMinutes } from '@/lib/storage';
 import type { RecipeFridgeMatch } from '@/types/fridge';
 import type { Recipe } from '@/types/recipe';
@@ -44,6 +45,7 @@ export function RecipeMenuCard({
 }: RecipeMenuCardProps) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
+  const { toggleFavorite } = useRecipes();
   const uri = photoUri(recipe.photo?.path);
   const minutes = totalMinutes(recipe);
   const cal = parseRecipeCalories(recipe);
@@ -77,7 +79,14 @@ export function RecipeMenuCard({
       ) : (
         <Ionicons name="restaurant" size={isList ? 26 : 40} color={colors.orange} />
       )}
-      <Pressable style={styles.heartBtn} accessibilityLabel="โปรด">
+      <Pressable
+        style={styles.heartBtn}
+        accessibilityLabel="โปรด"
+        onPress={(e) => {
+          e?.stopPropagation?.();
+          void toggleFavorite(recipe.id);
+        }}
+      >
         <Ionicons
           name={recipe.isFavorite ? 'heart' : 'heart-outline'}
           size={14}

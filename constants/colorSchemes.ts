@@ -1,8 +1,8 @@
 export type ThemeColors = {
   /** Page background */
   cream: string;
-  /** Primary card / elevated surface */
-  white: string;
+  /** Primary card / elevated surface (not necessarily white in dark mode) */
+  surface: string;
   /** Secondary surface */
   surface2: string;
   orange: string;
@@ -37,10 +37,10 @@ export type ThemeColors = {
 
 export const lightColors: ThemeColors = {
   cream: '#FFF7EC',
-  white: '#FFFFFF',
+  surface: '#FFFFFF',
   surface2: '#FFF3E6',
-  orange: '#FF7A3D',
-  onAccent: '#FFFFFF',
+  orange: '#E0601F',
+  onAccent: '#1A0F08',
   ink: '#3A2A20',
   inkMuted: '#6B5A4E',
   inkLight: '#9A8A7E',
@@ -71,7 +71,7 @@ export const lightColors: ThemeColors = {
 
 export const darkColors: ThemeColors = {
   cream: '#0E0D0C',
-  white: '#17140F',
+  surface: '#17140F',
   surface2: '#211C16',
   orange: '#F08040',
   onAccent: '#1A0F08',

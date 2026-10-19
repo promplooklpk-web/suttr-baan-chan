@@ -31,6 +31,7 @@ export const CATEGORIES = [
 ] as const;
 
 export const CATEGORY_VALUES = [
+  'อาหารคลีน',
   'อาหารจานเดียว',
   'ต้ม/แกง',
   'ผัด/ทอด',

@@ -23,6 +23,7 @@ import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useFridge } from '@/context/FridgeContext';
 import { useRecipes } from '@/context/RecipesContext';
 import { daysUntilExpiry, formatExpiryLine, fridgeItemStatus } from '@/lib/fridgeStatus';
+import { addDaysLocal, localDateToIso, todayLocalIso } from '@/utils/localDate';
 import { ingredientNamesMatch } from '@/lib/ingredientNormalize';
 import { PLACE_LABELS } from '@/lib/fridgeStorage';
 import type { FridgePlace } from '@/types/fridge';
@@ -35,6 +36,8 @@ export default function FridgeItemDetailScreen() {
   const { items, updateItem, removeItem, subtractAmount } = useFridge();
   const { recipes } = useRecipes();
   const item = items.find((i) => i.id === id);
+  const [itemName, setItemName] = useState(item?.name ?? '');
+  const [expiresAt, setExpiresAt] = useState(item?.expiresAt);
   const [note, setNote] = useState(item?.note ?? '');
   const [quantity, setQuantity] = useState(item?.quantity ?? 1);
   const [unit, setUnit] = useState(item?.unit ?? 'กรัม');
@@ -42,6 +45,8 @@ export default function FridgeItemDetailScreen() {
 
   useEffect(() => {
     if (!item) return;
+    setItemName(item.name);
+    setExpiresAt(item.expiresAt);
     setNote(item.note ?? '');
     setQuantity(item.quantity);
     setUnit(item.unit);
@@ -84,7 +89,19 @@ export default function FridgeItemDetailScreen() {
       Alert.alert('จำนวนต้องมากกว่า 0');
       return;
     }
-    await updateItem(item.id, { note, quantity, unit, place });
+    const trimmed = itemName.trim();
+    if (!trimmed) {
+      Alert.alert('กรุณากรอกชื่อของ');
+      return;
+    }
+    await updateItem(item.id, {
+      name: trimmed,
+      note,
+      quantity,
+      unit,
+      place,
+      expiresAt,
+    });
     Alert.alert('บันทึกแล้ว');
   };
 
@@ -105,9 +122,15 @@ export default function FridgeItemDetailScreen() {
         contentContainerStyle={{ padding: spacing.md, paddingBottom: insets.bottom + spacing.xl }}
         keyboardShouldPersistTaps="handled"
       >
-        <AppText variant="title">{item.name}</AppText>
+        <AppText variant="label" muted>ชื่อ</AppText>
+        <TextInput
+          keyboardAppearance={keyboardAppearance}
+          value={itemName}
+          onChangeText={setItemName}
+          style={styles.input}
+        />
         <AppText variant="caption" style={{ color: barColor, marginTop: spacing.xs }}>
-          {formatExpiryLine(item)}
+          {formatExpiryLine({ ...item, name: itemName, expiresAt })}
         </AppText>
         <View style={styles.barBg}>
           <View style={[styles.barFill, { width: `${freshnessRatio * 100}%`, backgroundColor: barColor }]} />
@@ -134,12 +157,28 @@ export default function FridgeItemDetailScreen() {
               style={[styles.placeChip, place === p && styles.placeChipOn]}
               onPress={() => setPlace(p)}
             >
-              <AppText variant="caption" style={{ color: place === p ? colors.white : colors.ink }}>
+              <AppText variant="caption" style={{ color: place === p ? colors.surface : colors.ink }}>
                 {PLACE_LABELS[p]}
               </AppText>
             </Pressable>
           ))}
         </View>
+
+        <AppText variant="label" style={{ marginTop: spacing.md }}>วันหมดอายุ</AppText>
+        <View style={styles.placeRow}>
+          <Pressable style={styles.placeChip} onPress={() => setExpiresAt(addDaysLocal(todayLocalIso(), 3))}>
+            <AppText variant="caption">+3 วัน</AppText>
+          </Pressable>
+          <Pressable style={styles.placeChip} onPress={() => setExpiresAt(addDaysLocal(todayLocalIso(), 7))}>
+            <AppText variant="caption">+7 วัน</AppText>
+          </Pressable>
+          <Pressable style={styles.placeChip} onPress={() => setExpiresAt(undefined)}>
+            <AppText variant="caption">ไม่ระบุ</AppText>
+          </Pressable>
+        </View>
+        {expiresAt ? (
+          <AppText variant="caption" muted>{expiresAt}</AppText>
+        ) : null}
 
         <AppText variant="label" style={{ marginTop: spacing.md }}>โน้ต</AppText>
         <TextInput
@@ -208,13 +247,13 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: radius.pill,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
   },
   placeChipOn: { backgroundColor: colors.orange, borderColor: colors.orange },
   input: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
@@ -240,5 +279,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.md,
     borderRadius: radius.pill,
   },
-  saveBtnText: { color: colors.white, fontFamily: fonts.semiBold },
+  saveBtnText: { color: colors.surface, fontFamily: fonts.semiBold },
 });

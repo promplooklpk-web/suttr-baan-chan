@@ -117,7 +117,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   hint: { marginBottom: spacing.md },
   card: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.md,
     padding: spacing.md,
     marginBottom: spacing.sm,
@@ -135,5 +135,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.sm,
     fontFamily: fonts.regular,
     fontSize: 16,
+    color: colors.ink,
   },
 });

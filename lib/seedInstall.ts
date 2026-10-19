@@ -20,7 +20,7 @@ function parseSeedNotes(notes?: string): { caloriesEstimate?: string; notes?: st
     clean = clean.replace(caloriesMatch[0], '').replace(/^\s*\|\s*/, '');
   }
   clean = clean
-    .replace(/\|\s*เคล็ดลับ:.*$/s, '')
+    .replace(/(\|\s*)?เคล็ดลับ:.*$/s, '')
     .replace(/\|\s*แหล่งอ้างอิง:.*$/s, '')
     .replace(/\|\s*หมายเหตุภาพ:.*$/s, '')
     .trim();

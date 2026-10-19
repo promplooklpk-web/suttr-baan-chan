@@ -85,7 +85,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   wrap: { marginVertical: spacing.lg },
   presetRow: { gap: spacing.sm, marginTop: spacing.sm },
   presetBtn: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.md,
     padding: spacing.md,
     borderWidth: 1,
@@ -100,7 +100,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   useInput: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
@@ -115,5 +115,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
-  applyText: { color: colors.white, fontFamily: fonts.semiBold },
+  applyText: { color: colors.surface, fontFamily: fonts.semiBold },
 });

@@ -91,7 +91,7 @@ export default function RecipeDetailScreen() {
         style: 'destructive',
         onPress: async () => {
           await deleteRecipe(recipe.id);
-          router.replace('/(tabs)');
+          router.navigate('/(tabs)');
         },
       },
     ]);
@@ -268,7 +268,10 @@ export default function RecipeDetailScreen() {
                       <View style={styles.stepContent}>
                         <AppText style={styles.stepText}>{step.text}</AppText>
                         {step.timerSeconds != null && step.timerSeconds > 0 && (
-                          <StepTimerChip timerSeconds={step.timerSeconds} />
+                          <StepTimerChip
+                            timerKey={`${recipe.id}-preview-${i}`}
+                            timerSeconds={step.timerSeconds}
+                          />
                         )}
                         {SHOW_STEP_PHOTOS && step.photo?.path ? (
                           <StepPhotoBlock photo={step.photo} />
@@ -382,7 +385,7 @@ function GlassIconButton({
         <Ionicons
           name={icon}
           size={22}
-          color={accent ? colors.orange : colors.white}
+          color={accent ? colors.orange : colors.ink}
         />
       </BlurView>
     </Pressable>
@@ -505,7 +508,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   infoBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.lg,
     padding: spacing.md,
     marginBottom: spacing.md,
@@ -593,13 +596,13 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
   },
   roundBtnText: {
-    color: colors.white,
+    color: colors.surface,
     fontSize: 20,
     fontFamily: fonts.bold,
     lineHeight: 22,
   },
   ingTable: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
@@ -650,7 +653,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
   },
   stepNumText: {
-    color: colors.white,
+    color: colors.surface,
     fontFamily: fonts.bold,
     fontSize: 14,
   },
@@ -661,7 +664,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   tipsBox: {
     marginTop: spacing.lg,
     padding: spacing.md,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
@@ -686,7 +689,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   calorieBox: {
     marginBottom: spacing.md,
     padding: spacing.md,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,

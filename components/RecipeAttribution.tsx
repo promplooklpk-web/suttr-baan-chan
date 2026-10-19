@@ -102,7 +102,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   box: {
     marginTop: spacing.lg,
     padding: spacing.md,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,

@@ -117,7 +117,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.pill,
   },
   closeText: {
-    color: colors.white,
+    color: colors.surface,
     fontFamily: fonts.semiBold,
     fontSize: 16,
   },

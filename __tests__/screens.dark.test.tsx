@@ -92,8 +92,8 @@ describe('dark theme screen smoke', () => {
 
   it('Fridge item detail', async () => {
     mockedParams.mockReturnValue({ id: seedFridgeItems[0].id });
-    const { findByText } = renderWithProviders(<FridgeDetailScreen />, dark);
-    await findByText(seedFridgeItems[0].name);
+    const { findByDisplayValue } = renderWithProviders(<FridgeDetailScreen />, dark);
+    await findByDisplayValue(seedFridgeItems[0].name);
   });
 
   it('Fridge recipe match', async () => {

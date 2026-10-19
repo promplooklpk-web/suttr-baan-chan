@@ -20,9 +20,6 @@ import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useRecipes } from '@/context/RecipesContext';
 import { useFridgeRecipeMatches } from '@/hooks/useFridgeRecipeMatches';
-
-const POPULAR_TAGS = ['เผ็ด', 'จานด่วน', 'ทำง่าย', 'ผัด', 'ต้มยำ'];
-
 export default function SearchScreen() {
   const styles = useThemedStyles(createStyles);
   const { colors, keyboardAppearance } = useTheme();
@@ -47,6 +44,19 @@ export default function SearchScreen() {
   }, [params.tag, params.favorites, params.q]);
 
   const fridgeMatches = useFridgeRecipeMatches(recipes);
+
+  const popularTags = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const r of recipes) {
+      for (const t of r.tags ?? []) {
+        counts.set(t, (counts.get(t) ?? 0) + 1);
+      }
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6)
+      .map(([tag]) => tag);
+  }, [recipes]);
 
   const results = useMemo(() => {
     let list = query.trim() ? searchRecipes(query) : recipes;
@@ -97,7 +107,7 @@ export default function SearchScreen() {
       <View style={styles.filterRow}>
         {tagFilter ? (
           <Pressable style={styles.filterChipOn} onPress={() => setTagFilter('')}>
-            <AppText variant="caption" style={{ color: colors.white }}>#{tagFilter} ×</AppText>
+            <AppText variant="caption" style={{ color: colors.surface }}>#{tagFilter} ×</AppText>
           </Pressable>
         ) : null}
       </View>
@@ -146,7 +156,7 @@ export default function SearchScreen() {
           <View style={styles.block}>
             <AppText variant="label" style={styles.blockTitle}>แท็กยอดนิยม</AppText>
             <View style={styles.tagRow}>
-              {POPULAR_TAGS.map((tag) => (
+              {popularTags.map((tag) => (
                 <Pressable
                   key={tag}
                   style={styles.tag}
@@ -183,7 +193,7 @@ export default function SearchScreen() {
                 <Ionicons
                   name="grid-outline"
                   size={18}
-                  color={layoutMode === 'grid' ? colors.white : colors.inkMuted}
+                  color={layoutMode === 'grid' ? colors.surface : colors.inkMuted}
                 />
               </Pressable>
               <Pressable
@@ -194,7 +204,7 @@ export default function SearchScreen() {
                 <Ionicons
                   name="list-outline"
                   size={20}
-                  color={layoutMode === 'list' ? colors.white : colors.inkMuted}
+                  color={layoutMode === 'list' ? colors.surface : colors.inkMuted}
                 />
               </Pressable>
             </View>
@@ -261,7 +271,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: radius.pill,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
   },
@@ -282,7 +292,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     gap: spacing.sm,
     marginHorizontal: spacing.md,
     marginBottom: spacing.lg,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.pill,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
@@ -324,7 +334,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     gap: spacing.sm,
   },
   tag: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.pill,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
@@ -343,7 +353,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   layoutToggle: {
     flexDirection: 'row',
     gap: spacing.xs,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.pill,
     borderWidth: 1,
     borderColor: colors.border,

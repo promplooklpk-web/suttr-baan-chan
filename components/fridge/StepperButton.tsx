@@ -25,10 +25,13 @@ export function StepperButton({ direction, onStep }: Props) {
     }
   }, []);
 
+  const onStepRef = useRef(onStep);
+  onStepRef.current = onStep;
+
   const startRepeat = useCallback(() => {
     stop();
-    timer.current = setInterval(onStep, REPEAT_MS);
-  }, [onStep, stop]);
+    timer.current = setInterval(() => onStepRef.current(), REPEAT_MS);
+  }, [stop]);
 
   return (
     <Pressable
@@ -52,7 +55,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     alignItems: 'center',

@@ -125,5 +125,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.md,
     alignItems: 'center',
   },
-  primaryText: { color: colors.white, fontFamily: fonts.semiBold },
+  primaryText: { color: colors.surface, fontFamily: fonts.semiBold },
 });

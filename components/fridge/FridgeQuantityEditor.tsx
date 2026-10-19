@@ -120,7 +120,7 @@ export function FridgeQuantityEditor({
           >
             <AppText
               variant="caption"
-              style={{ color: unit === u && !showCustomUnit ? colors.white : colors.ink }}
+              style={{ color: unit === u && !showCustomUnit ? colors.surface : colors.ink }}
             >
               {u}
             </AppText>
@@ -130,7 +130,7 @@ export function FridgeQuantityEditor({
           style={[styles.chip, showCustomUnit && styles.chipOn]}
           onPress={() => setShowCustomUnit(true)}
         >
-          <AppText variant="caption" style={{ color: showCustomUnit ? colors.white : colors.ink }}>
+          <AppText variant="caption" style={{ color: showCustomUnit ? colors.surface : colors.ink }}>
             กำหนดเอง
           </AppText>
         </Pressable>
@@ -159,11 +159,14 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
     marginTop: spacing.sm,
+    minWidth: 0,
+    maxWidth: '100%',
   },
   bigInput: {
     flex: 1,
+    minWidth: 0,
     minHeight: 56,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
@@ -184,14 +187,14 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: radius.pill,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
   },
   chipOn: { backgroundColor: colors.orange, borderColor: colors.orange },
   customUnitInput: {
     marginTop: spacing.sm,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,

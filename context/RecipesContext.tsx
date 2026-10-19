@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { Alert } from 'react-native';
 
 import {
   addRecipe as addRecipeStorage,
@@ -28,8 +29,12 @@ export function RecipesProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
-    const data = await loadRecipes();
-    setRecipes(data);
+    try {
+      const data = await loadRecipes();
+      setRecipes(data);
+    } catch {
+      setRecipes([]);
+    }
   }, []);
 
   useEffect(() => {
@@ -67,7 +72,11 @@ export function RecipesProvider({ children }: { children: React.ReactNode }) {
   const toggleFavorite = useCallback(async (id: string) => {
     const current = recipes.find((r) => r.id === id);
     if (!current) return;
-    await updateRecipe(id, { isFavorite: !current.isFavorite });
+    try {
+      await updateRecipe(id, { isFavorite: !current.isFavorite });
+    } catch {
+      Alert.alert('บันทึกไม่สำเร็จ', 'ไม่สามารถอัปเดตสูตรโปรดได้');
+    }
   }, [recipes, updateRecipe]);
 
   const getRecipe = useCallback(
@@ -82,7 +91,9 @@ export function RecipesProvider({ children }: { children: React.ReactNode }) {
       return recipes.filter((recipe) => {
         if (recipe.title.toLowerCase().includes(q)) return true;
         if (recipe.tags?.some((t) => t.toLowerCase().includes(q))) return true;
-        return recipe.ingredients.some((ing) => ing.name.toLowerCase().includes(q));
+        return recipe.ingredients.some(
+          (ing) => ing?.name?.toLowerCase().includes(q) === true,
+        );
       });
     },
     [recipes],

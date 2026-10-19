@@ -114,7 +114,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     padding: spacing.md,
     borderRadius: radius.md,
     marginBottom: spacing.sm,
@@ -130,11 +130,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
   },
   btnSecondary: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.orange,
   },
-  btnText: { color: colors.white, fontFamily: 'Sarabun_600SemiBold', fontSize: 16 },
+  btnText: { color: colors.surface, fontFamily: 'Sarabun_600SemiBold', fontSize: 16 },
   btnTextSecondary: { color: colors.orange },
   cancel: { textAlign: 'center', marginTop: spacing.sm },
 });

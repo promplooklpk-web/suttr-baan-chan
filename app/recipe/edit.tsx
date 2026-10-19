@@ -21,6 +21,7 @@ import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useRecipes } from '@/context/RecipesContext';
+import { parseAmountInput } from '@/lib/amountParse';
 import { copyPhotoToStorage, createRecipeId, deleteRecipePhoto, photoUri } from '@/lib/storage';
 import type { RecipeDifficulty, RecipeIngredient, RecipeStep } from '@/types/recipe';
 
@@ -44,6 +45,7 @@ export default function RecipeEditScreen() {
   const [notes, setNotes] = useState('');
   const [tagsText, setTagsText] = useState('');
   const [ingredients, setIngredients] = useState<RecipeIngredient[]>([emptyIngredient()]);
+  const [amountTexts, setAmountTexts] = useState<string[]>(['']);
   const [steps, setSteps] = useState<RecipeStep[]>([emptyStep()]);
   const [photoPath, setPhotoPath] = useState<string | undefined>();
   const [localPhotoUri, setLocalPhotoUri] = useState<string | undefined>();
@@ -59,11 +61,24 @@ export default function RecipeEditScreen() {
     setDifficulty(existing.difficulty ?? 'easy');
     setNotes(existing.notes ?? '');
     setTagsText((existing.tags ?? []).join(', '));
-    setIngredients(existing.ingredients.length ? existing.ingredients : [emptyIngredient()]);
+    const ings = existing.ingredients.length ? existing.ingredients : [emptyIngredient()];
+    setIngredients(ings);
+    setAmountTexts(ings.map((i) => (i.amount != null ? String(i.amount) : '')));
     setSteps(existing.steps.length ? existing.steps : [emptyStep()]);
     setPhotoPath(existing.photo?.path);
     setLocalPhotoUri(photoUri(existing.photo?.path));
   }, [existing]);
+
+  if (id && !existing) {
+    return (
+      <View style={[styles.screen, { paddingTop: insets.top + spacing.lg, alignItems: 'center' }]}>
+        <AppText variant="title">ไม่พบสูตร</AppText>
+        <Pressable onPress={() => router.back()} style={{ marginTop: spacing.md }}>
+          <AppText style={{ color: colors.orange }}>กลับ</AppText>
+        </Pressable>
+      </View>
+    );
+  }
 
   const pickImage = async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -105,19 +120,33 @@ export default function RecipeEditScreen() {
         path = await copyPhotoToStorage(localPhotoUri, recipeId, 'image/jpeg');
       }
 
+      const parsedMinutes = parseInt(minutes, 10);
+      const cookMinutes = Number.isFinite(parsedMinutes)
+        ? Math.min(24 * 60, Math.max(0, parsedMinutes))
+        : 0;
+      const parsedServings = parseInt(servings, 10);
+      const servingsNum = Number.isFinite(parsedServings)
+        ? Math.min(99, Math.max(1, parsedServings))
+        : 1;
+
+      const ingParsed = ing.map((row, i) => ({
+        ...row,
+        amount: parseAmountInput(amountTexts[i] ?? ''),
+      }));
+
       const payload = {
         title: trimmedTitle,
         category,
         prepMinutes: 0,
-        cookMinutes: Math.max(0, parseInt(minutes, 10) || 0),
-        servings: Math.max(1, parseInt(servings, 10) || 1),
+        cookMinutes,
+        servings: servingsNum,
         difficulty,
         notes: notes.trim(),
         tags: tagsText
           .split(/[,，]/)
           .map((t) => t.trim().replace(/^#/, ''))
           .filter(Boolean),
-        ingredients: ing,
+        ingredients: ingParsed,
         steps: st,
         photo: path ? { path, mime: 'image/jpeg' as const } : undefined,
         isFavorite: existing?.isFavorite ?? false,
@@ -126,10 +155,10 @@ export default function RecipeEditScreen() {
 
       if (isEdit && existing) {
         await updateRecipe(existing.id, payload);
-        router.replace(`/recipe/${existing.id}`);
+        router.back();
       } else {
-        const created = await addRecipe(payload, recipeId);
-        router.replace(`/recipe/${created.id}`);
+        await addRecipe(payload, recipeId);
+        router.back();
       }
     } catch (e) {
       Alert.alert('บันทึกไม่สำเร็จ', e instanceof Error ? e.message : 'เกิดข้อผิดพลาด');
@@ -144,7 +173,24 @@ export default function RecipeEditScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <View style={[styles.topBar, { paddingTop: insets.top + spacing.sm }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12}>
+        <Pressable
+          onPress={() => {
+            const dirty =
+              title.trim() ||
+              notes.trim() ||
+              ingredients.some((i) => i.name.trim()) ||
+              steps.some((s) => s.text.trim());
+            if (dirty && !isEdit) {
+              Alert.alert('ทิ้งแบบร่าง?', 'การเปลี่ยนแปลงจะไม่ถูกบันทึก', [
+                { text: 'แก้ต่อ', style: 'cancel' },
+                { text: 'ทิ้ง', style: 'destructive', onPress: () => router.back() },
+              ]);
+              return;
+            }
+            router.back();
+          }}
+          hitSlop={12}
+        >
           <Ionicons name="close" size={28} color={colors.ink} />
         </Pressable>
         <AppText variant="title">{isEdit ? 'แก้ไขสูตร' : 'เพิ่มสูตรใหม่'}</AppText>
@@ -186,7 +232,7 @@ export default function RecipeEditScreen() {
                   onPress={() => setCategory(c)}
                   style={[styles.miniChip, category === c && styles.miniChipOn]}
                 >
-                  <AppText variant="caption" style={{ color: category === c ? colors.white : colors.ink }}>
+                  <AppText variant="caption" style={{ color: category === c ? colors.surface : colors.ink }}>
                     {c}
                   </AppText>
                 </Pressable>
@@ -226,7 +272,7 @@ export default function RecipeEditScreen() {
                   onPress={() => setDifficulty(d)}
                   style={[styles.diffBtn, difficulty === d && styles.diffBtnOn]}
                 >
-                  <AppText variant="label" style={{ color: difficulty === d ? colors.white : colors.ink }}>
+                  <AppText variant="label" style={{ color: difficulty === d ? colors.surface : colors.ink }}>
                     {label}
                   </AppText>
                 </Pressable>
@@ -252,11 +298,11 @@ export default function RecipeEditScreen() {
             />
             <TextInput
           keyboardAppearance={keyboardAppearance}
-              value={ing.amount != null ? String(ing.amount) : ''}
+              value={amountTexts[i] ?? ''}
               onChangeText={(v) => {
-                const next = [...ingredients];
-                next[i] = { ...next[i], amount: v ? parseFloat(v) : undefined };
-                setIngredients(next);
+                const nextTexts = [...amountTexts];
+                nextTexts[i] = v;
+                setAmountTexts(nextTexts);
               }}
               placeholder="ปริมาณ"
               keyboardType="decimal-pad"
@@ -276,7 +322,10 @@ export default function RecipeEditScreen() {
               style={[styles.input, styles.flex1]}
             />
             <Pressable
-              onPress={() => setIngredients(ingredients.filter((_, idx) => idx !== i))}
+              onPress={() => {
+                setIngredients(ingredients.filter((_, idx) => idx !== i));
+                setAmountTexts(amountTexts.filter((_, idx) => idx !== i));
+              }}
               disabled={ingredients.length <= 1}
             >
               <Ionicons name="trash-outline" size={22} color={colors.inkLight} />
@@ -285,7 +334,10 @@ export default function RecipeEditScreen() {
         ))}
         <AddLine
           label="+ เพิ่มส่วนผสม"
-          onPress={() => setIngredients([...ingredients, emptyIngredient()])}
+          onPress={() => {
+            setIngredients([...ingredients, emptyIngredient()]);
+            setAmountTexts([...amountTexts, '']);
+          }}
         />
 
         <SectionTitle title="วิธีทำ" />
@@ -403,7 +455,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
     marginBottom: spacing.lg,
     overflow: 'hidden',
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
   },
   photo: {
     width: '100%',
@@ -416,7 +468,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.sm,
   },
   input: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
@@ -437,7 +489,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: 6,
     borderRadius: radius.pill,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     marginRight: spacing.sm,
@@ -454,7 +506,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     flex: 1,
     paddingVertical: spacing.sm,
     borderRadius: radius.md,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: colors.border,
@@ -468,13 +520,14 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.sm,
   },
   listRow: {
+    minWidth: 0,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
     marginBottom: spacing.sm,
   },
-  flex1: { flex: 1 },
-  flex2: { flex: 2 },
+  flex1: { flex: 1, minWidth: 0 },
+  flex2: { flex: 2, minWidth: 0 },
   stepEdit: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -507,7 +560,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
   },
   saveBtnText: {
-    color: colors.white,
+    color: colors.surface,
     fontFamily: fonts.semiBold,
     fontSize: 18,
   },

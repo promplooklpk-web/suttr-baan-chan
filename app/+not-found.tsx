@@ -1,20 +1,24 @@
 import { Link, Stack } from 'expo-router';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
-import { Text, View } from '@/components/Themed';
+import { AppText } from '@/components/AppText';
+import { spacing } from '@/constants/theme';
+import { ScreenShell } from '@/components/ScreenShell';
 
 export default function NotFoundScreen() {
   return (
-    <>
-      <Stack.Screen options={{ title: 'Oops!' }} />
+    <ScreenShell>
+      <Stack.Screen options={{ title: 'ไม่พบหน้า' }} />
       <View style={styles.container}>
-        <Text style={styles.title}>This screen doesn't exist.</Text>
-
+        <AppText variant="title">ไม่พบหน้านี้</AppText>
+        <AppText variant="body" muted style={styles.sub}>
+          ลิงก์อาจหมดอายุหรือพิมพ์ผิด
+        </AppText>
         <Link href="/" style={styles.link}>
-          <Text style={styles.linkText}>Go to home screen!</Text>
+          <AppText style={styles.linkText}>กลับหน้าแรก</AppText>
         </Link>
       </View>
-    </>
+    </ScreenShell>
   );
 }
 
@@ -23,18 +27,9 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
+    padding: spacing.lg,
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  link: {
-    marginTop: 15,
-    paddingVertical: 15,
-  },
-  linkText: {
-    fontSize: 14,
-    color: '#2e78b7',
-  },
+  sub: { marginTop: spacing.sm, textAlign: 'center' },
+  link: { marginTop: spacing.lg, paddingVertical: spacing.md },
+  linkText: { color: '#E0601F', fontSize: 16 },
 });
