@@ -11,7 +11,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 import type { RecipeIngredient } from '@/types/recipe';
 
-const EXTRA_UNITS = ['ช้อนชา', 'ถ้วย', 'ลูก'] as const;
+const EXTRA_UNITS = ['ช้อนชา', 'ถ้วย', 'ลูก', 'ต้น', 'เม็ด', 'กลีบ'] as const;
 const UNIT_CHIPS = [...FRIDGE_UNIT_OPTIONS, ...EXTRA_UNITS];
 
 type Props = {

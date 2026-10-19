@@ -82,6 +82,7 @@ export function RecipeMenuCard({
       <Pressable
         style={styles.heartBtn}
         accessibilityLabel="โปรด"
+        hitSlop={10}
         onPress={(e) => {
           e?.stopPropagation?.();
           void toggleFavorite(recipe.id);
@@ -89,7 +90,7 @@ export function RecipeMenuCard({
       >
         <Ionicons
           name={recipe.isFavorite ? 'heart' : 'heart-outline'}
-          size={14}
+          size={18}
           color={recipe.isFavorite ? colors.orange : colors.ink}
         />
       </Pressable>
@@ -224,9 +225,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     position: 'absolute',
     top: 4,
     left: 4,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: 'rgba(14,13,12,0.55)',
     borderWidth: 1,
     borderColor: colors.glassBorder,

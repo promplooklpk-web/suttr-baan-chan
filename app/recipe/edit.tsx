@@ -168,6 +168,12 @@ export default function RecipeEditScreen() {
       }
 
       const parsedMinutes = parseInt(minutes, 10);
+      if (Number.isFinite(parsedMinutes) && parsedMinutes > 24 * 60) {
+        showErrorSnackbar('เวลาทำอาหารสูงสุด 1,440 นาที (24 ชม.)');
+        setMinutes('1440');
+        setSaving(false);
+        return;
+      }
       const cookMinutes = Number.isFinite(parsedMinutes)
         ? Math.min(24 * 60, Math.max(0, parsedMinutes))
         : 0;

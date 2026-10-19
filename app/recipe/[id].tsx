@@ -85,9 +85,11 @@ export default function RecipeDetailScreen() {
   }, [recipe?.category, recipe?.tags]);
 
   const planDays = useMemo(() => {
+    const today = todayLocalIso();
     const fromPlan = plan?.days?.map((d) => d.date) ?? [];
-    if (fromPlan.length >= 7) return fromPlan;
-    return buildWeekDayIsos(plan?.weekStart ?? todayLocalIso());
+    const days =
+      fromPlan.length >= 7 ? fromPlan : buildWeekDayIsos(plan?.weekStart ?? today);
+    return days.filter((d) => d >= today);
   }, [plan?.days, plan?.weekStart]);
 
   if (!recipe) {
@@ -124,6 +126,8 @@ export default function RecipeDetailScreen() {
       const label = slot === 'breakfast' ? 'เช้า' : slot === 'lunch' ? 'กลางวัน' : 'เย็น';
       showSnackbar(`เพิ่มลงแพลน ${thaiPlannerDayLabel(date)} มื้อ${label}`);
     } catch {
+      setPlanOpen(false);
+      setReplaceConfirm(null);
       showErrorSnackbar('ไม่สามารถบันทึกแผนมื้ออาหารได้');
     }
   };

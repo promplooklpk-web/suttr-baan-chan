@@ -79,9 +79,13 @@ export default function ExportSelectScreen() {
               if (!ensureSelection()) return;
               try {
                 const path = await createExportZip(selectedRecipes);
-                await shareExportFile(path, 'application/zip');
-                await recordBackupNow();
-                showSnackbar('ส่งออกไฟล์สำรองแล้ว');
+                const shared = await shareExportFile(path, 'application/zip');
+                if (shared) {
+                  await recordBackupNow();
+                  showSnackbar('ส่งออกไฟล์สำรองแล้ว');
+                } else {
+                  showSnackbar('ยกเลิกการส่งออก — ยังไม่บันทึกวันสำรอง');
+                }
               } catch (e) {
                 showErrorSnackbar(e instanceof Error ? e.message : 'ส่งออกไม่สำเร็จ');
               }

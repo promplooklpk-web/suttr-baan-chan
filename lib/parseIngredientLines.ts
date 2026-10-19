@@ -41,6 +41,18 @@ export function parseIngredientLines(text: string): RecipeIngredient[] {
       }
     }
 
+    const nameGluedEnd = bullet.match(
+      /^(.+?)\s+(\d+(?:[.,]\d+)?)(กรัม|กก\.|มล\.|ลิตร|ช้อนโต๊ะ|ช้อนชา|ถ้วย|ฟอง|ฝัก|หัว|กำ|ซอง|แพ็ค|ผล|ชิ้น|เม็ด|กลีบ|ต้น|g|kg|ml|l)$/i,
+    );
+    if (nameGluedEnd) {
+      out.push({
+        name: nameGluedEnd[1].trim(),
+        amount: parseAmountInput(nameGluedEnd[2]),
+        unit: nameGluedEnd[3],
+      });
+      continue;
+    }
+
     const amtUnitName = bullet.match(AMOUNT_THEN_UNIT);
     if (amtUnitName) {
       const amount = parseAmountInput(amtUnitName[1]);

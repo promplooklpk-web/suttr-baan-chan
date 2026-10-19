@@ -95,10 +95,14 @@ export default function SettingsScreen() {
   const exportAllZip = async () => {
     try {
       const path = await createFullBackupZip(recipes);
-      await shareExportFile(path, 'application/zip');
-      await recordBackupNow();
-      setBackupBannerKey((k) => k + 1);
-      showSnackbar('ส่งออกไฟล์สำรองแล้ว');
+      const shared = await shareExportFile(path, 'application/zip');
+      if (shared) {
+        await recordBackupNow();
+        setBackupBannerKey((k) => k + 1);
+        showSnackbar('ส่งออกไฟล์สำรองแล้ว');
+      } else {
+        showSnackbar('ยกเลิกการส่งออก — ยังไม่บันทึกวันสำรอง');
+      }
     } catch (e) {
       showErrorSnackbar(e instanceof Error ? e.message : 'ส่งออกไม่สำเร็จ');
     }

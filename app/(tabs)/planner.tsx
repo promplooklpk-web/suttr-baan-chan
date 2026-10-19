@@ -177,12 +177,13 @@ export default function PlannerScreen() {
       return;
     }
     for (const row of taken) {
+      const fallback = defaultExpiryForPlace('chilled');
       await addItem({
         name: row.name,
-        quantity: row.amount ?? 1,
-        unit: row.unit ?? 'กรัม',
+        quantity: row.amount != null && row.amount > 0 ? row.amount : 1,
+        unit: row.unit?.trim() || 'กรัม',
         place: 'chilled',
-        expiresAt: defaultExpiryForPlace('chilled'),
+        expiresAt: fallback,
       });
     }
     await rebuildShoppingList();

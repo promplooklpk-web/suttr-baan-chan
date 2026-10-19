@@ -22,6 +22,11 @@ const TAB_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
 
 const BAR_TAB_NAMES = ['index', 'fridge', 'planner', 'settings'] as const;
 
+function formatFridgeAlertBadge(count: number): string {
+  if (count > 99) return '99+';
+  return String(count);
+}
+
 export function GlassTabBar({ state, descriptors, navigation }: {
   state: { routes: { key: string; name: string }[]; index: number };
   descriptors: Record<string, { options: { title?: string } }>;
@@ -61,6 +66,8 @@ export function GlassTabBar({ state, descriptors, navigation }: {
     };
 
     const badge = route.name === 'fridge' && alertCount > 0 ? alertCount : 0;
+    const badgeLabel = badge > 0 ? formatFridgeAlertBadge(badge) : '';
+    const badgeWide = badge > 99;
 
     return (
       <Pressable
@@ -77,14 +84,22 @@ export function GlassTabBar({ state, descriptors, navigation }: {
               size={21}
               color={focused ? colors.orange : colors.inkMuted}
             />
-            {badge > 0 && (
-              <View style={styles.badge}>
-                <AppText style={styles.badgeText}>
-                  {badge > 9 ? '9+' : badge}
-                </AppText>
-              </View>
-            )}
           </View>
+          {badge > 0 && (
+            <View
+              style={[
+                styles.badge,
+                badgeWide && styles.badgeWide,
+                {
+                  borderColor: focused ? colors.tabBarActivePill : colors.tabBarFill,
+                },
+              ]}
+            >
+              <AppText style={[styles.badgeText, badgeWide && styles.badgeTextWide]}>
+                {badgeLabel}
+              </AppText>
+            </View>
+          )}
           <AppText
             variant="caption"
             numberOfLines={1}
@@ -165,6 +180,7 @@ const createStyles = (colors: ThemeColors) =>
     },
     barShadow: {
       borderRadius: radius.xl,
+      overflow: 'visible',
       shadowColor: colors.tabBarShadow,
       shadowOffset: { width: 0, height: 10 },
       shadowOpacity: 0.35,
@@ -189,24 +205,27 @@ const createStyles = (colors: ThemeColors) =>
       paddingHorizontal: 2,
       paddingTop: 8,
       paddingBottom: 6,
+      overflow: 'visible',
     },
     tabHit: {
       flex: 1,
       minWidth: 0,
+      overflow: 'visible',
     },
     tabPill: {
+      position: 'relative',
       alignItems: 'center',
       justifyContent: 'center',
       paddingVertical: 4,
       paddingHorizontal: 1,
       borderRadius: radius.pill,
       gap: 1,
+      overflow: 'visible',
     },
     tabPillActive: {
       backgroundColor: colors.tabBarActivePill,
     },
     iconWrap: {
-      position: 'relative',
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -224,22 +243,39 @@ const createStyles = (colors: ThemeColors) =>
     },
     badge: {
       position: 'absolute',
-      top: -5,
-      right: -10,
-      minWidth: 16,
-      height: 16,
-      borderRadius: 8,
+      top: 0,
+      left: '50%',
+      marginLeft: 12,
+      minWidth: 20,
+      height: 20,
+      borderRadius: 10,
       backgroundColor: colors.danger,
       alignItems: 'center',
       justifyContent: 'center',
-      paddingHorizontal: 3,
+      paddingHorizontal: 5,
       borderWidth: 1,
-      borderColor: colors.tabBarFill,
+      zIndex: 2,
+    },
+    badgeWide: {
+      height: 18,
+      minWidth: 18,
+      borderRadius: 9,
+      paddingHorizontal: 4,
+      marginLeft: 11,
     },
     badgeText: {
       color: colors.textOnStatus,
-      fontSize: 9,
+      fontSize: 11,
       fontFamily: fonts.semiBold,
+      lineHeight: 20,
+      textAlign: 'center',
+      ...(Platform.OS === 'android'
+        ? { includeFontPadding: false, textAlignVertical: 'center' as const }
+        : {}),
+    },
+    badgeTextWide: {
+      fontSize: 9,
+      lineHeight: 18,
     },
     fabSlot: {
       width: 58,

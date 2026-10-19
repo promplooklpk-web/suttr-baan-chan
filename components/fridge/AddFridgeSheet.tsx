@@ -114,7 +114,15 @@ export function AddFridgeSheet({ visible, onClose, catalog, initialName, onSubmi
     const trimmed = name.trim();
     const errors: { name?: string; quantity?: string } = {};
     if (!trimmed) errors.name = 'กรุณากรอกชื่อของ';
-    const q = quantity > 0 ? quantity : parseQuantityInput(String(quantity)) ?? 0;
+    let q = quantity > 0 ? quantity : parseQuantityInput(String(quantity)) ?? 0;
+    let u = unit.trim() || 'กรัม';
+    if (!presetLabel && trimmed) {
+      const defaults = defaultQuantityForName(trimmed);
+      if (quantity === 500 && unit === 'กรัม') {
+        q = defaults.quantity;
+        u = defaults.unit;
+      }
+    }
     if (q <= 0) errors.quantity = 'จำนวนต้องมากกว่า 0';
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
@@ -128,7 +136,7 @@ export function AddFridgeSheet({ visible, onClose, catalog, initialName, onSubmi
         name: trimmed,
         ingredientId: entry?.id,
         quantity: q,
-        unit: unit.trim() || 'กรัม',
+        unit: u,
         place,
         expiresAt,
         note: note.trim() || undefined,
