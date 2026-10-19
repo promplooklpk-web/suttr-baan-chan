@@ -33,6 +33,7 @@ export function FridgeQuantityEditor({
   const styles = useThemedStyles(createStyles);
   const { colors, keyboardAppearance } = useTheme();
   const [text, setText] = useState(formatQuantityLabel(quantity));
+  const [qtyError, setQtyError] = useState<string | undefined>();
   const [customUnit, setCustomUnit] = useState('');
   const [showCustomUnit, setShowCustomUnit] = useState(
     () => !FRIDGE_UNIT_OPTIONS.includes(unit as (typeof FRIDGE_UNIT_OPTIONS)[number]),
@@ -52,6 +53,11 @@ export function FridgeQuantityEditor({
   const applyText = (raw: string) => {
     setText(raw);
     const n = parseQuantityInput(raw);
+    if (n != null && n < 0) {
+      setQtyError('จำนวนต้องไม่ติดลบ');
+      return;
+    }
+    setQtyError(undefined);
     if (n != null && n >= 0) onQuantityChange(n);
   };
 
@@ -76,9 +82,6 @@ export function FridgeQuantityEditor({
           ref={inputRef}
           value={text}
           onChangeText={applyText}
-          onFocus={() => {
-            inputRef.current?.setNativeProps({ selection: { start: 0, end: text.length } });
-          }}
           selectTextOnFocus
           keyboardType="decimal-pad"
           style={styles.bigInput}
@@ -87,6 +90,9 @@ export function FridgeQuantityEditor({
         />
         <StepperButton direction="up" onStep={() => bump(step)} />
       </View>
+      {qtyError ? (
+        <AppText variant="caption" style={styles.qtyError}>{qtyError}</AppText>
+      ) : null}
       <AppText variant="caption" muted style={styles.stepHint}>
         ปุ่ม +/- ละ {formatQuantityLabel(step)} {unit} (กดค้างเพื่อเพิ่ม/ลดต่อเนื่อง)
       </AppText>
@@ -192,6 +198,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderColor: colors.border,
   },
   chipOn: { backgroundColor: colors.orange, borderColor: colors.orange },
+  qtyError: { color: colors.danger, marginTop: spacing.xs },
   customUnitInput: {
     marginTop: spacing.sm,
     backgroundColor: colors.surface,

@@ -33,7 +33,12 @@ import { totalMinutes } from '@/lib/storage';
 import type { MealPlanDay } from '@/types/mealPlan';
 import type { MealSlot } from '@/types/mealPlan';
 import type { Recipe } from '@/types/recipe';
-import { parseLocalDateIso, startOfWeekMondayLocal, todayLocalIso } from '@/utils/localDate';
+import {
+  parseLocalDateIso,
+  startOfWeekMondayLocal,
+  thaiPlannerDayLabel,
+  todayLocalIso,
+} from '@/utils/localDate';
 
 const SLOT_LABELS: Record<MealSlot, string> = {
   breakfast: 'เช้า',
@@ -424,7 +429,7 @@ export default function PlannerScreen() {
               <View style={styles.dayPanel}>
                 <View style={styles.dayPanelHeader}>
                   <AppText variant="title">
-                    {DAY_LABELS[days.indexOf(selectedDay)]} {selectedDay.date.slice(5).replace('-', '/')}
+                    {thaiPlannerDayLabel(selectedDay.date)}
                   </AppText>
                   {isTodaySelected(selectedDay.date, today) && (
                     <View style={styles.todayPill}>
@@ -436,7 +441,7 @@ export default function PlannerScreen() {
                 <View style={[styles.kcalCard, accentGlow(colors, false)]}>
                   <View style={styles.kcalTopRow}>
                     <AppText variant="caption" muted>
-                      วันนี้ · {selectedDay.date.slice(8, 10)} {selectedDay.date.slice(5, 7)}
+                      วันนี้ · {thaiPlannerDayLabel(selectedDay.date)}
                     </AppText>
                     <AppText variant="caption" style={styles.kcalGoal}>
                       เป้า {kcalGoal.toLocaleString()}

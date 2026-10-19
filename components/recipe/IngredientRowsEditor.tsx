@@ -33,6 +33,8 @@ export function IngredientRowsEditor({
   const { colors } = useTheme();
   const [pasteOpen, setPasteOpen] = useState(false);
   const [pasteText, setPasteText] = useState('');
+  const [customUnitRow, setCustomUnitRow] = useState<number | null>(null);
+  const [customUnitText, setCustomUnitText] = useState('');
 
   const updateRow = (i: number, patch: Partial<RecipeIngredient>, amountText?: string) => {
     const next = [...ingredients];
@@ -92,10 +94,13 @@ export function IngredientRowsEditor({
               style={styles.amountInput}
             />
             <View style={styles.unitChips}>
-              {UNIT_CHIPS.slice(0, 8).map((u) => (
+              {UNIT_CHIPS.map((u) => (
                 <Pressable
                   key={u}
-                  onPress={() => updateRow(i, { unit: u })}
+                  onPress={() => {
+                    setCustomUnitRow(null);
+                    updateRow(i, { unit: u });
+                  }}
                   style={[styles.unitChip, ing.unit === u && styles.unitChipOn]}
                 >
                   <AppText variant="caption" style={{ color: ing.unit === u ? colors.onAccent : colors.inkMuted }}>
@@ -103,7 +108,33 @@ export function IngredientRowsEditor({
                   </AppText>
                 </Pressable>
               ))}
+              <Pressable
+                onPress={() => {
+                  setCustomUnitRow(i);
+                  setCustomUnitText(ing.unit ?? '');
+                }}
+                style={[styles.unitChip, customUnitRow === i && styles.unitChipOn]}
+              >
+                <AppText variant="caption" style={{ color: customUnitRow === i ? colors.onAccent : colors.inkMuted }}>
+                  กำหนดเอง
+                </AppText>
+              </Pressable>
             </View>
+            {customUnitRow === i ? (
+              <TextInput
+                keyboardAppearance={keyboardAppearance}
+                value={customUnitText}
+                onChangeText={setCustomUnitText}
+                onSubmitEditing={() => {
+                  const u = customUnitText.trim();
+                  if (u) updateRow(i, { unit: u });
+                  setCustomUnitRow(null);
+                }}
+                placeholder="หน่วยกำหนดเอง"
+                placeholderTextColor={colors.inkLight}
+                style={styles.customUnitInput}
+              />
+            ) : null}
           </View>
           <Pressable onPress={() => removeRow(i)} style={styles.trash} hitSlop={12}>
             <Ionicons name="trash-outline" size={22} color={colors.inkLight} />
@@ -188,6 +219,15 @@ const createStyles = (colors: ThemeColors) =>
     },
     unitChipOn: { backgroundColor: colors.orange, borderColor: colors.orange },
     trash: { alignSelf: 'flex-end', minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
+    customUnitInput: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      padding: spacing.sm,
+      fontFamily: fonts.regular,
+      color: colors.ink,
+      minWidth: 0,
+    },
     addLine: { paddingVertical: spacing.sm, minHeight: 44, justifyContent: 'center' },
     modalScrim: {
       flex: 1,

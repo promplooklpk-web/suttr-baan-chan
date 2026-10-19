@@ -46,6 +46,16 @@ export function daysBetweenLocal(fromIso: string, toIso: string): number {
   return Math.round((b - a) / 86400000);
 }
 
+const THAI_WD = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'] as const;
+
+/** Planner chip label e.g. จ. 19 ต.ค. */
+export function thaiPlannerDayLabel(dateIso: string): string {
+  const d = parseLocalDateIso(dateIso);
+  const wd = THAI_WD[d.getDay()];
+  const month = d.toLocaleDateString('th-TH', { month: 'short' });
+  return `${wd} ${d.getDate()} ${month}`;
+}
+
 export function buildWeekDayIsos(anchor: Date | string): string[] {
   const start =
     typeof anchor === 'string'

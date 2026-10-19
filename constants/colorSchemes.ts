@@ -47,7 +47,7 @@ export const lightColors: ThemeColors = {
   border: '#E8DDD0',
   borderStrong: '#D9CEC2',
   cardGreen: '#5BA85B',
-  cardYellow: '#FFB400',
+  cardYellow: '#8A5A00',
   danger: '#D64545',
   star: '#FFB400',
   shadow: '#3A2A20',

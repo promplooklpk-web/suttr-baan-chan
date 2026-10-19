@@ -175,6 +175,13 @@ export function AddFridgeSheet({ visible, onClose, catalog, initialName, onSubmi
                 setName(v);
                 if (fieldErrors.name) setFieldErrors((e) => ({ ...e, name: undefined }));
               }}
+              onBlur={() => {
+                const trimmed = name.trim();
+                if (!trimmed || presetLabel) return;
+                const defaults = defaultQuantityForName(trimmed);
+                setQuantity(defaults.quantity);
+                setUnit(defaults.unit);
+              }}
               placeholder="เช่น เนื้อสับ"
               placeholderTextColor={colors.inkLight}
               style={[styles.input, fieldErrors.name && styles.inputError]}

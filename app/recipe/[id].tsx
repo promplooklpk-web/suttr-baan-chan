@@ -28,9 +28,12 @@ import { useFridge } from '@/context/FridgeContext';
 import { useMealPlan } from '@/context/MealPlanContext';
 import { useRecipes } from '@/context/RecipesContext';
 import { useSnackbar } from '@/context/SnackbarContext';
-import { matchRecipeToFridge, missingShoppingEntries } from '@/lib/fridgeMatch';
+import { ConfirmModal } from '@/components/ConfirmModal';
+import { matchRecipeToFridge, shoppingEntriesForRecipe } from '@/lib/fridgeMatch';
+import { cancelRecipePhotoDelete } from '@/lib/pendingRecipePhotoDelete';
 import { mergeIntoShoppingList } from '@/lib/shoppingList';
-import { todayLocalIso } from '@/utils/localDate';
+import { buildWeekDayIsos, thaiPlannerDayLabel, todayLocalIso } from '@/utils/localDate';
+import type { MealSlot } from '@/types/mealPlan';
 import { fridgeProgressColor, matchPercentColor } from '@/lib/fridgeMatchDisplay';
 import { parseRecipeCalories } from '@/lib/recipeMedia';
 import { photoUri, totalMinutes } from '@/lib/storage';
@@ -48,12 +51,17 @@ export default function RecipeDetailScreen() {
   const insets = useSafeAreaInsets();
   const { getRecipe, toggleFavorite, deleteRecipe, addRecipe } = useRecipes();
   const { items: fridgeItems } = useFridge();
-  const { assignMeal, refresh: refreshPlan } = useMealPlan();
-  const { showSnackbar } = useSnackbar();
+  const { plan, assignMeal, refresh: refreshPlan } = useMealPlan();
+  const { showSnackbar, showErrorSnackbar } = useSnackbar();
   const recipe = getRecipe(id);
   const [servings, setServings] = useState(recipe?.servings ?? 1);
   const [checked, setChecked] = useState<Record<number, boolean>>({});
   const [planOpen, setPlanOpen] = useState(false);
+  const [footerHeight, setFooterHeight] = useState(120);
+  const [replaceConfirm, setReplaceConfirm] = useState<{
+    date: string;
+    slot: MealSlot;
+  } | null>(null);
 
   useEffect(() => {
     if (recipe?.servings) setServings(recipe.servings);
@@ -76,6 +84,12 @@ export default function RecipeDetailScreen() {
     return tags.slice(0, 5);
   }, [recipe?.category, recipe?.tags]);
 
+  const planDays = useMemo(() => {
+    const fromPlan = plan?.days?.map((d) => d.date) ?? [];
+    if (fromPlan.length >= 7) return fromPlan;
+    return buildWeekDayIsos(plan?.weekStart ?? todayLocalIso());
+  }, [plan?.days, plan?.weekStart]);
+
   if (!recipe) {
     return (
       <View style={styles.missing}>
@@ -94,17 +108,31 @@ export default function RecipeDetailScreen() {
     const snapshot = JSON.parse(JSON.stringify(recipe)) as typeof recipe;
     await deleteRecipe(recipe.id);
     showSnackbar(`ลบ "${recipe.title}" แล้ว`, async () => {
+      cancelRecipePhotoDelete(snapshot.id);
       const { id, createdAt, updatedAt, ...input } = snapshot;
-      await addRecipe(input, id);
+      await addRecipe(input, id, { createdAt, updatedAt });
     });
-    router.navigate('/(tabs)');
+    if (router.canDismiss()) router.dismissAll();
+    router.replace('/(tabs)');
+  };
+
+  const assignToPlan = async (date: string, slot: MealSlot) => {
+    try {
+      await assignMeal(date, slot, recipe.id);
+      setPlanOpen(false);
+      setReplaceConfirm(null);
+      const label = slot === 'breakfast' ? 'เช้า' : slot === 'lunch' ? 'กลางวัน' : 'เย็น';
+      showSnackbar(`เพิ่มลงแพลน ${thaiPlannerDayLabel(date)} มื้อ${label}`);
+    } catch {
+      showErrorSnackbar('ไม่สามารถบันทึกแผนมื้ออาหารได้');
+    }
   };
 
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.screen}>
-        <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}>
+        <ScrollView contentContainerStyle={{ paddingBottom: footerHeight + insets.bottom + spacing.md }}>
           <View style={styles.hero}>
             {uri ? (
               <Image source={{ uri }} style={styles.heroImage} contentFit="cover" />
@@ -317,7 +345,10 @@ export default function RecipeDetailScreen() {
           </View>
         </ScrollView>
 
-        <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}>
+        <View
+          style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}
+          onLayout={(e) => setFooterHeight(e.nativeEvent.layout.height)}
+        >
           <View style={styles.footerRow}>
             <Pressable style={styles.footerSecondary} onPress={() => setPlanOpen(true)}>
               <Ionicons name="calendar-outline" size={18} color={colors.orange} />
@@ -326,18 +357,21 @@ export default function RecipeDetailScreen() {
             <Pressable
               style={styles.footerSecondary}
               onPress={async () => {
-                if (!fridgeMatch) return;
-                const entries = missingShoppingEntries(fridgeMatch, recipe, factor).map((e) => ({
-                  ...e,
-                  sourceRecipeId: recipe.id,
-                }));
-                if (entries.length === 0) {
-                  showSnackbar('มีของครบในตู้เย็นแล้ว');
-                  return;
+                try {
+                  const entries = shoppingEntriesForRecipe(recipe, fridgeItems, factor).map((e) => ({
+                    ...e,
+                    sourceRecipeId: recipe.id,
+                  }));
+                  if (entries.length === 0) {
+                    showSnackbar('มีของครบในตู้เย็นแล้ว');
+                    return;
+                  }
+                  await mergeIntoShoppingList(entries);
+                  await refreshPlan();
+                  showSnackbar(`เพิ่มของที่ขาด ${entries.length} รายการลงรายการซื้อ`);
+                } catch {
+                  showErrorSnackbar('ไม่สามารถเพิ่มลงรายการซื้อได้');
                 }
-                await mergeIntoShoppingList(entries);
-                await refreshPlan();
-                showSnackbar(`เพิ่มของที่ขาด ${entries.length} รายการลงรายการซื้อ`);
               }}
             >
               <Ionicons name="cart-outline" size={18} color={colors.orange} />
@@ -360,28 +394,58 @@ export default function RecipeDetailScreen() {
 
         <Modal visible={planOpen} transparent animationType="fade">
           <Pressable style={styles.planBackdrop} onPress={() => setPlanOpen(false)}>
-            <View style={styles.planSheet}>
-              <AppText variant="title" style={{ marginBottom: spacing.md }}>เพิ่มลงแผน — วันนี้</AppText>
-              {(['breakfast', 'lunch', 'dinner'] as const).map((slot) => (
-                <Pressable
-                  key={slot}
-                  style={styles.planSlotBtn}
-                  onPress={async () => {
-                    await assignMeal(todayLocalIso(), slot, recipe.id);
-                    setPlanOpen(false);
-                    const label =
-                      slot === 'breakfast' ? 'เช้า' : slot === 'lunch' ? 'กลางวัน' : 'เย็น';
-                    showSnackbar(`เพิ่มลงแพลนมื้อ${label}`);
-                  }}
-                >
-                  <AppText variant="label">
-                    {slot === 'breakfast' ? 'มื้อเช้า' : slot === 'lunch' ? 'มื้อกลางวัน' : 'มื้อเย็น'}
-                  </AppText>
-                </Pressable>
-              ))}
-            </View>
+            <Pressable style={styles.planSheet} onPress={(e) => e.stopPropagation()}>
+              <AppText variant="title" style={{ marginBottom: spacing.md }}>เพิ่มลงแผน</AppText>
+              <ScrollView style={{ maxHeight: 360 }}>
+                {planDays.map((date) => (
+                  <View key={date} style={{ marginBottom: spacing.sm }}>
+                    <AppText variant="label" muted style={{ marginBottom: spacing.xs }}>
+                      {date === todayLocalIso() ? `วันนี้ · ${thaiPlannerDayLabel(date)}` : thaiPlannerDayLabel(date)}
+                    </AppText>
+                    {(['breakfast', 'lunch', 'dinner'] as const).map((slot) => {
+                      const existing = plan?.days.find((d) => d.date === date)?.meals[slot];
+                      const slotLabel =
+                        slot === 'breakfast' ? 'มื้อเช้า' : slot === 'lunch' ? 'มื้อกลางวัน' : 'มื้อเย็น';
+                      return (
+                        <Pressable
+                          key={`${date}-${slot}`}
+                          style={styles.planSlotBtn}
+                          onPress={() => {
+                            if (existing && existing !== recipe.id) {
+                              setReplaceConfirm({ date, slot });
+                              return;
+                            }
+                            void assignToPlan(date, slot);
+                          }}
+                        >
+                          <AppText variant="label">{slotLabel}</AppText>
+                          {existing ? (
+                            <AppText variant="caption" muted>
+                              {existing === recipe.id ? '· สูตรนี้อยู่แล้ว' : '· มีเมนูแล้ว — แตะเพื่อแทนที่'}
+                            </AppText>
+                          ) : null}
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                ))}
+              </ScrollView>
+            </Pressable>
           </Pressable>
         </Modal>
+
+        <ConfirmModal
+          visible={replaceConfirm != null}
+          title="แทนที่เมนูในช่องนี้?"
+          message="ช่องมื้อนี้มีสูตรอยู่แล้ว ต้องการแทนที่ด้วยสูตรนี้หรือไม่"
+          confirmLabel="แทนที่"
+          destructive
+          onCancel={() => setReplaceConfirm(null)}
+          onConfirm={() => {
+            if (!replaceConfirm) return;
+            void assignToPlan(replaceConfirm.date, replaceConfirm.slot);
+          }}
+        />
       </View>
     </>
   );
@@ -647,8 +711,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     textAlign: 'center',
   },
   roundBtn: {
-    width: 36,
-    height: 36,
+    width: 44,
+    height: 44,
     borderRadius: 18,
     backgroundColor: colors.orange,
     alignItems: 'center',

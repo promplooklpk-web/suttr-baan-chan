@@ -122,7 +122,10 @@ export default function FridgeScreen() {
           <SegmentPills
             options={[
               { id: 'items', label: `ของในตู้ ${items.length}` },
-              { id: 'cook', label: `ทำอะไรได้บ้าง ${matches.length}` },
+              {
+                id: 'cook',
+                label: items.length === 0 ? 'ทำอะไรได้บ้าง' : `ทำอะไรได้บ้าง ${matches.filter((m) => m.percent > 0).length}`,
+              },
             ]}
             value={tab}
             onChange={(id) => setTab(id)}
@@ -193,6 +196,8 @@ export default function FridgeScreen() {
                               unit: snapshot.unit,
                               place: snapshot.place,
                               expiresAt: snapshot.expiresAt,
+                              note: snapshot.note,
+                              ingredientId: snapshot.ingredientId,
                             });
                           });
                         }}
@@ -224,12 +229,29 @@ export default function FridgeScreen() {
           <SegmentPills
             options={[
               { id: 'items', label: `ของในตู้ ${items.length}` },
-              { id: 'cook', label: `ทำอะไรได้บ้าง ${matches.length}` },
+              {
+                id: 'cook',
+                label: items.length === 0 ? 'ทำอะไรได้บ้าง' : `ทำอะไรได้บ้าง ${matches.filter((m) => m.percent > 0).length}`,
+              },
             ]}
             value={tab}
             onChange={(id) => setTab(id)}
           />
           <View style={styles.segmentSpacer} />
+          {items.length === 0 ? (
+            <View style={styles.empty}>
+              <Ionicons name="snow-outline" size={64} color={colors.inkMuted} />
+              <AppText variant="title" style={styles.emptyTitle}>เพิ่มของในตู้ก่อน</AppText>
+              <AppText muted style={{ textAlign: 'center' }}>
+                จะแนะนำเมนูที่ทำได้จากของที่มีเมื่อตู้ไม่ว่าง
+              </AppText>
+              <Pressable style={styles.emptyBtn} onPress={() => openAdd()}>
+                <Ionicons name="add" size={20} color={colors.surface} />
+                <AppText style={styles.emptyBtnText}>เพิ่มของชิ้นแรก</AppText>
+              </Pressable>
+            </View>
+          ) : (
+          <>
           {params.expiring === '1' && (
             <View style={styles.expiringBanner}>
               <Ionicons name="time-outline" size={20} color={colors.cardYellow} />
@@ -317,6 +339,8 @@ export default function FridgeScreen() {
                 </View>
               );
             })
+          )}
+          </>
           )}
         </ScrollView>
       )}

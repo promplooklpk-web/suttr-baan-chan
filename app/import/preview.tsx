@@ -97,6 +97,9 @@ export default function ImportPreviewScreen() {
       <Stack.Screen options={{ title: 'ตรวจสอบก่อนนำเข้า' }} />
       <View style={[styles.screen, { paddingTop: spacing.md }]}>
         <View style={styles.summary}>
+          <AppText variant="caption" style={{ color: colors.danger, marginBottom: spacing.sm }}>
+            การยืนยันจะแทนที่ข้อมูลตู้เย็น แผนมื้อ และรายการซื้อจากไฟล์สำรอง
+          </AppText>
           <AppText variant="label">
             พบ {plans.length} สูตร · ซ้ำ {duplicateCount} รายการ
             {pending.skippedRecipeCount > 0

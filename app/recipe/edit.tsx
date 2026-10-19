@@ -46,6 +46,8 @@ export default function RecipeEditScreen() {
     photo?: string;
   }>({});
   const [discardOpen, setDiscardOpen] = useState(false);
+  const [editDiscardOpen, setEditDiscardOpen] = useState(false);
+  const [skipDraftSave, setSkipDraftSave] = useState(false);
   const existing = id ? getRecipe(id) : undefined;
   const isEdit = Boolean(existing);
 
@@ -80,7 +82,7 @@ export default function RecipeEditScreen() {
   }, [existing]);
 
   useEffect(() => {
-    if (existing) return;
+    if (existing || skipDraftSave) return;
     const t = setTimeout(() => {
       void saveRecipeDraft({
         title,
@@ -96,7 +98,7 @@ export default function RecipeEditScreen() {
       });
     }, 600);
     return () => clearTimeout(t);
-  }, [existing, title, category, minutes, servings, notes, tagsText, ingredients, amountTexts, steps]);
+  }, [existing, skipDraftSave, title, category, minutes, servings, notes, tagsText, ingredients, amountTexts, steps]);
 
   useEffect(() => {
     if (!existing) return;
@@ -232,6 +234,18 @@ export default function RecipeEditScreen() {
               setDiscardOpen(true);
               return;
             }
+            if (isEdit && existing) {
+              const totalMin = String((existing.prepMinutes ?? 0) + (existing.cookMinutes ?? 0) || 15);
+              const editDirty =
+                title.trim() !== existing.title ||
+                notes.trim() !== (existing.notes ?? '') ||
+                minutes !== totalMin ||
+                ingredients.some((i, idx) => i.name.trim() !== (existing.ingredients[idx]?.name ?? ''));
+              if (editDirty) {
+                setEditDiscardOpen(true);
+                return;
+              }
+            }
             router.back();
           }}
           hitSlop={12}
@@ -239,7 +253,11 @@ export default function RecipeEditScreen() {
           <Ionicons name="close" size={28} color={colors.ink} />
         </Pressable>
         <AppText variant="title">{isEdit ? 'แก้ไขสูตร' : 'เพิ่มสูตรใหม่'}</AppText>
-        <AppText variant="caption" muted>บันทึกอัตโนมัติ</AppText>
+        {!isEdit ? (
+          <AppText variant="caption" muted>บันทึกอัตโนมัติ</AppText>
+        ) : (
+          <View style={{ width: 28 }} />
+        )}
       </View>
 
       <ScrollView
@@ -414,8 +432,22 @@ export default function RecipeEditScreen() {
         confirmLabel="ทิ้ง"
         destructive
         onCancel={() => setDiscardOpen(false)}
-        onConfirm={() => {
+        onConfirm={async () => {
           setDiscardOpen(false);
+          setSkipDraftSave(true);
+          await clearRecipeDraft();
+          router.back();
+        }}
+      />
+      <ConfirmModal
+        visible={editDiscardOpen}
+        title="ทิ้งการแก้ไข?"
+        message="การเปลี่ยนแปลงจะไม่ถูกบันทึก"
+        confirmLabel="ทิ้ง"
+        destructive
+        onCancel={() => setEditDiscardOpen(false)}
+        onConfirm={() => {
+          setEditDiscardOpen(false);
           router.back();
         }}
       />

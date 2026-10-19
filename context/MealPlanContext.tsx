@@ -1,5 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
+import { emitFeedback } from '@/lib/feedbackBus';
+
 import { useFridge } from '@/context/FridgeContext';
 import {
   copyMealSlot,
@@ -81,10 +83,15 @@ export function MealPlanProvider({ children }: { children: React.ReactNode }) {
   }, [recipes, fridgeItems, plan?.weekStart, loading]);
 
   const assignMeal = useCallback(async (date: string, slot: MealSlot, recipeId?: string) => {
-    const next = await setMealForDate(date, slot, recipeId);
-    setPlan(next);
-    const items = await syncShoppingFromPlan(next, recipes, fridgeItems);
-    setShopping(items);
+    try {
+      const next = await setMealForDate(date, slot, recipeId);
+      setPlan(next);
+      const items = await syncShoppingFromPlan(next, recipes, fridgeItems);
+      setShopping(items);
+    } catch {
+      emitFeedback('ไม่สามารถบันทึกแผนมื้ออาหารได้', { error: true });
+      throw new Error('ไม่สามารถบันทึกแผนมื้ออาหารได้');
+    }
   }, [recipes, fridgeItems]);
 
   const toggleMealDone = useCallback(async (date: string, slot: MealSlot) => {

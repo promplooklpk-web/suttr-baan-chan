@@ -8,6 +8,7 @@ import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { emitFeedback, setFeedbackListener, type FeedbackPayload } from '@/lib/feedbackBus';
+import { TAB_BAR_SCROLL_PADDING } from '@/lib/screenLayout';
 
 type SnackbarContextValue = {
   showSnackbar: (message: string, onUndo?: () => void | Promise<void>) => void;
@@ -74,7 +75,10 @@ export function SnackbarProvider({ children }: { children: React.ReactNode }) {
       {children}
       {payload && (
         <Animated.View
-          style={[styles.wrap, { bottom: insets.bottom + spacing.md, opacity }]}
+          style={[
+            styles.wrap,
+            { bottom: insets.bottom + TAB_BAR_SCROLL_PADDING - spacing.lg, opacity },
+          ]}
           pointerEvents="box-none"
         >
           <View
