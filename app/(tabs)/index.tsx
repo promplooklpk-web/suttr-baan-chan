@@ -124,7 +124,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
     marginBottom: spacing.sm,
-    marginTop: spacing.xs,
+    marginTop: 18,
   },
   sectionTitle: {
     fontSize: 20,

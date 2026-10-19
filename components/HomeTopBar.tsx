@@ -12,9 +12,10 @@ import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { FLOATING_HEADER_GAP } from '@/components/FloatingHeader';
 import { profileAvatarInitial } from '@/lib/profile';
 
-/** Inner row height (avatar 36 + vertical padding) for clearance math */
-export const HOME_TOP_BAR_HEIGHT = 44;
-const BELOW_HOME_BAR = 10;
+/** Tallest glass capsule (icon 36 + vertical padding 6×2) for clearance math */
+export const HOME_TOP_BAR_HEIGHT = 48;
+/** Gap between header bottom and scroll content (filter chips) */
+const BELOW_HOME_BAR = 14;
 
 type HomeTopBarProps = {
   greeting: string;

@@ -55,7 +55,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   row: {
     paddingHorizontal: spacing.md,
     gap: spacing.sm,
-    paddingBottom: spacing.sm,
     alignItems: 'flex-start',
   },
   chip: {
