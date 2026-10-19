@@ -2,9 +2,11 @@ import { render, type RenderOptions } from '@testing-library/react-native';
 import type { ReactElement, ReactNode } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { CookTimerProvider } from '@/context/CookTimerContext';
 import { FridgeProvider } from '@/context/FridgeContext';
 import { MealPlanProvider } from '@/context/MealPlanContext';
 import { RecipesProvider } from '@/context/RecipesContext';
+import { SnackbarProvider } from '@/context/SnackbarContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 
 const initialMetrics = {
@@ -26,11 +28,15 @@ function AllProviders({
   return (
     <SafeAreaProvider initialMetrics={initialMetrics}>
       <ThemeProvider forcedColorScheme={colorScheme}>
-        <RecipesProvider>
-          <FridgeProvider>
-            <MealPlanProvider>{children}</MealPlanProvider>
-          </FridgeProvider>
-        </RecipesProvider>
+        <SnackbarProvider>
+          <CookTimerProvider>
+            <RecipesProvider>
+              <FridgeProvider>
+                <MealPlanProvider>{children}</MealPlanProvider>
+              </FridgeProvider>
+            </RecipesProvider>
+          </CookTimerProvider>
+        </SnackbarProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );

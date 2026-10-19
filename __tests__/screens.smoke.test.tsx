@@ -113,6 +113,6 @@ describe('screen smoke tests', () => {
     mockedParams.mockReturnValue({ id: seedRecipe.id });
     const { findByText } = renderWithProviders(<RecipeDetailScreen />, { colorScheme: 'dark' });
     await findByText(seedRecipe.title);
-    await findByText('เริ่มทำเมนูนี้');
+    await findByText(/เริ่มทำเมนูนี้/);
   });
 });

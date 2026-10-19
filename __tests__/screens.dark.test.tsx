@@ -61,7 +61,7 @@ describe('dark theme screen smoke', () => {
     mockedParams.mockReturnValue({ id: seedRecipe.id });
     const { findByText } = renderWithProviders(<RecipeDetailScreen />, dark);
     await findByText(seedRecipe.title);
-    await findByText('เริ่มทำเมนูนี้');
+    await findByText(/เริ่มทำเมนูนี้/);
   });
 
   it('Recipe edit (new)', async () => {
