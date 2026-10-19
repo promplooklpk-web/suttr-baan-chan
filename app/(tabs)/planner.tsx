@@ -31,6 +31,7 @@ import { totalMinutes } from '@/lib/storage';
 import type { MealPlanDay } from '@/types/mealPlan';
 import type { MealSlot } from '@/types/mealPlan';
 import type { Recipe } from '@/types/recipe';
+import { parseLocalDateIso, startOfWeekMondayLocal, todayLocalIso } from '@/utils/localDate';
 
 const SLOT_LABELS: Record<MealSlot, string> = {
   breakfast: 'เช้า',
@@ -53,16 +54,11 @@ const SLOT_ICONS: Record<MealSlot, keyof typeof Ionicons.glyphMap> = {
 const DAY_LABELS = ['จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.', 'อา.'];
 
 function todayIso(): string {
-  return new Date().toISOString().slice(0, 10);
+  return todayLocalIso();
 }
 
 function startOfWeekLocal(d: Date): Date {
-  const day = d.getDay();
-  const diff = (day === 0 ? -6 : 1) - day;
-  const monday = new Date(d);
-  monday.setDate(d.getDate() + diff);
-  monday.setHours(0, 0, 0, 0);
-  return monday;
+  return startOfWeekMondayLocal(d);
 }
 
 function dayHasMeals(day: MealPlanDay): boolean {
@@ -150,7 +146,7 @@ export default function PlannerScreen() {
   }, [days, recipes, assignMeal]);
 
   const clearWeek = useCallback(() => {
-    Alert.alert('ล้างแพนสัปดาห์นี้', 'ลบเมนูทุกมื้อในสัปดาห์ที่แสดง?', [
+    Alert.alert('ล้างแพลนสัปดาห์นี้', 'ลบเมนูทุกมื้อในสัปดาห์ที่แสดง?', [
       { text: 'ยกเลิก', style: 'cancel' },
       {
         text: 'ล้าง',
@@ -284,7 +280,7 @@ export default function PlannerScreen() {
                     <AppText
                       variant="caption"
                       style={{
-                        color: isSelected ? colors.white : colors.inkMuted,
+                        color: isSelected ? colors.surface : colors.inkMuted,
                         fontFamily: fonts.medium,
                       }}
                     >
@@ -293,7 +289,7 @@ export default function PlannerScreen() {
                     <AppText
                       variant="label"
                       style={{
-                        color: isSelected ? colors.white : colors.ink,
+                        color: isSelected ? colors.surface : colors.ink,
                         fontFamily: fonts.semiBold,
                       }}
                     >
@@ -303,7 +299,7 @@ export default function PlannerScreen() {
                       <View
                         style={[
                           styles.dayDot,
-                          { backgroundColor: isSelected ? colors.white : colors.orange },
+                          { backgroundColor: isSelected ? colors.surface : colors.orange },
                         ]}
                       />
                     )}
@@ -531,7 +527,7 @@ function FilledMealCard({
           style={[styles.doneCircle, done && styles.doneCircleOn]}
         >
           {done ? (
-            <Ionicons name="checkmark" size={18} color={colors.white} />
+            <Ionicons name="checkmark" size={18} color={colors.surface} />
           ) : null}
         </Pressable>
       </View>
@@ -583,7 +579,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     backgroundColor: colors.orange,
   },
   kcalCard: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.xl,
     borderWidth: 1,
     borderColor: colors.border,
@@ -626,7 +622,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.md,
     padding: spacing.md,
     borderRadius: radius.xl,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
   },
@@ -641,7 +637,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
     borderRadius: radius.pill,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
   },
@@ -656,7 +652,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     paddingVertical: spacing.sm,
     borderRadius: radius.lg,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     gap: 2,
@@ -723,7 +719,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: spacing.xs,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.xl,
     borderWidth: 1,
     borderColor: colors.border,
@@ -764,7 +760,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderWidth: 1.5,
     borderStyle: 'dashed',
     borderColor: colors.border,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
   },
   emptyMealCardDashed: {
     flex: 1,
@@ -777,7 +773,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderWidth: 1.5,
     borderStyle: 'dashed',
     borderColor: colors.orange,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
   },
   shuffleMini: {
     alignItems: 'center',
@@ -785,7 +781,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     gap: 2,
     paddingHorizontal: spacing.md,
     borderRadius: radius.lg,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
   },

@@ -1,15 +1,10 @@
 import type { FridgeItem, FridgeStatus } from '@/types/fridge';
+import { parseLocalDateIso, todayLocalIso } from '@/utils/localDate';
 
-function startOfDay(d: Date): Date {
-  const x = new Date(d);
-  x.setHours(0, 0, 0, 0);
-  return x;
-}
-
-export function daysUntilExpiry(expiresAt?: string): number | null {
+export function daysUntilExpiry(expiresAt?: string, now = new Date()): number | null {
   if (!expiresAt) return null;
-  const exp = startOfDay(new Date(expiresAt));
-  const today = startOfDay(new Date());
+  const exp = parseLocalDateIso(expiresAt.slice(0, 10));
+  const today = parseLocalDateIso(todayLocalIso(now));
   const diff = exp.getTime() - today.getTime();
   return Math.round(diff / (24 * 60 * 60 * 1000));
 }
@@ -44,7 +39,7 @@ export function statusPillLabel(item: FridgeItem): string {
 export function formatExpiryLine(item: FridgeItem): string {
   const status = fridgeItemStatus(item);
   if (!item.expiresAt) return status.label;
-  const d = new Date(item.expiresAt);
+  const d = parseLocalDateIso(item.expiresAt.slice(0, 10));
   const dateStr = d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
   return `หมด ${dateStr} · ${status.label}`;
 }

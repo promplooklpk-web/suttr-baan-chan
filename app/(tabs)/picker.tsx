@@ -44,6 +44,7 @@ import { totalMinutes } from '@/lib/storage';
 import type { FridgeItem } from '@/types/fridge';
 import type { MealSlot } from '@/types/mealPlan';
 import type { Recipe } from '@/types/recipe';
+import { todayLocalIso } from '@/utils/localDate';
 
 type Phase = 'idle' | 'shuffling' | 'result';
 
@@ -67,7 +68,7 @@ function defaultMealSlot(): MealSlot {
 }
 
 function todayIso(): string {
-  return new Date().toISOString().slice(0, 10);
+  return todayLocalIso();
 }
 
 function greeting(): string {
@@ -278,7 +279,7 @@ export default function PickerScreen() {
   const headerClearance = screenTopPadding(insets.top);
   const filterSummary = useMemo(() => {
     const parts: string[] = [];
-    parts.push(category === 'ทั้งหมด' ? 'จานเดียว' : category);
+    parts.push(category === 'ทั้งหมด' ? 'ทุกหมวด' : category);
     if (maxMinutes != null) parts.push(`≤ ${maxMinutes} นาที`);
     if (maxCalories != null) parts.push(`≤ ${maxCalories} kcal`);
     return parts.join(' · ');
@@ -529,7 +530,7 @@ function HeroCard({
           <Ionicons
             name={recipe.isFavorite ? 'heart' : 'heart-outline'}
             size={22}
-            color={recipe.isFavorite ? colors.orange : colors.white}
+            color={recipe.isFavorite ? colors.orange : colors.surface}
           />
         </Pressable>
         {phase === 'shuffling' && (
@@ -679,10 +680,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 4,
   },
-  filterBadgeText: { color: colors.white, fontFamily: fonts.semiBold, fontSize: 11 },
+  filterBadgeText: { color: colors.surface, fontFamily: fonts.semiBold, fontSize: 11 },
   heroOuter: { marginBottom: spacing.md },
   heroCard: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 24,
     overflow: 'hidden',
     borderWidth: 1,
@@ -786,12 +787,12 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     backgroundColor: colors.orange,
     alignItems: 'center',
   },
-  primaryActionText: { fontFamily: fonts.semiBold, color: colors.white },
+  primaryActionText: { fontFamily: fonts.semiBold, color: colors.surface },
   heroPlaceholder: {
     height: 280,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 24,
   },
   shufflePrimary: {
@@ -813,7 +814,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   previewHint: { textAlign: 'center', marginBottom: spacing.xs },
   poolHint: { textAlign: 'center', marginBottom: spacing.md },
   emptyCard: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.xl,
     padding: spacing.lg,
     alignItems: 'center',
@@ -861,5 +862,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: 4,
     backgroundColor: 'rgba(14,13,12,0.72)',
   },
-  historyLabelText: { color: colors.white, fontSize: 10, lineHeight: 12 },
+  historyLabelText: { color: colors.surface, fontSize: 10, lineHeight: 12 },
 });

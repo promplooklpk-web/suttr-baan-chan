@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useEffect, useMemo, useState } from 'react';
 import {
+  Alert,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -21,6 +22,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { catalogEntryForName, searchIngredientCatalog } from '@/lib/ingredientCatalog';
 import { parseQuantityInput } from '@/lib/fridgeQuantity';
+import { addDaysLocal, localDateToIso, todayLocalIso } from '@/utils/localDate';
 import { PLACE_LABELS } from '@/lib/fridgeStorage';
 import type { FridgePlace } from '@/types/fridge';
 import type { IngredientCatalogEntry } from '@/types/fridge';
@@ -57,11 +59,13 @@ export function AddFridgeSheet({ visible, onClose, catalog, initialName, onSubmi
   const suggestions = useMemo(() => searchIngredientCatalog(catalog, name), [catalog, name]);
 
   useEffect(() => {
-    if (visible) {
-      setName(initialName ?? '');
-      setQuantity(500);
-      setUnit('กรัม');
-    }
+    if (!visible) return;
+    setName(initialName ?? '');
+    setQuantity(500);
+    setUnit('กรัม');
+    setPlace('chilled');
+    setExpiresAt(undefined);
+    setNote('');
   }, [visible, initialName]);
 
   const reset = () => {
@@ -82,16 +86,20 @@ export function AddFridgeSheet({ visible, onClose, catalog, initialName, onSubmi
       setExpiresAt(undefined);
       return;
     }
-    const d = new Date();
-    d.setDate(d.getDate() + days);
-    setExpiresAt(d.toISOString().slice(0, 10));
+    setExpiresAt(addDaysLocal(todayLocalIso(), days));
   };
 
   const save = async () => {
     const trimmed = name.trim();
-    if (!trimmed) return;
+    if (!trimmed) {
+      Alert.alert('กรุณากรอกชื่อของ');
+      return;
+    }
     const q = quantity > 0 ? quantity : parseQuantityInput(String(quantity)) ?? 0;
-    if (q <= 0) return;
+    if (q <= 0) {
+      Alert.alert('จำนวนต้องมากกว่า 0');
+      return;
+    }
     setSaving(true);
     try {
       const entry = catalogEntryForName(catalog, trimmed);
@@ -106,6 +114,8 @@ export function AddFridgeSheet({ visible, onClose, catalog, initialName, onSubmi
       });
       reset();
       onClose();
+    } catch (e) {
+      Alert.alert('บันทึกไม่สำเร็จ', e instanceof Error ? e.message : 'เกิดข้อผิดพลาด');
     } finally {
       setSaving(false);
     }
@@ -161,7 +171,7 @@ export function AddFridgeSheet({ visible, onClose, catalog, initialName, onSubmi
                   onPress={() => setPlace(p)}
                   style={[styles.chip, place === p && styles.chipOn]}
                 >
-                  <AppText variant="caption" style={{ color: place === p ? colors.white : colors.ink }}>
+                  <AppText variant="caption" style={{ color: place === p ? colors.surface : colors.ink }}>
                     {PLACE_LABELS[p]}
                   </AppText>
                 </Pressable>
@@ -192,7 +202,7 @@ export function AddFridgeSheet({ visible, onClose, catalog, initialName, onSubmi
                 display={Platform.OS === 'ios' ? 'spinner' : 'default'}
                 onChange={(_, date) => {
                   if (Platform.OS !== 'ios') setShowPicker(false);
-                  if (date) setExpiresAt(date.toISOString().slice(0, 10));
+                  if (date) setExpiresAt(localDateToIso(date));
                 }}
               />
             )}
@@ -228,7 +238,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   backdrop: { ...StyleSheet.absoluteFill, backgroundColor: colors.modalScrim },
   sheet: {
     maxHeight: '92%',
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: radius.xl,
     borderTopRightRadius: radius.xl,
     padding: spacing.lg,
@@ -236,7 +246,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   sheetTitle: { marginBottom: spacing.md },
   scrollContent: { paddingBottom: spacing.xl },
   input: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
@@ -249,7 +259,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   noteInput: { minHeight: 72, textAlignVertical: 'top' },
   suggestBox: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
@@ -266,7 +276,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: radius.pill,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
   },
@@ -277,7 +287,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     gap: spacing.sm,
     marginTop: spacing.sm,
     padding: spacing.md,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
@@ -289,5 +299,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.md,
     alignItems: 'center',
   },
-  saveBtnText: { color: colors.white, fontFamily: fonts.semiBold, fontSize: 17 },
+  saveBtnText: { color: colors.surface, fontFamily: fonts.semiBold, fontSize: 17 },
 });
