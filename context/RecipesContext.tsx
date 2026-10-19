@@ -13,7 +13,11 @@ type RecipesContextValue = {
   recipes: Recipe[];
   loading: boolean;
   refresh: () => Promise<void>;
-  addRecipe: (input: RecipeInput, id?: string) => Promise<Recipe>;
+  addRecipe: (
+    input: RecipeInput,
+    id?: string,
+    meta?: { createdAt?: string; updatedAt?: string },
+  ) => Promise<Recipe>;
   updateRecipe: (id: string, patch: Partial<RecipeInput>) => Promise<Recipe>;
   deleteRecipe: (id: string) => Promise<void>;
   toggleFavorite: (id: string) => Promise<void>;
@@ -51,11 +55,14 @@ export function RecipesProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const addRecipe = useCallback(async (input: RecipeInput, id?: string) => {
-    const recipe = await addRecipeStorage(input, id);
-    setRecipes((prev) => [recipe, ...prev]);
-    return recipe;
-  }, []);
+  const addRecipe = useCallback(
+    async (input: RecipeInput, id?: string, meta?: { createdAt?: string; updatedAt?: string }) => {
+      const recipe = await addRecipeStorage(input, id, meta);
+      setRecipes((prev) => [recipe, ...prev]);
+      return recipe;
+    },
+    [],
+  );
 
   const updateRecipe = useCallback(async (id: string, patch: Partial<RecipeInput>) => {
     const recipe = await updateRecipeStorage(id, patch);
@@ -64,7 +71,7 @@ export function RecipesProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const deleteRecipe = useCallback(async (id: string) => {
-    await deleteRecipeStorage(id);
+    await deleteRecipeStorage(id, { deferPhotoDelete: true });
     setRecipes((prev) => prev.filter((r) => r.id !== id));
   }, []);
 

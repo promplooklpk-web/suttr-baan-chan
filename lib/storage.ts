@@ -22,7 +22,12 @@ import {
   isOnedishSeedRecipeId,
 } from '@/lib/seedVersion';
 import { webSeedEnabled, webSeedPhotoUri } from '@/lib/webSeed';
-import { readJsonFile, writeJsonFileAtomic } from '@/lib/jsonFile';
+import { emitFeedback } from '@/lib/feedbackBus';
+import { readJsonFile, readJsonFileResult, writeJsonFileAtomic } from '@/lib/jsonFile';
+import {
+  cancelRecipePhotoDelete,
+  scheduleRecipePhotoDelete,
+} from '@/lib/pendingRecipePhotoDelete';
 import { sanitizeRecipes } from '@/lib/recipeSanitize';
 import type { Recipe, RecipeInput, RecipeStore } from '@/types/recipe';
 
@@ -69,8 +74,16 @@ async function ensureImagesDir(): Promise<void> {
 
 async function readStore(): Promise<RecipeStore> {
   const path = recipesPath();
-  const fallback = emptyStore();
-  const parsed = await readJsonFile<RecipeStore>(path, fallback);
+  const info = await getInfoAsync(path);
+  if (!info.exists) return emptyStore();
+  const result = await readJsonFileResult<RecipeStore>(path);
+  if (!result.ok) {
+    return emptyStore();
+  }
+  if (result.source === 'backup') {
+    emitFeedback('กู้คืนไฟล์สูตรจากสำรอง (.bak) แล้ว');
+  }
+  const parsed = result.data;
   if (!parsed.recipes || !Array.isArray(parsed.recipes)) {
     return emptyStore();
   }
@@ -217,15 +230,20 @@ export function photoUri(relativePath?: string): string | undefined {
   return `${documentDirectory}${relativePath}`;
 }
 
-export async function addRecipe(input: RecipeInput, id?: string): Promise<Recipe> {
+export async function addRecipe(
+  input: RecipeInput,
+  id?: string,
+  meta?: { createdAt?: string; updatedAt?: string },
+): Promise<Recipe> {
   const recipes = await loadRecipes();
   const now = new Date().toISOString();
   const recipe: Recipe = {
     ...input,
     id: id ?? createRecipeId(),
-    createdAt: now,
-    updatedAt: now,
+    createdAt: meta?.createdAt ?? now,
+    updatedAt: meta?.updatedAt ?? now,
   };
+  if (id) cancelRecipePhotoDelete(id);
   recipes.unshift(recipe);
   await saveRecipes(recipes);
   return recipe;
@@ -248,14 +266,22 @@ export async function updateRecipe(id: string, patch: Partial<RecipeInput>): Pro
   return updated;
 }
 
-export async function deleteRecipe(id: string): Promise<void> {
+export async function deleteRecipe(
+  id: string,
+  options?: { deferPhotoDelete?: boolean },
+): Promise<Recipe | undefined> {
   const recipes = await loadRecipes();
   const recipe = recipes.find((r) => r.id === id);
   if (recipe) {
-    await deleteAllRecipeImages(recipe);
+    if (options?.deferPhotoDelete) {
+      scheduleRecipePhotoDelete(id, () => deleteAllRecipeImages(recipe));
+    } else {
+      await deleteAllRecipeImages(recipe);
+    }
   }
   const next = recipes.filter((r) => r.id !== id);
   await saveRecipes(next);
+  return recipe;
 }
 
 export function totalMinutes(recipe: Recipe): number {
