@@ -21,7 +21,10 @@ import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useRecipes } from '@/context/RecipesContext';
+import { useSnackbar } from '@/context/SnackbarContext';
+import { IngredientRowsEditor } from '@/components/recipe/IngredientRowsEditor';
 import { parseAmountInput } from '@/lib/amountParse';
+import { clearRecipeDraft, loadRecipeDraft, saveRecipeDraft } from '@/lib/recipeDraft';
 import { copyPhotoToStorage, createRecipeId, deleteRecipePhoto, photoUri } from '@/lib/storage';
 import type { RecipeDifficulty, RecipeIngredient, RecipeStep } from '@/types/recipe';
 
@@ -34,6 +37,7 @@ export default function RecipeEditScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const insets = useSafeAreaInsets();
   const { getRecipe, addRecipe, updateRecipe } = useRecipes();
+  const { showSnackbar } = useSnackbar();
   const existing = id ? getRecipe(id) : undefined;
   const isEdit = Boolean(existing);
 
@@ -50,6 +54,41 @@ export default function RecipeEditScreen() {
   const [photoPath, setPhotoPath] = useState<string | undefined>();
   const [localPhotoUri, setLocalPhotoUri] = useState<string | undefined>();
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (existing) return;
+    loadRecipeDraft().then((draft) => {
+      if (!draft) return;
+      setTitle(draft.title);
+      setCategory(draft.category);
+      setMinutes(draft.minutes);
+      setServings(draft.servings);
+      setNotes(draft.notes);
+      setTagsText(draft.tagsText);
+      setIngredients(draft.ingredients);
+      setAmountTexts(draft.amountTexts);
+      setSteps(draft.steps);
+    });
+  }, [existing]);
+
+  useEffect(() => {
+    if (existing) return;
+    const t = setTimeout(() => {
+      void saveRecipeDraft({
+        title,
+        category,
+        minutes,
+        servings,
+        notes,
+        tagsText,
+        ingredients,
+        amountTexts,
+        steps,
+        updatedAt: new Date().toISOString(),
+      });
+    }, 600);
+    return () => clearTimeout(t);
+  }, [existing, title, category, minutes, servings, notes, tagsText, ingredients, amountTexts, steps]);
 
   useEffect(() => {
     if (!existing) return;
@@ -155,9 +194,12 @@ export default function RecipeEditScreen() {
 
       if (isEdit && existing) {
         await updateRecipe(existing.id, payload);
+        showSnackbar('บันทึกสูตรแล้ว');
         router.back();
       } else {
         await addRecipe(payload, recipeId);
+        await clearRecipeDraft();
+        showSnackbar('เพิ่มสูตรแล้ว');
         router.back();
       }
     } catch (e) {
@@ -194,7 +236,7 @@ export default function RecipeEditScreen() {
           <Ionicons name="close" size={28} color={colors.ink} />
         </Pressable>
         <AppText variant="title">{isEdit ? 'แก้ไขสูตร' : 'เพิ่มสูตรใหม่'}</AppText>
-        <AppText variant="caption" muted>ฉบับร่าง</AppText>
+        <AppText variant="caption" muted>บันทึกอัตโนมัติ</AppText>
       </View>
 
       <ScrollView
@@ -282,61 +324,13 @@ export default function RecipeEditScreen() {
         </Field>
 
         <SectionTitle title="ส่วนผสม" />
-        {ingredients.map((ing, i) => (
-          <View key={i} style={styles.listRow}>
-            <TextInput
+        <IngredientRowsEditor
+          ingredients={ingredients}
+          amountTexts={amountTexts}
           keyboardAppearance={keyboardAppearance}
-              value={ing.name}
-              onChangeText={(v) => {
-                const next = [...ingredients];
-                next[i] = { ...next[i], name: v };
-                setIngredients(next);
-              }}
-              placeholder="ชื่อส่วนผสม"
-              placeholderTextColor={colors.inkLight}
-              style={[styles.input, styles.flex2]}
-            />
-            <TextInput
-          keyboardAppearance={keyboardAppearance}
-              value={amountTexts[i] ?? ''}
-              onChangeText={(v) => {
-                const nextTexts = [...amountTexts];
-                nextTexts[i] = v;
-                setAmountTexts(nextTexts);
-              }}
-              placeholder="ปริมาณ"
-              keyboardType="decimal-pad"
-              placeholderTextColor={colors.inkLight}
-              style={[styles.input, styles.flex1]}
-            />
-            <TextInput
-          keyboardAppearance={keyboardAppearance}
-              value={ing.unit ?? ''}
-              onChangeText={(v) => {
-                const next = [...ingredients];
-                next[i] = { ...next[i], unit: v };
-                setIngredients(next);
-              }}
-              placeholder="หน่วย"
-              placeholderTextColor={colors.inkLight}
-              style={[styles.input, styles.flex1]}
-            />
-            <Pressable
-              onPress={() => {
-                setIngredients(ingredients.filter((_, idx) => idx !== i));
-                setAmountTexts(amountTexts.filter((_, idx) => idx !== i));
-              }}
-              disabled={ingredients.length <= 1}
-            >
-              <Ionicons name="trash-outline" size={22} color={colors.inkLight} />
-            </Pressable>
-          </View>
-        ))}
-        <AddLine
-          label="+ เพิ่มส่วนผสม"
-          onPress={() => {
-            setIngredients([...ingredients, emptyIngredient()]);
-            setAmountTexts([...amountTexts, '']);
+          onChange={(ings, amounts) => {
+            setIngredients(ings);
+            setAmountTexts(amounts);
           }}
         />
 

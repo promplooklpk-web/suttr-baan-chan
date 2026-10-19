@@ -21,6 +21,11 @@ import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { catalogEntryForName, searchIngredientCatalog } from '@/lib/ingredientCatalog';
+import {
+  defaultExpiryForPlace,
+  defaultQuantityForName,
+  formatExpiryFriendly,
+} from '@/lib/catalogDefaults';
 import { parseQuantityInput } from '@/lib/fridgeQuantity';
 import { addDaysLocal, localDateToIso, todayLocalIso } from '@/utils/localDate';
 import { PLACE_LABELS } from '@/lib/fridgeStorage';
@@ -55,6 +60,7 @@ export function AddFridgeSheet({ visible, onClose, catalog, initialName, onSubmi
   const [note, setNote] = useState('');
   const [showPicker, setShowPicker] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [presetLabel, setPresetLabel] = useState<string | null>(null);
 
   const suggestions = useMemo(() => searchIngredientCatalog(catalog, name), [catalog, name]);
 
@@ -79,9 +85,16 @@ export function AddFridgeSheet({ visible, onClose, catalog, initialName, onSubmi
 
   const pickSuggestion = (entry: IngredientCatalogEntry) => {
     setName(entry.name);
+    const defaults = defaultQuantityForName(entry.name);
+    setQuantity(defaults.quantity);
+    setUnit(defaults.unit);
+    const exp = defaultExpiryForPlace(place);
+    setExpiresAt(exp);
+    setPresetLabel(exp ? '+ตามที่เก็บ' : 'ไม่ระบุ');
   };
 
-  const addDays = (days: number | null) => {
+  const addDays = (days: number | null, label: string) => {
+    setPresetLabel(label);
     if (days == null) {
       setExpiresAt(undefined);
       return;
@@ -89,7 +102,14 @@ export function AddFridgeSheet({ visible, onClose, catalog, initialName, onSubmi
     setExpiresAt(addDaysLocal(todayLocalIso(), days));
   };
 
-  const save = async () => {
+  useEffect(() => {
+    if (!visible) return;
+    const exp = defaultExpiryForPlace(place);
+    setExpiresAt(exp);
+    setPresetLabel(place === 'dry' ? 'ไม่ระบุ' : place === 'frozen' ? '+1 เดือน' : '+3 วัน');
+  }, [place, visible]);
+
+  const save = async (continueAdding = false) => {
     const trimmed = name.trim();
     if (!trimmed) {
       Alert.alert('กรุณากรอกชื่อของ');
@@ -112,8 +132,18 @@ export function AddFridgeSheet({ visible, onClose, catalog, initialName, onSubmi
         expiresAt,
         note: note.trim() || undefined,
       });
-      reset();
-      onClose();
+      if (continueAdding) {
+        setName('');
+        setQuantity(500);
+        setUnit('กรัม');
+        setNote('');
+        setPresetLabel(null);
+        const exp = defaultExpiryForPlace(place);
+        setExpiresAt(exp);
+      } else {
+        reset();
+        onClose();
+      }
     } catch (e) {
       Alert.alert('บันทึกไม่สำเร็จ', e instanceof Error ? e.message : 'เกิดข้อผิดพลาด');
     } finally {
@@ -186,14 +216,20 @@ export function AddFridgeSheet({ visible, onClose, catalog, initialName, onSubmi
                 { label: '+1 เดือน', days: 30 },
                 { label: 'ไม่ระบุ', days: null },
               ].map((opt) => (
-                <Pressable key={opt.label} style={styles.chip} onPress={() => addDays(opt.days)}>
-                  <AppText variant="caption">{opt.label}</AppText>
+                <Pressable
+                  key={opt.label}
+                  style={[styles.chip, presetLabel === opt.label && styles.chipOn]}
+                  onPress={() => addDays(opt.days, opt.label)}
+                >
+                  <AppText variant="caption" style={{ color: presetLabel === opt.label ? colors.onAccent : colors.ink }}>
+                    {opt.label}
+                  </AppText>
                 </Pressable>
               ))}
             </View>
             <Pressable style={styles.dateBtn} onPress={() => setShowPicker(true)}>
               <Ionicons name="calendar-outline" size={18} color={colors.inkMuted} />
-              <AppText muted>{expiresAt ?? 'เลือกวันที่'}</AppText>
+              <AppText muted>{formatExpiryFriendly(expiresAt)}</AppText>
             </Pressable>
             {showPicker && (
               <DateTimePicker
@@ -224,9 +260,18 @@ export function AddFridgeSheet({ visible, onClose, catalog, initialName, onSubmi
             />
           </ScrollView>
 
-          <Pressable style={[styles.saveBtn, saving && { opacity: 0.6 }]} onPress={save} disabled={saving}>
-            <AppText style={styles.saveBtnText}>เพิ่มเข้าตู้เย็น</AppText>
-          </Pressable>
+          <View style={styles.saveRow}>
+            <Pressable
+              style={[styles.saveBtn, styles.saveSecondary, saving && { opacity: 0.6 }]}
+              onPress={() => save(true)}
+              disabled={saving}
+            >
+              <AppText style={styles.saveBtnTextSecondary}>เพิ่มต่อ</AppText>
+            </Pressable>
+            <Pressable style={[styles.saveBtn, saving && { opacity: 0.6 }]} onPress={() => save(false)} disabled={saving}>
+              <AppText style={styles.saveBtnText}>เพิ่มเข้าตู้เย็น</AppText>
+            </Pressable>
+          </View>
         </View>
       </KeyboardAvoidingView>
     </Modal>
@@ -292,12 +337,21 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
+  saveRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
   saveBtn: {
-    marginTop: spacing.md,
+    flex: 1,
     backgroundColor: colors.orange,
     borderRadius: radius.pill,
     paddingVertical: spacing.md,
     alignItems: 'center',
+    minHeight: 48,
+    justifyContent: 'center',
   },
-  saveBtnText: { color: colors.surface, fontFamily: fonts.semiBold, fontSize: 17 },
+  saveSecondary: {
+    backgroundColor: colors.surface2,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  saveBtnText: { color: colors.onAccent, fontFamily: fonts.semiBold, fontSize: 17 },
+  saveBtnTextSecondary: { color: colors.ink, fontFamily: fonts.semiBold, fontSize: 17 },
 });

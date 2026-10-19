@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Swipeable } from 'react-native-gesture-handler';
 
 import { AppText } from '@/components/AppText';
 import { fonts, radius, spacing } from '@/constants/theme';
@@ -33,47 +34,58 @@ export function SwipeableFridgeRow({ item, onPress, onUse, onEdit, onDelete }: P
           ? colors.cardGreen
           : colors.inkMuted;
 
-  const openActions = () => {
-    Alert.alert(item.name, 'เลือกการทำงาน', [
-      { text: `ใช้ (ลด ${step} ${item.unit})`, onPress: onUse },
-      { text: 'แก้ไข', onPress: onEdit },
-      { text: 'ลบ', style: 'destructive', onPress: onDelete },
-      { text: 'ยกเลิก', style: 'cancel' },
-    ]);
-  };
-
   const expired = status.kind === 'expired';
 
+  const rightActions = () => (
+    <View style={styles.actions}>
+      <Pressable style={[styles.actionBtn, { backgroundColor: colors.orange }]} onPress={onUse}>
+        <AppText variant="caption" style={styles.actionText}>ใช้</AppText>
+      </Pressable>
+      <Pressable style={[styles.actionBtn, { backgroundColor: colors.danger }]} onPress={onDelete}>
+        <AppText variant="caption" style={styles.actionText}>ลบ</AppText>
+      </Pressable>
+    </View>
+  );
+
   return (
-    <Pressable
-      style={[styles.wrap, expired && accentGlow(colors, true), expired && styles.wrapExpired]}
-      onPress={onPress}
-      onLongPress={openActions}
-    >
-      <View style={[styles.accentBar, { backgroundColor: statusColor }]} />
-      <View style={[styles.icon, { backgroundColor: `${statusColor}22` }]}>
-        <AppText style={[styles.iconLetter, { color: statusColor }]}>
-          {item.name.charAt(0)}
-        </AppText>
-      </View>
-      <View style={styles.text}>
-        <AppText variant="label" numberOfLines={1}>{item.name}</AppText>
-        <AppText variant="caption" muted numberOfLines={1}>
-          {formatExpiryLine(item)}
-        </AppText>
-      </View>
-      <View style={styles.rightCol}>
-        <AppText variant="caption" muted>
-          {item.quantity} {item.unit}
-        </AppText>
-        <View style={[styles.statusPill, { borderColor: `${statusColor}66` }]}>
-          <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
-          <AppText variant="caption" style={[styles.statusText, { color: statusColor }]}>
-            {statusPillLabel(item)}
+    <Swipeable renderRightActions={rightActions} overshootRight={false}>
+      <Pressable
+        style={[styles.wrap, expired && accentGlow(colors, true), expired && styles.wrapExpired]}
+        onPress={onPress}
+      >
+        <View style={[styles.accentBar, { backgroundColor: statusColor }]} />
+        <View style={[styles.icon, { backgroundColor: `${statusColor}22` }]}>
+          <AppText style={[styles.iconLetter, { color: statusColor }]}>
+            {item.name.charAt(0)}
           </AppText>
         </View>
-      </View>
-    </Pressable>
+        <View style={styles.text}>
+          <AppText variant="label" numberOfLines={1}>{item.name}</AppText>
+          <AppText variant="caption" muted numberOfLines={1}>
+            {formatExpiryLine(item)}
+          </AppText>
+        </View>
+        <View style={styles.rightCol}>
+          <AppText variant="caption" muted>
+            {item.quantity} {item.unit}
+          </AppText>
+          <View style={[styles.statusPill, { borderColor: `${statusColor}66` }]}>
+            <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
+            <AppText variant="caption" style={[styles.statusText, { color: statusColor }]}>
+              {statusPillLabel(item)}
+            </AppText>
+          </View>
+        </View>
+        <Pressable
+          style={styles.menuBtn}
+          onPress={onEdit}
+          accessibilityLabel="เมนูรายการ"
+          hitSlop={8}
+        >
+          <Ionicons name="ellipsis-horizontal" size={22} color={colors.inkMuted} />
+        </Pressable>
+      </Pressable>
+    </Swipeable>
   );
 }
 
@@ -87,7 +99,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
     paddingVertical: spacing.sm,
-    paddingRight: spacing.md,
+    paddingRight: spacing.sm,
     paddingLeft: 0,
     marginBottom: spacing.sm,
     overflow: 'hidden',
@@ -114,6 +126,12 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     gap: 4,
     flexShrink: 0,
   },
+  menuBtn: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   statusPill: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -133,4 +151,17 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     fontSize: 11,
     fontFamily: fonts.medium,
   },
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    marginBottom: spacing.sm,
+  },
+  actionBtn: {
+    width: 72,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: radius.md,
+    marginLeft: spacing.xs,
+  },
+  actionText: { color: colors.onAccent, fontFamily: fonts.semiBold },
 });
