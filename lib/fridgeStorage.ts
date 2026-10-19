@@ -1,9 +1,6 @@
-import {
-  documentDirectory,
-  getInfoAsync,
-  readAsStringAsync,
-  writeAsStringAsync,
-} from 'expo-file-system/legacy';
+import { documentDirectory } from 'expo-file-system/legacy';
+
+import { readJsonFile, writeJsonFileAtomic } from '@/lib/jsonFile';
 import * as Crypto from 'expo-crypto';
 
 import { webSeedEnabled, webSeedFridge } from '@/lib/webSeed';
@@ -21,12 +18,10 @@ export async function loadFridgeStore(): Promise<FridgeStore> {
     const { installCleanSeedRecipes } = await import('@/lib/seedInstall');
     return { items: webSeedFridge(await installCleanSeedRecipes()), updatedAt: new Date().toISOString() };
   }
-  const p = path();
-  const info = await getInfoAsync(p);
-  if (!info.exists) {
-    return { items: [], updatedAt: new Date().toISOString() };
-  }
-  return JSON.parse(await readAsStringAsync(p)) as FridgeStore;
+  return readJsonFile<FridgeStore>(path(), {
+    items: [],
+    updatedAt: new Date().toISOString(),
+  });
 }
 
 export async function saveFridgeStore(items: FridgeItem[]): Promise<FridgeStore> {
@@ -34,7 +29,7 @@ export async function saveFridgeStore(items: FridgeItem[]): Promise<FridgeStore>
     items,
     updatedAt: new Date().toISOString(),
   };
-  await writeAsStringAsync(path(), JSON.stringify(store, null, 2));
+  await writeJsonFileAtomic(path(), store);
   return store;
 }
 

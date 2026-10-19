@@ -22,6 +22,8 @@ import {
   isOnedishSeedRecipeId,
 } from '@/lib/seedVersion';
 import { webSeedEnabled, webSeedPhotoUri } from '@/lib/webSeed';
+import { readJsonFile, writeJsonFileAtomic } from '@/lib/jsonFile';
+import { sanitizeRecipes } from '@/lib/recipeSanitize';
 import type { Recipe, RecipeInput, RecipeStore } from '@/types/recipe';
 
 const RECIPES_FILE = 'recipes.json';
@@ -67,23 +69,20 @@ async function ensureImagesDir(): Promise<void> {
 
 async function readStore(): Promise<RecipeStore> {
   const path = recipesPath();
-  const info = await getInfoAsync(path);
-  if (!info.exists) {
-    return emptyStore();
-  }
-  const raw = await readAsStringAsync(path);
-  const parsed = JSON.parse(raw) as RecipeStore;
+  const fallback = emptyStore();
+  const parsed = await readJsonFile<RecipeStore>(path, fallback);
   if (!parsed.recipes || !Array.isArray(parsed.recipes)) {
     return emptyStore();
   }
+  parsed.recipes = sanitizeRecipes(parsed.recipes);
   return parsed;
 }
 
 async function writeStore(recipes: Recipe[], seedVersion = CURRENT_SEED_VERSION): Promise<void> {
-  const store = emptyStore(recipes);
+  const store = emptyStore(sanitizeRecipes(recipes));
   store.exportedAt = new Date().toISOString();
   store.seedVersion = seedVersion;
-  await writeAsStringAsync(recipesPath(), JSON.stringify(store, null, 2));
+  await writeJsonFileAtomic(recipesPath(), store);
 }
 
 export async function deleteRecipePhoto(relativePath?: string): Promise<void> {
@@ -181,14 +180,14 @@ export async function initializeStorage(): Promise<Recipe[]> {
     await writeStore(store.recipes, CURRENT_SEED_VERSION);
   }
 
-  return store.recipes;
+  return sanitizeRecipes(store.recipes);
 }
 
 export async function loadRecipes(): Promise<Recipe[]> {
   if (webSeedEnabled()) return loadWebSeedRecipes();
   await ensureImagesDir();
   const store = await readStore();
-  return store.recipes;
+  return sanitizeRecipes(store.recipes);
 }
 
 export async function saveRecipes(recipes: Recipe[]): Promise<void> {

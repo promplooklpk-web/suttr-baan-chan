@@ -1,14 +1,11 @@
-import {
-  documentDirectory,
-  getInfoAsync,
-  readAsStringAsync,
-  writeAsStringAsync,
-} from 'expo-file-system/legacy';
+import { documentDirectory, getInfoAsync } from 'expo-file-system/legacy';
 import * as Crypto from 'expo-crypto';
 
-import type { MealPlanStore } from '@/types/mealPlan';
+import { loadAllMealPlanDays } from '@/lib/mealPlanStorage';
+import { readJsonFile, writeJsonFileAtomic } from '@/lib/jsonFile';
+import type { FridgeItem } from '@/types/fridge';
+import type { MealPlanDay, MealPlanStore, ShoppingItem, ShoppingListStore } from '@/types/mealPlan';
 import type { Recipe } from '@/types/recipe';
-import type { ShoppingItem, ShoppingListStore } from '@/types/mealPlan';
 
 const FILE = 'shopping-list.json';
 
@@ -17,19 +14,34 @@ function path(): string {
   return `${documentDirectory}${FILE}`;
 }
 
+function itemKey(name: string, unit?: string): string {
+  return `${name.trim().toLowerCase()}|${(unit ?? '').trim().toLowerCase()}`;
+}
+
+function fridgeStockByKey(items: FridgeItem[]): Map<string, number> {
+  const map = new Map<string, number>();
+  for (const f of items) {
+    const key = itemKey(f.name, f.unit);
+    map.set(key, (map.get(key) ?? 0) + (f.quantity ?? 0));
+  }
+  return map;
+}
+
 export function generateShoppingItems(
-  plan: MealPlanStore,
+  days: MealPlanDay[],
   recipesById: Map<string, Recipe>,
+  fridgeItems: FridgeItem[] = [],
 ): ShoppingItem[] {
   const map = new Map<string, ShoppingItem>();
+  const stock = fridgeStockByKey(fridgeItems);
 
-  for (const day of plan.days) {
+  for (const day of days) {
     for (const recipeId of Object.values(day.meals)) {
       if (!recipeId) continue;
       const recipe = recipesById.get(recipeId);
       if (!recipe) continue;
       for (const ing of recipe.ingredients) {
-        const key = `${ing.name}|${ing.unit ?? ''}`;
+        const key = itemKey(ing.name, ing.unit);
         const existing = map.get(key);
         if (existing) {
           if (ing.amount != null) {
@@ -46,13 +58,30 @@ export function generateShoppingItems(
             unit: ing.unit,
             checked: false,
             sourceRecipeIds: [recipeId],
+            manual: false,
           });
         }
       }
     }
   }
 
-  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name, 'th'));
+  const result: ShoppingItem[] = [];
+  for (const item of map.values()) {
+    const key = itemKey(item.name, item.unit);
+    let need = item.amount ?? 0;
+    const have = stock.get(key) ?? 0;
+    if (need > 0 && have > 0) {
+      need = Math.max(0, need - have);
+    }
+    if (need <= 0 && (item.amount == null || item.amount === 0)) {
+      result.push(item);
+      continue;
+    }
+    if (need <= 0) continue;
+    result.push({ ...item, amount: need });
+  }
+
+  return result.sort((a, b) => a.name.localeCompare(b.name, 'th'));
 }
 
 export async function loadShoppingList(): Promise<ShoppingListStore> {
@@ -61,7 +90,10 @@ export async function loadShoppingList(): Promise<ShoppingListStore> {
   if (!info.exists) {
     return { items: [], updatedAt: new Date().toISOString() };
   }
-  return JSON.parse(await readAsStringAsync(p)) as ShoppingListStore;
+  return readJsonFile<ShoppingListStore>(p, {
+    items: [],
+    updatedAt: new Date().toISOString(),
+  });
 }
 
 export async function saveShoppingList(items: ShoppingItem[]): Promise<void> {
@@ -69,7 +101,7 @@ export async function saveShoppingList(items: ShoppingItem[]): Promise<void> {
     items,
     updatedAt: new Date().toISOString(),
   };
-  await writeAsStringAsync(path(), JSON.stringify(store, null, 2));
+  await writeJsonFileAtomic(path(), store);
 }
 
 export async function mergeIntoShoppingList(
@@ -78,15 +110,16 @@ export async function mergeIntoShoppingList(
   const prev = await loadShoppingList();
   const map = new Map<string, ShoppingItem>();
   for (const item of prev.items) {
-    map.set(`${item.name}|${item.unit ?? ''}`, { ...item });
+    map.set(itemKey(item.name, item.unit), { ...item });
   }
   for (const e of entries) {
-    const key = `${e.name}|${e.unit ?? ''}`;
+    const key = itemKey(e.name, e.unit);
     const existing = map.get(key);
     if (existing) {
       if (e.amount != null) {
         existing.amount = (existing.amount ?? 0) + e.amount;
       }
+      existing.manual = true;
       if (e.sourceRecipeId && !existing.sourceRecipeIds.includes(e.sourceRecipeId)) {
         existing.sourceRecipeIds.push(e.sourceRecipeId);
       }
@@ -98,6 +131,7 @@ export async function mergeIntoShoppingList(
         unit: e.unit,
         checked: false,
         sourceRecipeIds: e.sourceRecipeId ? [e.sourceRecipeId] : [],
+        manual: true,
       });
     }
   }
@@ -107,19 +141,32 @@ export async function mergeIntoShoppingList(
 }
 
 export async function syncShoppingFromPlan(
-  plan: MealPlanStore,
+  _plan: MealPlanStore,
   recipes: Recipe[],
+  fridgeItems: FridgeItem[] = [],
 ): Promise<ShoppingItem[]> {
+  const days = await loadAllMealPlanDays();
   const byId = new Map(recipes.map((r) => [r.id, r]));
-  const generated = generateShoppingItems(plan, byId);
+  const generated = generateShoppingItems(days, byId, fridgeItems);
   const prev = await loadShoppingList();
   const checked = new Map(
-    prev.items.filter((i) => i.checked).map((i) => [`${i.name}|${i.unit ?? ''}`, true]),
+    prev.items.filter((i) => i.checked).map((i) => [itemKey(i.name, i.unit), true]),
   );
-  const merged = generated.map((item) => ({
-    ...item,
-    checked: checked.get(`${item.name}|${item.unit ?? ''}`) ?? false,
-  }));
+  const manualItems = prev.items.filter((i) => i.manual);
+  const map = new Map<string, ShoppingItem>();
+  for (const item of generated) {
+    map.set(itemKey(item.name, item.unit), {
+      ...item,
+      checked: checked.get(itemKey(item.name, item.unit)) ?? false,
+    });
+  }
+  for (const m of manualItems) {
+    const key = itemKey(m.name, m.unit);
+    if (!map.has(key)) {
+      map.set(key, { ...m, checked: checked.get(key) ?? m.checked });
+    }
+  }
+  const merged = [...map.values()].sort((a, b) => a.name.localeCompare(b.name, 'th'));
   await saveShoppingList(merged);
   return merged;
 }

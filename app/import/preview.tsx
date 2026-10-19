@@ -16,7 +16,10 @@ import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useRecipes } from '@/context/RecipesContext';
 import { applyImportPlan, type ImportPlan } from '@/lib/export/applyImport';
+import { applyZipSideEffects, materializeRecipesFromZip } from '@/lib/export/applyImportZip';
 import { clearPendingImport, getPendingImport } from '@/lib/export/importSession';
+import { useFridge } from '@/context/FridgeContext';
+import { useMealPlan } from '@/context/MealPlanContext';
 import type { DuplicatePolicy } from '@/types/export';
 
 const POLICY_LABELS: Record<DuplicatePolicy, string> = {
@@ -30,6 +33,8 @@ export default function ImportPreviewScreen() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { refresh } = useRecipes();
+  const { refresh: refreshPlan } = useMealPlan();
+  const { refresh: refreshFridge } = useFridge();
   const pending = getPendingImport();
   const [plans, setPlans] = useState<ImportPlan[]>(pending?.plans ?? []);
   const [globalPolicy, setGlobalPolicy] = useState<DuplicatePolicy>('skip');
@@ -62,14 +67,28 @@ export default function ImportPreviewScreen() {
 
   const confirm = async () => {
     try {
-      const added = await applyImportPlan(plans);
+      const pendingFull = getPendingImport();
+      let plansToApply = plans;
+      if (pendingFull?.zip) {
+        const materialized = await materializeRecipesFromZip(
+          pendingFull.zip,
+          plans.map((p) => p.recipe),
+        );
+        plansToApply = plans.map((p, i) => ({ ...p, recipe: materialized[i] }));
+      }
+      const added = await applyImportPlan(plansToApply);
+      if (pendingFull?.zip) {
+        await applyZipSideEffects(pendingFull.zip);
+      }
       clearPendingImport();
       await refresh();
+      await refreshPlan();
+      await refreshFridge();
       Alert.alert('นำเข้าสำเร็จ', `เพิ่มหรืออัปเดต ${added} สูตร`, [
         { text: 'ตกลง', onPress: () => router.replace('/(tabs)/settings') },
       ]);
     } catch (e) {
-      Alert.alert('นำเข้าไม่สำเร็จ', e instanceof Error ? e.message : '');
+      Alert.alert('นำเข้าไม่สำเร็จ', e instanceof Error ? e.message : 'เกิดข้อผิดพลาด');
     }
   };
 
@@ -90,7 +109,7 @@ export default function ImportPreviewScreen() {
                   onPress={() => applyGlobal(p)}
                   style={[styles.chip, globalPolicy === p && styles.chipOn]}
                 >
-                  <AppText variant="caption" style={{ color: globalPolicy === p ? colors.white : colors.ink }}>
+                  <AppText variant="caption" style={{ color: globalPolicy === p ? colors.surface : colors.ink }}>
                     {POLICY_LABELS[p]}
                   </AppText>
                 </Pressable>
@@ -116,7 +135,7 @@ export default function ImportPreviewScreen() {
                         onPress={() => setItemPolicy(item.recipe.id, p)}
                         style={[styles.chip, item.policy === p && styles.chipOn]}
                       >
-                        <AppText variant="caption" style={{ color: item.policy === p ? colors.white : colors.ink }}>
+                        <AppText variant="caption" style={{ color: item.policy === p ? colors.surface : colors.ink }}>
                           {POLICY_LABELS[p]}
                         </AppText>
                       </Pressable>
@@ -149,13 +168,13 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
     borderRadius: radius.pill,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
   },
   chipOn: { backgroundColor: colors.orange, borderColor: colors.orange },
   card: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.md,
     padding: spacing.md,
     marginBottom: spacing.sm,
@@ -174,5 +193,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.md,
     alignItems: 'center',
   },
-  confirmText: { color: colors.white, fontFamily: 'Sarabun_600SemiBold', fontSize: 18 },
+  confirmText: { color: colors.surface, fontFamily: 'Sarabun_600SemiBold', fontSize: 18 },
 });

@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
@@ -38,8 +38,6 @@ export default function SettingsScreen() {
   const { items: fridgeItems } = useFridge();
   const { refresh: refreshPlan } = useMealPlan();
   const { refresh: refreshFridge } = useFridge();
-  const [expiryReminders, setExpiryReminders] = useState(true);
-
   const exportAllZip = async () => {
     try {
       const path = await createFullBackupZip(recipes);
@@ -63,10 +61,10 @@ export default function SettingsScreen() {
         return;
       }
       const plans = buildImportPlan(parsed.envelope.recipes, recipes);
-      setPendingImport(parsed.envelope, plans);
+      setPendingImport(parsed.envelope, plans, parsed.zip, parsed.zipUri);
       router.push('/import/preview');
-    } catch (e) {
-      Alert.alert('นำเข้าไม่สำเร็จ', e instanceof Error ? e.message : 'เกิดข้อผิดพลาด');
+    } catch {
+      Alert.alert('นำเข้าไม่สำเร็จ', 'ไฟล์เสียหายหรือไม่ใช่ไฟล์สำรองของแอป');
     }
   };
 
@@ -107,23 +105,6 @@ export default function SettingsScreen() {
             <AppText variant="caption" muted>ของในตู้เย็น</AppText>
           </View>
         </View>
-
-        <Section title="การแจ้งเตือน">
-          <View style={styles.switchRow}>
-            <AppText variant="label">เตือนของใกล้หมดอายุ</AppText>
-            <Switch
-              value={expiryReminders}
-              onValueChange={setExpiryReminders}
-              trackColor={{ true: colors.orange, false: colors.border }}
-            />
-          </View>
-          <Row
-            icon="time-outline"
-            label="เตือนล่วงหน้า"
-            subtitle="3 วัน"
-            onPress={() => Alert.alert('เตือนล่วงหน้า', 'ตั้งค่า 3 วัน (ค่าเริ่มต้น)')}
-          />
-        </Section>
 
         <Section title="ธีม">
           <View style={styles.themeSegmentPad}>
@@ -235,7 +216,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.xl,
     borderWidth: 1,
     borderColor: colors.border,
@@ -259,7 +240,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   statsRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.lg },
   statCard: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.xl,
     borderWidth: 1,
     borderColor: colors.border,
@@ -280,7 +261,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   section: { marginBottom: spacing.lg },
   sectionTitle: { marginBottom: spacing.sm, fontSize: 18 },
   card: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.xl,
     borderWidth: 1,
     borderColor: colors.border,

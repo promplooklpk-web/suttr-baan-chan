@@ -19,6 +19,8 @@ export type ShoppingItem = {
   unit?: string;
   checked: boolean;
   sourceRecipeIds: string[];
+  /** User-added or from “add missing to shopping”; kept across plan syncs */
+  manual?: boolean;
 };
 
 export type ShoppingListStore = {
