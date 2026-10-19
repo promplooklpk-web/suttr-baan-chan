@@ -92,7 +92,12 @@ export default function CookingModeScreen() {
       <View style={styles.stepArea}>
         <AppText style={styles.stepText}>{step.text}</AppText>
         {step.timerSeconds != null && step.timerSeconds > 0 && (
-          <StepTimerChip timerSeconds={step.timerSeconds} onComplete={onTimerDone} />
+          <StepTimerChip
+            key={`timer-${stepIndex}`}
+            timerKey={`${recipe.id}-${stepIndex}`}
+            timerSeconds={step.timerSeconds}
+            onComplete={onTimerDone}
+          />
         )}
       </View>
 
@@ -132,7 +137,7 @@ export default function CookingModeScreen() {
           disabled={stepIndex === 0}
           onPress={() => setStepIndex((i) => Math.max(0, i - 1))}
         >
-          <Ionicons name="chevron-back" size={22} color={colors.white} />
+          <Ionicons name="chevron-back" size={22} color={colors.surface} />
           <AppText style={styles.navBtnText}>ก่อนหน้า</AppText>
         </Pressable>
         {stepIndex < steps.length - 1 ? (
@@ -141,7 +146,7 @@ export default function CookingModeScreen() {
             onPress={() => setStepIndex((i) => i + 1)}
           >
             <AppText style={styles.navBtnText}>ถัดไป</AppText>
-            <Ionicons name="chevron-forward" size={22} color={colors.white} />
+            <Ionicons name="chevron-forward" size={22} color={colors.surface} />
           </Pressable>
         ) : (
           <Pressable style={styles.navBtn} onPress={() => router.back()}>
@@ -189,7 +194,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   ingPanel: {
     maxHeight: 220,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.lg,
     marginBottom: spacing.md,
     borderWidth: 1,
@@ -211,7 +216,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  roundBtnText: { color: colors.white, fontFamily: fonts.bold, fontSize: 18 },
+  roundBtnText: { color: colors.surface, fontFamily: fonts.bold, fontSize: 18 },
   ingRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -231,5 +236,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.md,
   },
   navBtnDisabled: { opacity: 0.4 },
-  navBtnText: { color: colors.white, fontFamily: fonts.semiBold, fontSize: 17 },
+  navBtnText: { color: colors.surface, fontFamily: fonts.semiBold, fontSize: 17 },
 });
