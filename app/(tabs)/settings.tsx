@@ -384,8 +384,18 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.md,
     gap: 4,
   },
-  statNumber: { fontFamily: fonts.bold, fontSize: 28, color: colors.ink },
-  statNumberAccent: { fontFamily: fonts.bold, fontSize: 28, color: colors.orange },
+  statNumber: {
+    fontFamily: fonts.bold,
+    fontSize: 28,
+    lineHeight: 36,
+    color: colors.ink,
+  },
+  statNumberAccent: {
+    fontFamily: fonts.bold,
+    fontSize: 28,
+    lineHeight: 36,
+    color: colors.orange,
+  },
   themeSegmentPad: { padding: spacing.md },
   kcalRow: {
     flexDirection: 'row',
