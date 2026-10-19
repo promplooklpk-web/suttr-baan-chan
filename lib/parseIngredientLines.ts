@@ -2,7 +2,10 @@ import { parseAmountInput } from '@/lib/amountParse';
 import type { RecipeIngredient } from '@/types/recipe';
 
 const UNIT_PATTERN =
-  /(กรัม|กก\.|มล\.|ลิตร|ช้อนโต๊ะ|ช้อนชา|ถ้วย|ฟอง|ฝัก|หัว|กำ|ซอง|แพ็ค|ผล|ชิ้น|g|kg|ml|l)$/i;
+  /(กรัม|กก\.|มล\.|ลิตร|ช้อนโต๊ะ|ช้อนชา|ถ้วย|ฟอง|ฝัก|หัว|กำ|ซอง|แพ็ค|ผล|ชิ้น|เม็ด|กลีบ|ต้น|g|kg|ml|l)$/i;
+
+const AMOUNT_THEN_UNIT =
+  /^(\d+(?:[.,]\d+)?(?:\/\d+)?)\s*(กรัม|กก\.|มล\.|ลิตร|ช้อนโต๊ะ|ช้อนชา|ถ้วย|ฟอง|ฝัก|หัว|กำ|ซอง|แพ็ค|ผล|ชิ้น|เม็ด|กลีบ|ต้น|g|kg|ml|l)\s*(.+)$/i;
 
 /** Split pasted multi-line ingredient text into rows (LINE / Facebook style). */
 export function parseIngredientLines(text: string): RecipeIngredient[] {
@@ -12,7 +15,50 @@ export function parseIngredientLines(text: string): RecipeIngredient[] {
     .filter(Boolean);
   const out: RecipeIngredient[] = [];
   for (const line of lines) {
-    const bullet = line.replace(/^[-•*]\s*/, '');
+    const bullet = line.replace(/^[-•*]\s*/, '').trim();
+    if (!bullet) continue;
+
+    const gluedOnly = bullet.match(
+      /^(\d+(?:[.,]\d+)?)(กรัม|กก\.|มล\.|ลิตร|ช้อนโต๊ะ|ช้อนชา|ถ้วย|ฟอง|ฝัก|หัว|กำ|ซอง|แพ็ค|ผล|ชิ้น|เม็ด|กลีบ|ต้น|g|kg|ml|l)$/i,
+    );
+    if (gluedOnly) {
+      out.push({
+        name: '',
+        amount: parseAmountInput(gluedOnly[1]),
+        unit: gluedOnly[2],
+      });
+      continue;
+    }
+
+    const glued = bullet.match(/^(\d+(?:[.,]\d+)?)(กรัม|กก\.|มล\.|ลิตร|ช้อนโต๊ะ|ช้อนชา|ถ้วย|ฟอง|ฝัก|หัว|กำ|ซอง|แพ็ค|ผล|ชิ้น|เม็ด|กลีบ|ต้น|g|kg|ml|l)(.+)$/i);
+    if (glued) {
+      const amount = parseAmountInput(glued[1]);
+      const unit = glued[2];
+      const name = glued[3].trim();
+      if (name) {
+        out.push({ name, amount, unit });
+        continue;
+      }
+    }
+
+    const amtUnitName = bullet.match(AMOUNT_THEN_UNIT);
+    if (amtUnitName) {
+      const amount = parseAmountInput(amtUnitName[1]);
+      out.push({
+        name: amtUnitName[3].trim(),
+        amount,
+        unit: amtUnitName[2],
+      });
+      continue;
+    }
+
+    const amountUnitOnly = bullet.match(/^(\d+(?:[.,]\d+)?(?:\/\d+)?)\s+(\S+)$/);
+    if (amountUnitOnly && UNIT_PATTERN.test(amountUnitOnly[2])) {
+      const amount = parseAmountInput(amountUnitOnly[1]);
+      out.push({ name: '', amount, unit: amountUnitOnly[2] });
+      continue;
+    }
+
     const parts = bullet.split(/\s+/);
     if (parts.length === 0) continue;
     let unit: string | undefined;
@@ -40,7 +86,10 @@ export function parseIngredientLines(text: string): RecipeIngredient[] {
       }
     }
     const name = nameParts.join(' ').trim();
-    if (!name) continue;
+    if (!name) {
+      out.push({ name: bullet, amount: undefined, unit: undefined });
+      continue;
+    }
     out.push({ name, amount, unit });
   }
   return out;

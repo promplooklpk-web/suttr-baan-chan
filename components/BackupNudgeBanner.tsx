@@ -8,7 +8,7 @@ import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { loadAppSettings, saveAppSettings } from '@/lib/appSettings';
-import { shouldShowBackupNudge } from '@/lib/backupReminder';
+import { ensureFirstOpenRecorded, shouldShowBackupNudge, snoozeBackupNudgeDays } from '@/lib/backupReminder';
 
 type Props = {
   onExportPress: () => void;
@@ -20,7 +20,9 @@ export function BackupNudgeBanner({ onExportPress }: Props) {
   const [visible, setVisible] = useState(false);
 
   const refresh = useCallback(() => {
-    loadAppSettings().then((s) => setVisible(shouldShowBackupNudge(s)));
+    ensureFirstOpenRecorded().then(() =>
+      loadAppSettings().then((s) => setVisible(shouldShowBackupNudge(s))),
+    );
   }, []);
 
   useEffect(() => {
@@ -42,7 +44,7 @@ export function BackupNudgeBanner({ onExportPress }: Props) {
       <Pressable
         hitSlop={12}
         onPress={async () => {
-          await saveAppSettings({ backupNudgeEnabled: false });
+          await snoozeBackupNudgeDays(7);
           setVisible(false);
         }}
         accessibilityLabel="ปิดการเตือนสำรอง"

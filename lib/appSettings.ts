@@ -12,6 +12,10 @@ export type AppSettings = {
   lastBackupAtIso?: string;
   backupNudgeEnabled: boolean;
   backupNudgeDays: number;
+  /** First app open (local date ISO) for backup nudge timing */
+  firstOpenDateIso?: string;
+  /** Snooze backup nudge until this local date (inclusive hide until day after) */
+  backupNudgeSnoozeUntilIso?: string;
 };
 
 const DEFAULTS: AppSettings = {

@@ -12,8 +12,24 @@ const base: AppSettings = {
 };
 
 describe('shouldShowBackupNudge', () => {
-  it('shows when never backed up', () => {
-    expect(shouldShowBackupNudge({ ...base, lastBackupAtIso: undefined })).toBe(true);
+  it('hides on fresh install before nudge days', () => {
+    const now = new Date('2026-10-19T12:00:00+07:00');
+    expect(
+      shouldShowBackupNudge(
+        { ...base, lastBackupAtIso: undefined, firstOpenDateIso: '2026-10-19' },
+        now,
+      ),
+    ).toBe(false);
+  });
+
+  it('shows when never backed up after nudge days', () => {
+    const now = new Date('2026-10-26T12:00:00+07:00');
+    expect(
+      shouldShowBackupNudge(
+        { ...base, lastBackupAtIso: undefined, firstOpenDateIso: '2026-10-19' },
+        now,
+      ),
+    ).toBe(true);
   });
 
   it('hides when disabled', () => {
