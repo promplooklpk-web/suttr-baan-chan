@@ -107,3 +107,20 @@ export function missingShoppingEntries(
       unit: i.unit,
     }));
 }
+
+export function shoppingEntriesForRecipe(
+  recipe: Recipe,
+  fridgeItems: FridgeItem[],
+  servingsFactor = 1,
+): { name: string; amount?: number; unit?: string }[] {
+  if (fridgeItems.length === 0) {
+    return recipe.ingredients.map((i) => ({
+      name: i.name,
+      amount: i.amount != null ? i.amount * servingsFactor : undefined,
+      unit: i.unit,
+    }));
+  }
+  const match = matchRecipeToFridge(recipe, fridgeItems);
+  if (match.missing.length === 0) return [];
+  return missingShoppingEntries(match, recipe, servingsFactor);
+}

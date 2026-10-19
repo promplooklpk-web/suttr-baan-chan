@@ -8,11 +8,13 @@ describe('shoppingGroups', () => {
     expect(shoppingGroupForName('หมูสับ')).toBe('meat');
     expect(shoppingGroupForName('กะเพรา')).toBe('veg');
     expect(shoppingGroupForName('น้ำตาลทราย')).toBe('pantry');
+    expect(shoppingGroupForName('น้ำปลา')).toBe('sauces');
+    expect(shoppingGroupForName('พริกป่น')).toBe('pantry');
     expect(shoppingGroupForName('ถุงดำ')).toBe('other');
   });
 
   it('has stable group order', () => {
     expect(SHOPPING_GROUP_ORDER[0]).toBe('meat');
-    expect(SHOPPING_GROUP_ORDER).toHaveLength(4);
+    expect(SHOPPING_GROUP_ORDER).toHaveLength(5);
   });
 });

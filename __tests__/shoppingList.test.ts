@@ -1,4 +1,4 @@
-import { generateShoppingItems } from '@/lib/shoppingList';
+import { filterPlanDaysFromToday, generateShoppingItems } from '@/lib/shoppingList';
 import type { MealPlanDay } from '@/types/mealPlan';
 import type { Recipe } from '@/types/recipe';
 
@@ -13,6 +13,18 @@ const recipe: Recipe = {
   createdAt: '',
   updatedAt: '',
 };
+
+describe('filterPlanDaysFromToday', () => {
+  it('drops past plan days', () => {
+    const days: MealPlanDay[] = [
+      { date: '2026-10-10', meals: { lunch: 'r1' } },
+      { date: '2026-10-19', meals: { lunch: 'r1' } },
+    ];
+    const filtered = filterPlanDaysFromToday(days, '2026-10-19');
+    expect(filtered).toHaveLength(1);
+    expect(filtered[0].date).toBe('2026-10-19');
+  });
+});
 
 describe('generateShoppingItems', () => {
   it('subtracts fridge stock for matching name+unit', () => {

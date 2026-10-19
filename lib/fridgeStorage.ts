@@ -33,11 +33,32 @@ export async function saveFridgeStore(items: FridgeItem[]): Promise<FridgeStore>
   return store;
 }
 
+function itemMergeKey(name: string, unit?: string): string {
+  return `${name.trim().toLowerCase()}|${(unit ?? '').trim().toLowerCase()}`;
+}
+
 export async function addFridgeItem(
   input: Omit<FridgeItem, 'id' | 'addedAt' | 'updatedAt'>,
 ): Promise<FridgeItem> {
   const store = await loadFridgeStore();
   const now = new Date().toISOString();
+  const key = itemMergeKey(input.name, input.unit);
+  const existing = store.items.find((i) => itemMergeKey(i.name, i.unit) === key);
+  if (existing) {
+    const next: FridgeItem = {
+      ...existing,
+      quantity: (existing.quantity ?? 0) + (input.quantity ?? 0),
+      place: input.place ?? existing.place,
+      expiresAt: input.expiresAt ?? existing.expiresAt,
+      note: input.note ?? existing.note,
+      ingredientId: input.ingredientId ?? existing.ingredientId,
+      updatedAt: now,
+    };
+    const idx = store.items.findIndex((i) => i.id === existing.id);
+    store.items[idx] = next;
+    await saveFridgeStore(store.items);
+    return next;
+  }
   const item: FridgeItem = {
     ...input,
     id: Crypto.randomUUID(),

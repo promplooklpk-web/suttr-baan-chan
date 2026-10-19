@@ -25,5 +25,7 @@ export type ShoppingItem = {
 
 export type ShoppingListStore = {
   items: ShoppingItem[];
+  /** Plan-derived keys removed via “ล้างที่ซื้อแล้ว”; not regenerated until plan changes. */
+  dismissedPlanKeys?: string[];
   updatedAt: string;
 };
