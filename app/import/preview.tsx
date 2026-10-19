@@ -20,6 +20,7 @@ import { applyZipSideEffects, materializeRecipesFromZip } from '@/lib/export/app
 import { clearPendingImport, getPendingImport } from '@/lib/export/importSession';
 import { useFridge } from '@/context/FridgeContext';
 import { useMealPlan } from '@/context/MealPlanContext';
+import { useSnackbar } from '@/context/SnackbarContext';
 import type { DuplicatePolicy } from '@/types/export';
 
 const POLICY_LABELS: Record<DuplicatePolicy, string> = {
@@ -35,6 +36,7 @@ export default function ImportPreviewScreen() {
   const { refresh } = useRecipes();
   const { refresh: refreshPlan } = useMealPlan();
   const { refresh: refreshFridge } = useFridge();
+  const { showSnackbar } = useSnackbar();
   const pending = getPendingImport();
   const [plans, setPlans] = useState<ImportPlan[]>(pending?.plans ?? []);
   const [globalPolicy, setGlobalPolicy] = useState<DuplicatePolicy>('skip');
@@ -84,9 +86,13 @@ export default function ImportPreviewScreen() {
       await refresh();
       await refreshPlan();
       await refreshFridge();
-      Alert.alert('นำเข้าสำเร็จ', `เพิ่มหรืออัปเดต ${added} สูตร`, [
-        { text: 'ตกลง', onPress: () => router.replace('/(tabs)/settings') },
-      ]);
+      const skipped = pendingFull?.skippedRecipeCount ?? 0;
+      const msg =
+        skipped > 0
+          ? `นำเข้า ${added} สูตร · ข้าม ${skipped} รายการที่ข้อมูลไม่ครบ`
+          : `นำเข้า ${added} สูตรสำเร็จ`;
+      showSnackbar(msg);
+      router.replace('/(tabs)/settings');
     } catch (e) {
       Alert.alert('นำเข้าไม่สำเร็จ', e instanceof Error ? e.message : 'เกิดข้อผิดพลาด');
     }
@@ -99,6 +105,9 @@ export default function ImportPreviewScreen() {
         <View style={styles.summary}>
           <AppText variant="label">
             พบ {plans.length} สูตร · ซ้ำ {duplicateCount} รายการ
+            {pending.skippedRecipeCount > 0
+              ? ` · ข้าม ${pending.skippedRecipeCount} รายการที่ข้อมูลไม่ครบ`
+              : ''}
           </AppText>
           {duplicateCount > 0 && (
             <View style={styles.policyRow}>

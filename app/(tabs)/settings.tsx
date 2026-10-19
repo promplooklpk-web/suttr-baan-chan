@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Alert, Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
@@ -27,6 +27,12 @@ import { fonts } from '@/constants/theme';
 import { PROFILE_DISPLAY_NAME, profileAvatarInitial } from '@/lib/profile';
 import { accentGlow } from '@/lib/design';
 import { scrollPaddingBottom, screenTopPadding } from '@/lib/screenLayout';
+import { loadAppSettings, saveAppSettings } from '@/lib/appSettings';
+import {
+  cancelExpiryReminder,
+  syncExpiryReminderSchedule,
+} from '@/lib/expiryNotifications';
+import { useSnackbar } from '@/context/SnackbarContext';
 
 const APP_VERSION = '2.4.0';
 
@@ -38,6 +44,57 @@ export default function SettingsScreen() {
   const { items: fridgeItems } = useFridge();
   const { refresh: refreshPlan } = useMealPlan();
   const { refresh: refreshFridge } = useFridge();
+  const { showSnackbar } = useSnackbar();
+  const [kcalGoal, setKcalGoal] = useState('1800');
+  const [expiryOn, setExpiryOn] = useState(false);
+  const [cookAutoTimers, setCookAutoTimers] = useState(false);
+
+  useEffect(() => {
+    loadAppSettings().then((s) => {
+      setKcalGoal(String(s.dailyKcalGoal));
+      setExpiryOn(s.expiryRemindersEnabled);
+      setCookAutoTimers(s.cookAutoStartTimers);
+      if (!s.backupReminderShown) {
+        Alert.alert(
+          'สำรองข้อมูลเป็นประจำ',
+          'แนะนำส่งออกไฟล์ .zip ทุกสัปดาห์เพื่อกู้คืนได้หากเปลี่ยนเครื่อง',
+          [
+            {
+              text: 'เข้าใจแล้ว',
+              onPress: () => saveAppSettings({ backupReminderShown: true }),
+            },
+          ],
+        );
+      }
+    });
+  }, []);
+
+  const saveKcalGoal = async () => {
+    const n = parseInt(kcalGoal, 10);
+    if (!Number.isFinite(n) || n < 500 || n > 6000) {
+      Alert.alert('เป้าแคลไม่ถูกต้อง', 'ใส่ตัวเลขระหว่าง 500–6000');
+      return;
+    }
+    await saveAppSettings({ dailyKcalGoal: n });
+    showSnackbar('บันทึกเป้าแคลต่อวันแล้ว');
+  };
+
+  const toggleExpiry = async (value: boolean) => {
+    if (value) {
+      const Notifications = await import('expo-notifications');
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('ต้องการสิทธิ์', 'เปิดการแจ้งเตือนในระบบเพื่อเตือนของใกล้หมดอายุ');
+        return;
+      }
+    }
+    setExpiryOn(value);
+    await saveAppSettings({ expiryRemindersEnabled: value });
+    if (value) await syncExpiryReminderSchedule(fridgeItems);
+    else await cancelExpiryReminder();
+    showSnackbar(value ? 'เปิดเตือนหมดอายุ 09:00 น.' : 'ปิดเตือนหมดอายุแล้ว');
+  };
+
   const exportAllZip = async () => {
     try {
       const path = await createFullBackupZip(recipes);
@@ -61,7 +118,13 @@ export default function SettingsScreen() {
         return;
       }
       const plans = buildImportPlan(parsed.envelope.recipes, recipes);
-      setPendingImport(parsed.envelope, plans, parsed.zip, parsed.zipUri);
+      setPendingImport(
+        parsed.envelope,
+        plans,
+        parsed.zip,
+        parsed.zipUri,
+        parsed.skippedRecipeCount,
+      );
       router.push('/import/preview');
     } catch {
       Alert.alert('นำเข้าไม่สำเร็จ', 'ไฟล์เสียหายหรือไม่ใช่ไฟล์สำรองของแอป');
@@ -105,6 +168,47 @@ export default function SettingsScreen() {
             <AppText variant="caption" muted>ของในตู้เย็น</AppText>
           </View>
         </View>
+
+        <Section title="แพลนและทำอาหาร">
+          <View style={styles.kcalRow}>
+            <View style={styles.rowText}>
+              <AppText variant="label">เป้าแคลต่อวัน</AppText>
+              <AppText variant="caption" muted>แสดงในแพลนมื้อ</AppText>
+            </View>
+            <TextInput
+              value={kcalGoal}
+              onChangeText={setKcalGoal}
+              keyboardType="number-pad"
+              style={styles.kcalInput}
+              onEndEditing={saveKcalGoal}
+            />
+          </View>
+          <View style={styles.switchRow}>
+            <View style={styles.rowText}>
+              <AppText variant="label">เตือนของใกล้หมดอายุ</AppText>
+              <AppText variant="caption" muted>ทุกวัน 09:00 · แตะเปิดมุมมองใช้ของก่อน</AppText>
+            </View>
+            <Switch
+              value={expiryOn}
+              onValueChange={toggleExpiry}
+              trackColor={{ true: colors.orange, false: colors.border }}
+            />
+          </View>
+          <View style={styles.switchRow}>
+            <View style={styles.rowText}>
+              <AppText variant="label">เริ่มจับเวลาขั้นตอนอัตโนมัติ</AppText>
+              <AppText variant="caption" muted>ในโหมดทำอาหาร</AppText>
+            </View>
+            <Switch
+              value={cookAutoTimers}
+              onValueChange={async (v) => {
+                setCookAutoTimers(v);
+                await saveAppSettings({ cookAutoStartTimers: v });
+              }}
+              trackColor={{ true: colors.orange, false: colors.border }}
+            />
+          </View>
+        </Section>
 
         <Section title="ธีม">
           <View style={styles.themeSegmentPad}>
@@ -250,6 +354,26 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   statNumber: { fontFamily: fonts.bold, fontSize: 28, color: colors.ink },
   statNumberAccent: { fontFamily: fonts.bold, fontSize: 28, color: colors.orange },
   themeSegmentPad: { padding: spacing.md },
+  kcalRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: spacing.md,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
+    gap: spacing.md,
+  },
+  kcalInput: {
+    minWidth: 88,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
+    textAlign: 'center',
+    fontFamily: fonts.semiBold,
+    color: colors.ink,
+  },
   switchRow: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { BlurView } from 'expo-blur';
 import {
   Alert,
+  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -25,8 +26,12 @@ import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useFridge } from '@/context/FridgeContext';
+import { useMealPlan } from '@/context/MealPlanContext';
 import { useRecipes } from '@/context/RecipesContext';
-import { matchRecipeToFridge } from '@/lib/fridgeMatch';
+import { useSnackbar } from '@/context/SnackbarContext';
+import { matchRecipeToFridge, missingShoppingEntries } from '@/lib/fridgeMatch';
+import { mergeIntoShoppingList } from '@/lib/shoppingList';
+import { todayLocalIso } from '@/utils/localDate';
 import { fridgeProgressColor, matchPercentColor } from '@/lib/fridgeMatchDisplay';
 import { parseRecipeCalories } from '@/lib/recipeMedia';
 import { photoUri, totalMinutes } from '@/lib/storage';
@@ -44,9 +49,12 @@ export default function RecipeDetailScreen() {
   const insets = useSafeAreaInsets();
   const { getRecipe, toggleFavorite, deleteRecipe } = useRecipes();
   const { items: fridgeItems } = useFridge();
+  const { assignMeal, refresh: refreshPlan } = useMealPlan();
+  const { showSnackbar } = useSnackbar();
   const recipe = getRecipe(id);
   const [servings, setServings] = useState(recipe?.servings ?? 1);
   const [checked, setChecked] = useState<Record<number, boolean>>({});
+  const [planOpen, setPlanOpen] = useState(false);
 
   useEffect(() => {
     if (recipe?.servings) setServings(recipe.servings);
@@ -315,14 +323,70 @@ export default function RecipeDetailScreen() {
         </ScrollView>
 
         <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}>
+          <View style={styles.footerRow}>
+            <Pressable style={styles.footerSecondary} onPress={() => setPlanOpen(true)}>
+              <Ionicons name="calendar-outline" size={18} color={colors.orange} />
+              <AppText variant="caption" style={styles.footerSecondaryText}>เพิ่มลงแผน</AppText>
+            </Pressable>
+            <Pressable
+              style={styles.footerSecondary}
+              onPress={async () => {
+                if (!fridgeMatch) return;
+                const entries = missingShoppingEntries(fridgeMatch, recipe, factor).map((e) => ({
+                  ...e,
+                  sourceRecipeId: recipe.id,
+                }));
+                if (entries.length === 0) {
+                  showSnackbar('มีของครบในตู้เย็นแล้ว');
+                  return;
+                }
+                await mergeIntoShoppingList(entries);
+                await refreshPlan();
+                showSnackbar(`เพิ่มของที่ขาด ${entries.length} รายการลงรายการซื้อ`);
+              }}
+            >
+              <Ionicons name="cart-outline" size={18} color={colors.orange} />
+              <AppText variant="caption" style={styles.footerSecondaryText}>ของที่ขาด → ซื้อ</AppText>
+            </Pressable>
+          </View>
           <Pressable
             style={[styles.cookBtn, accentGlow(colors, true)]}
-            onPress={() => router.push(`/recipe/cook/${recipe.id}`)}
+            onPress={() =>
+              router.push({
+                pathname: '/recipe/cook/[id]',
+                params: { id: recipe.id, servings: String(servings) },
+              })
+            }
           >
             <Ionicons name="play" size={20} color={colors.onAccent} />
-            <AppText style={styles.cookBtnText}>เริ่มทำเมนูนี้</AppText>
+            <AppText style={styles.cookBtnText}>เริ่มทำเมนูนี้ ({servings} เสิร์ฟ)</AppText>
           </Pressable>
         </View>
+
+        <Modal visible={planOpen} transparent animationType="fade">
+          <Pressable style={styles.planBackdrop} onPress={() => setPlanOpen(false)}>
+            <View style={styles.planSheet}>
+              <AppText variant="title" style={{ marginBottom: spacing.md }}>เพิ่มลงแผน — วันนี้</AppText>
+              {(['breakfast', 'lunch', 'dinner'] as const).map((slot) => (
+                <Pressable
+                  key={slot}
+                  style={styles.planSlotBtn}
+                  onPress={async () => {
+                    await assignMeal(todayLocalIso(), slot, recipe.id);
+                    setPlanOpen(false);
+                    const label =
+                      slot === 'breakfast' ? 'เช้า' : slot === 'lunch' ? 'กลางวัน' : 'เย็น';
+                    showSnackbar(`เพิ่มลงแพลนมื้อ${label}`);
+                  }}
+                >
+                  <AppText variant="label">
+                    {slot === 'breakfast' ? 'มื้อเช้า' : slot === 'lunch' ? 'มื้อกลางวัน' : 'มื้อเย็น'}
+                  </AppText>
+                </Pressable>
+              ))}
+            </View>
+          </Pressable>
+        </Modal>
       </View>
     </>
   );
@@ -716,6 +780,45 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingTop: spacing.sm,
     backgroundColor: colors.cream,
+    gap: spacing.sm,
+  },
+  footerRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  footerSecondary: {
+    flex: 1,
+    minHeight: 44,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  footerSecondaryText: { color: colors.orange, fontFamily: fonts.semiBold },
+  planBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'flex-end',
+  },
+  planSheet: {
+    backgroundColor: colors.cream,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
+    padding: spacing.lg,
+    gap: spacing.sm,
+  },
+  planSlotBtn: {
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   cookBtn: {
     flexDirection: 'row',

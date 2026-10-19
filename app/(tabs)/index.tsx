@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
@@ -8,7 +10,7 @@ import { HomeFilterChips, type HomeFilterId } from '@/components/HomeFilterChips
 import { EmptyState } from '@/components/EmptyState';
 import { RecipeMenuCard } from '@/components/RecipeMenuCard';
 import { ScreenShell } from '@/components/ScreenShell';
-import { spacing } from '@/constants/theme';
+import { radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
@@ -87,7 +89,20 @@ export default function HomeScreen() {
             showAdd
           />
         ) : filtered.length === 0 ? (
-          <EmptyState title="ยังไม่มีสูตรในตัวกรองนี้" showAdd />
+          filter === 'ready' ? (
+            <View style={styles.readyEmpty}>
+              <EmptyState
+                title="ยังทำไม่ได้เลยจากของในตู้"
+                subtitle="เพิ่มของในตู้เย็นให้ครบส่วนผสม หรือดูสูตรอื่น"
+              />
+              <Pressable style={styles.readyCta} onPress={() => router.push('/(tabs)/fridge')}>
+                <Ionicons name="snow-outline" size={20} color={colors.onAccent} />
+                <AppText variant="label" style={styles.readyCtaText}>ไปเพิ่มของในตู้เย็น</AppText>
+              </Pressable>
+            </View>
+          ) : (
+            <EmptyState title="ยังไม่มีสูตรในตัวกรองนี้" showAdd />
+          )
         ) : (
           <View style={styles.listContent} testID="home-recipe-list">
             {filtered.map((item, index) => (
@@ -135,4 +150,19 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     flexGrow: 0,
     flexShrink: 0,
   },
+  readyEmpty: {
+    paddingHorizontal: spacing.md,
+    gap: spacing.md,
+  },
+  readyCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    minHeight: 44,
+    backgroundColor: colors.orange,
+    borderRadius: radius.pill,
+    marginHorizontal: spacing.md,
+  },
+  readyCtaText: { color: colors.onAccent },
 });

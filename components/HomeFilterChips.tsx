@@ -59,7 +59,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   chip: {
     paddingHorizontal: spacing.md,
-    paddingVertical: 8,
+    paddingVertical: 10,
+    minHeight: 44,
+    justifyContent: 'center',
     borderRadius: radius.pill,
     backgroundColor: colors.surface2,
     borderWidth: 1,

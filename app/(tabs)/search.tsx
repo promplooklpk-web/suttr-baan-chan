@@ -20,6 +20,12 @@ import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useRecipes } from '@/context/RecipesContext';
 import { useFridgeRecipeMatches } from '@/hooks/useFridgeRecipeMatches';
+import {
+  loadRecentSearches,
+  pushRecentSearch,
+  removeRecentSearch,
+} from '@/lib/searchRecentStorage';
+
 export default function SearchScreen() {
   const styles = useThemedStyles(createStyles);
   const { colors, keyboardAppearance } = useTheme();
@@ -31,6 +37,10 @@ export default function SearchScreen() {
   const [favoritesOnly, setFavoritesOnly] = useState(params.favorites === '1');
   const [tagFilter, setTagFilter] = useState(params.tag ?? '');
   const [layoutMode, setLayoutMode] = useState<'grid' | 'list'>('grid');
+
+  useEffect(() => {
+    loadRecentSearches().then(setRecent);
+  }, []);
 
   useEffect(() => {
     if (params.tag) {
@@ -68,11 +78,11 @@ export default function SearchScreen() {
   const onSubmit = () => {
     const q = query.trim();
     if (!q) return;
-    setRecent((prev) => [q, ...prev.filter((x) => x !== q)].slice(0, 5));
+    void pushRecentSearch(q).then(setRecent);
   };
 
   const clearRecent = (item: string) => {
-    setRecent((prev) => prev.filter((x) => x !== item));
+    void removeRecentSearch(item).then(setRecent);
   };
 
   const showResults = query.trim().length > 0 || favoritesOnly || Boolean(tagFilter);
@@ -183,6 +193,9 @@ export default function SearchScreen() {
 
       {showResults && (
         <>
+          <AppText variant="label" style={styles.resultCount}>
+            พบ {results.length} สูตร
+          </AppText>
           <View style={styles.resultsToolbar}>
             <View style={styles.layoutToggle}>
               <Pressable
@@ -343,6 +356,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   suggestItem: {
     paddingVertical: spacing.sm,
+  },
+  resultCount: {
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.xs,
+    color: colors.inkMuted,
   },
   resultsToolbar: {
     flexDirection: 'row',

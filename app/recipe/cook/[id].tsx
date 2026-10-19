@@ -12,7 +12,9 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { CookTimerBar, CookTimerBarSpacer } from '@/components/CookTimerBar';
 import { StepTimerChip } from '@/components/StepTimerChip';
+import { loadAppSettings } from '@/lib/appSettings';
 import { fonts, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
@@ -27,7 +29,7 @@ function scaleAmount(amount: number | undefined, factor: number): string {
 export default function CookingModeScreen() {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, servings: servingsParam } = useLocalSearchParams<{ id: string; servings?: string }>();
   const insets = useSafeAreaInsets();
   const { getRecipe } = useRecipes();
   const recipe = getRecipe(id);
@@ -51,8 +53,18 @@ export default function CookingModeScreen() {
   }, []);
 
   useEffect(() => {
+    const fromParam = servingsParam ? parseInt(servingsParam, 10) : NaN;
+    if (Number.isFinite(fromParam) && fromParam > 0) {
+      setServings(fromParam);
+      return;
+    }
     if (recipe?.servings) setServings(recipe.servings);
-  }, [recipe?.id, recipe?.servings]);
+  }, [recipe?.id, recipe?.servings, servingsParam]);
+
+  const [autoStartTimers, setAutoStartTimers] = useState(false);
+  useEffect(() => {
+    loadAppSettings().then((s) => setAutoStartTimers(s.cookAutoStartTimers));
+  }, []);
 
   const onTimerDone = useCallback(() => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined);
@@ -71,8 +83,10 @@ export default function CookingModeScreen() {
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top + spacing.sm, paddingBottom: insets.bottom + spacing.md }]}>
+      <CookTimerBar />
+      <CookTimerBarSpacer />
       <View style={styles.topBar}>
-        <Pressable onPress={() => router.back()} hitSlop={12}>
+        <Pressable onPress={() => router.back()} style={styles.closeHit}>
           <Ionicons name="close" size={28} color={colors.ink} />
         </Pressable>
         <AppText variant="label" muted>
@@ -96,6 +110,8 @@ export default function CookingModeScreen() {
             key={`timer-${stepIndex}`}
             timerKey={`${recipe.id}-${stepIndex}`}
             timerSeconds={step.timerSeconds}
+            timerLabel={`${recipe.title} · ขั้น ${stepIndex + 1}`}
+            autoStart={autoStartTimers}
             onComplete={onTimerDone}
           />
         )}
@@ -175,6 +191,12 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: spacing.md,
+  },
+  closeHit: {
+    minWidth: 44,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   progressTrack: {
     height: 6,

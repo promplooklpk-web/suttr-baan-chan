@@ -7,6 +7,7 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
+  TextInput,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -23,6 +24,14 @@ import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useFridge } from '@/context/FridgeContext';
 import { useMealPlan } from '@/context/MealPlanContext';
 import { useRecipes } from '@/context/RecipesContext';
+import { useSnackbar } from '@/context/SnackbarContext';
+import { loadAppSettings } from '@/lib/appSettings';
+import { defaultExpiryForPlace } from '@/lib/catalogDefaults';
+import {
+  SHOPPING_GROUP_LABELS,
+  SHOPPING_GROUP_ORDER,
+  shoppingGroupForName,
+} from '@/lib/shoppingGroups';
 import { fridgeProgressColor } from '@/lib/fridgeMatchDisplay';
 import { matchRecipeToFridge } from '@/lib/fridgeMatch';
 import { pickRandom } from '@/lib/pickerHistory';
@@ -81,17 +90,36 @@ export default function PlannerScreen() {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { plan, shopping, assignMeal, toggleMealDone, changeWeek, toggleShoppingItem, rebuildShoppingList } =
-    useMealPlan();
+  const {
+    plan,
+    shopping,
+    assignMeal,
+    toggleMealDone,
+    changeWeek,
+    toggleShoppingItem,
+    rebuildShoppingList,
+    repeatMealWeekdays,
+    addManualShopping,
+    clearPurchasedShopping,
+    takeCheckedForFridge,
+  } = useMealPlan();
   const { recipes, getRecipe } = useRecipes();
-  const { items: fridgeItems } = useFridge();
+  const { items: fridgeItems, addItem } = useFridge();
+  const { showSnackbar } = useSnackbar();
   const [picker, setPicker] = useState<{ date: string; slot: MealSlot } | null>(null);
+  const [manualName, setManualName] = useState('');
+  const [manualAddOpen, setManualAddOpen] = useState(false);
+  const [kcalGoal, setKcalGoal] = useState(1800);
   const params = useLocalSearchParams<{ section?: string }>();
   const [section, setSection] = useState<'plan' | 'shop'>(
     params.section === 'shop' ? 'shop' : 'plan',
   );
   const [selectedDate, setSelectedDate] = useState(todayIso());
   const headerClearance = floatingHeaderClearance(insets.top);
+
+  useEffect(() => {
+    loadAppSettings().then((s) => setKcalGoal(s.dailyKcalGoal));
+  }, []);
 
   const days = plan?.days ?? [];
   const today = todayIso();
@@ -117,6 +145,38 @@ export default function PlannerScreen() {
     () => (selectedDay ? sumDayCalories(selectedDay, getRecipe) : 0),
     [selectedDay, getRecipe],
   );
+
+  const weekHasAnyMeal = useMemo(() => days.some(dayHasMeals), [days]);
+
+  const groupedShopping = useMemo(() => {
+    const groups = new Map<string, typeof shopping>();
+    for (const item of shopping) {
+      const g = shoppingGroupForName(item.name);
+      const list = groups.get(g) ?? [];
+      list.push(item);
+      groups.set(g, list);
+    }
+    return groups;
+  }, [shopping]);
+
+  const moveCheckedToFridge = useCallback(async () => {
+    const taken = await takeCheckedForFridge();
+    if (taken.length === 0) {
+      showSnackbar('ยังไม่ได้ติ๊กรายการที่ซื้อแล้ว');
+      return;
+    }
+    for (const row of taken) {
+      await addItem({
+        name: row.name,
+        quantity: row.amount ?? 1,
+        unit: row.unit ?? 'กรัม',
+        place: 'chilled',
+        expiresAt: defaultExpiryForPlace('chilled'),
+      });
+    }
+    await rebuildShoppingList();
+    showSnackbar(`ย้าย ${taken.length} รายการเข้าตู้เย็น`);
+  }, [takeCheckedForFridge, addItem, rebuildShoppingList, showSnackbar]);
 
   const jumpToToday = useCallback(async () => {
     if (days.some((d) => d.date === today)) {
@@ -179,14 +239,27 @@ export default function PlannerScreen() {
           onPress: () => router.push(`/recipe/${recipeId}`),
         },
         {
+          text: 'ทำซ้ำ จ–ศ',
+          onPress: async () => {
+            await repeatMealWeekdays(date, slot, [0, 1, 2, 3, 4]);
+            showSnackbar('คัดลอกเมนูไปวันจันทร์–ศุกร์');
+          },
+        },
+        {
           text: 'ลบออกจากแพลน',
           style: 'destructive',
-          onPress: () => assignMeal(date, slot, undefined),
+          onPress: async () => {
+            const prev = recipeId;
+            await assignMeal(date, slot, undefined);
+            showSnackbar('ลบออกจากแพลนแล้ว', async () => {
+              await assignMeal(date, slot, prev);
+            });
+          },
         },
         { text: 'ยกเลิก', style: 'cancel' },
       ]);
     },
-    [assignMeal],
+    [assignMeal, repeatMealWeekdays, showSnackbar],
   );
 
   const weekLabel = useMemo(() => {
@@ -211,28 +284,65 @@ export default function PlannerScreen() {
         ]}
         activeSegmentId={section}
         onSegmentPress={(id) => setSection(id as 'plan' | 'shop')}
-        actions={[
-          {
-            icon: 'sparkles-outline',
-            accessibilityLabel: 'สุ่มเติมแพลนทั้งสัปดาห์',
-            onPress: () => {
-              Alert.alert('สุ่มเติมแพลน', 'เติมเมนูสุ่มในช่องว่างทุกมื้อของสัปดาห์นี้?', [
-                { text: 'ยกเลิก', style: 'cancel' },
-                { text: 'เติมเลย', onPress: () => autoFillWeek() },
-              ]);
-            },
-          },
-          {
-            icon: 'trash-outline',
-            accessibilityLabel: 'ล้างแพลนสัปดาห์',
-            onPress: clearWeek,
-          },
-          {
-            icon: 'refresh',
-            accessibilityLabel: 'รีเฟรชรายการซื้อของ',
-            onPress: () => rebuildShoppingList(),
-          },
-        ]}
+        actions={
+          section === 'plan'
+            ? [
+                {
+                  icon: 'sparkles-outline',
+                  accessibilityLabel: 'สุ่มเติมแพลนทั้งสัปดาห์',
+                  onPress: () => {
+                    Alert.alert('สุ่มเติมแพลน', 'เติมเมนูสุ่มในช่องว่างทุกมื้อของสัปดาห์นี้?', [
+                      { text: 'ยกเลิก', style: 'cancel' },
+                      {
+                        text: 'เติมเลย',
+                        onPress: async () => {
+                          await autoFillWeek();
+                          showSnackbar('เติมแพลนสัปดาห์แล้ว');
+                        },
+                      },
+                    ]);
+                  },
+                },
+                {
+                  icon: 'trash-outline',
+                  accessibilityLabel: 'ล้างแพลนสัปดาห์',
+                  onPress: clearWeek,
+                },
+              ]
+            : [
+                {
+                  icon: 'add-circle-outline',
+                  accessibilityLabel: 'เพิ่มรายการเอง',
+                  onPress: () => setManualAddOpen(true),
+                },
+                {
+                  icon: 'archive-outline',
+                  accessibilityLabel: 'ล้างที่ซื้อแล้ว',
+                  onPress: async () => {
+                    const n = shopping.filter((i) => i.checked).length;
+                    if (n === 0) {
+                      showSnackbar('ยังไม่มีรายการที่ติ๊กแล้ว');
+                      return;
+                    }
+                    await clearPurchasedShopping();
+                    showSnackbar(`ล้างรายการที่ซื้อแล้ว ${n} รายการ`);
+                  },
+                },
+                {
+                  icon: 'snow-outline',
+                  accessibilityLabel: 'ย้ายที่ติ๊กแล้วเข้าตู้เย็น',
+                  onPress: () => moveCheckedToFridge(),
+                },
+                {
+                  icon: 'refresh',
+                  accessibilityLabel: 'รีเฟรชรายการซื้อของ',
+                  onPress: async () => {
+                    await rebuildShoppingList();
+                    showSnackbar('อัปเดตรายการซื้อของแล้ว');
+                  },
+                },
+              ]
+        }
       />
       <ScrollView
         contentContainerStyle={{
@@ -245,14 +355,30 @@ export default function PlannerScreen() {
           <>
             <AppText variant="caption" muted style={styles.weekTitle}>{weekLabel}</AppText>
             <AppText variant="heading" style={styles.plannerHeading}>แพลนมื้อ</AppText>
+            {!weekHasAnyMeal && (
+              <View style={styles.emptyWeek}>
+                <AppText variant="label" muted>สัปดาห์นี้ยังไม่มีเมนู</AppText>
+                <Pressable
+                  style={[styles.emptyWeekBtn, accentGlow(colors, false)]}
+                  onPress={async () => {
+                    await autoFillWeek();
+                    showSnackbar('สุ่มทั้งสัปดาห์แล้ว');
+                  }}
+                >
+                  <Ionicons name="dice-outline" size={20} color={colors.orange} />
+                  <AppText variant="label" style={{ color: colors.orange }}>สุ่มทั้งสัปดาห์</AppText>
+                </Pressable>
+              </View>
+            )}
+
             <View style={styles.weekNav}>
-              <Pressable onPress={() => changeWeek(-1)} hitSlop={8} accessibilityLabel="สัปดาห์ก่อน">
+              <Pressable onPress={() => changeWeek(-1)} style={styles.navHit} accessibilityLabel="สัปดาห์ก่อน">
                 <Ionicons name="chevron-back" size={24} color={colors.ink} />
               </Pressable>
               <Pressable onPress={jumpToToday} style={styles.todayBtn}>
                 <AppText variant="label" style={styles.todayBtnText}>วันนี้</AppText>
               </Pressable>
-              <Pressable onPress={() => changeWeek(1)} hitSlop={8} accessibilityLabel="สัปดาห์ถัดไป">
+              <Pressable onPress={() => changeWeek(1)} style={styles.navHit} accessibilityLabel="สัปดาห์ถัดไป">
                 <Ionicons name="chevron-forward" size={24} color={colors.ink} />
               </Pressable>
             </View>
@@ -266,6 +392,7 @@ export default function PlannerScreen() {
                 const isToday = day.date === today;
                 const isSelected = day.date === selectedDate;
                 const dayNum = day.date.slice(8, 10);
+                const kcal = sumDayCalories(day, getRecipe);
                 return (
                   <Pressable
                     key={day.date}
@@ -295,14 +422,25 @@ export default function PlannerScreen() {
                     >
                       {dayNum}
                     </AppText>
-                    {dayHasMeals(day) && (
+                    {kcal > 0 ? (
+                      <AppText
+                        variant="caption"
+                        style={{
+                          fontSize: 9,
+                          color: isSelected ? colors.surface : colors.inkMuted,
+                          fontFamily: fonts.medium,
+                        }}
+                      >
+                        {kcal}
+                      </AppText>
+                    ) : dayHasMeals(day) ? (
                       <View
                         style={[
                           styles.dayDot,
                           { backgroundColor: isSelected ? colors.surface : colors.orange },
                         ]}
                       />
-                    )}
+                    ) : null}
                   </Pressable>
                 );
               })}
@@ -326,7 +464,9 @@ export default function PlannerScreen() {
                     <AppText variant="caption" muted>
                       วันนี้ · {selectedDay.date.slice(8, 10)} {selectedDay.date.slice(5, 7)}
                     </AppText>
-                    <AppText variant="caption" style={styles.kcalGoal}>เป้า 1,800</AppText>
+                    <AppText variant="caption" style={styles.kcalGoal}>
+                      เป้า {kcalGoal.toLocaleString()}
+                    </AppText>
                   </View>
                   <AppText variant="title" style={styles.kcalValue}>
                     {dayCalories > 0 ? `${dayCalories.toLocaleString()} kcal` : '—'}
@@ -335,7 +475,7 @@ export default function PlannerScreen() {
                     <View
                       style={[
                         styles.kcalBarFill,
-                        { width: `${Math.min(100, (dayCalories / 1800) * 100)}%` },
+                        { width: `${Math.min(100, kcalGoal > 0 ? (dayCalories / kcalGoal) * 100 : 0)}%` },
                       ]}
                     />
                   </View>
@@ -403,27 +543,87 @@ export default function PlannerScreen() {
               <AppText variant="title">รายการซื้อของ</AppText>
             </View>
             <AppText variant="caption" muted style={{ marginBottom: spacing.sm }}>
-              {checkedCount}/{shopping.length} รายการ
+              {checkedCount}/{shopping.length} รายการ · จากแพลนลบของในตู้เย็น
             </AppText>
-            {shopping.map((item) => (
-              <Pressable
-                key={item.id}
-                style={styles.shopRow}
-                onPress={() => toggleShoppingItem(item.id)}
-              >
-                <Ionicons
-                  name={item.checked ? 'checkbox' : 'square-outline'}
-                  size={22}
-                  color={item.checked ? colors.orange : colors.inkMuted}
-                />
-                <AppText style={[styles.shopName, item.checked && styles.shopChecked]}>{item.name}</AppText>
-                <AppText muted>
-                  {[item.amount, item.unit].filter(Boolean).join(' ')}
+            {shopping.length === 0 ? (
+              <AppText muted style={{ textAlign: 'center', marginTop: spacing.lg }}>
+                ยังไม่มีของต้องซื้อ — ลองเพิ่มเมนูในแพลนหรือกดเพิ่มเอง
+              </AppText>
+            ) : (
+              SHOPPING_GROUP_ORDER.map((groupId) => {
+                const items = groupedShopping.get(groupId);
+                if (!items?.length) return null;
+                return (
+                  <View key={groupId} style={styles.shopGroup}>
+                    <AppText variant="label" style={styles.shopGroupTitle}>
+                      {SHOPPING_GROUP_LABELS[groupId]}
+                    </AppText>
+                    {items.map((item) => (
+                      <Pressable
+                        key={item.id}
+                        style={styles.shopRow}
+                        onPress={() => toggleShoppingItem(item.id)}
+                      >
+                        <View style={styles.shopCheckHit}>
+                          <Ionicons
+                            name={item.checked ? 'checkbox' : 'square-outline'}
+                            size={22}
+                            color={item.checked ? colors.orange : colors.inkMuted}
+                          />
+                        </View>
+                        <AppText style={[styles.shopName, item.checked && styles.shopChecked]}>
+                          {item.name}
+                          {item.manual ? ' · เพิ่มเอง' : ''}
+                        </AppText>
+                        <AppText muted>
+                          {[item.amount, item.unit].filter(Boolean).join(' ')}
+                        </AppText>
+                      </Pressable>
+                    ))}
+                  </View>
+                );
+              })
+            )}
+            {checkedCount > 0 && (
+              <Pressable style={styles.shopSecondaryBtn} onPress={() => moveCheckedToFridge()}>
+                <AppText variant="label" style={{ color: colors.orange }}>
+                  ย้ายที่ติ๊กแล้วเข้าตู้เย็น
                 </AppText>
               </Pressable>
-            ))}
+            )}
           </View>
         )}
+
+        <Modal visible={manualAddOpen} transparent animationType="fade">
+          <View style={styles.modalBackdrop}>
+            <View style={styles.modalSheet}>
+              <AppText variant="title" style={{ marginBottom: spacing.md }}>เพิ่มรายการเอง</AppText>
+              <TextInput
+                value={manualName}
+                onChangeText={setManualName}
+                placeholder="ชื่อของ เช่น นมสด"
+                placeholderTextColor={colors.inkMuted}
+                style={styles.manualInput}
+              />
+              <Pressable
+                style={styles.manualSave}
+                onPress={async () => {
+                  const name = manualName.trim();
+                  if (!name) return;
+                  await addManualShopping(name);
+                  setManualName('');
+                  setManualAddOpen(false);
+                  showSnackbar(`เพิ่ม "${name}" ในรายการซื้อ`);
+                }}
+              >
+                <AppText style={{ color: colors.onAccent, fontFamily: fonts.semiBold }}>เพิ่ม</AppText>
+              </Pressable>
+              <Pressable onPress={() => setManualAddOpen(false)}>
+                <AppText muted style={{ textAlign: 'center', marginTop: spacing.md }}>ปิด</AppText>
+              </Pressable>
+            </View>
+          </View>
+        </Modal>
 
         <Modal visible={picker != null} transparent animationType="slide">
           <View style={styles.modalBackdrop}>
@@ -517,12 +717,11 @@ function FilledMealCard({
         </View>
       </Pressable>
       <View style={styles.filledActions}>
-        <Pressable onPress={onMenu} hitSlop={10} accessibilityLabel="เมนูมื้อนี้">
+        <Pressable onPress={onMenu} style={styles.iconHit} accessibilityLabel="เมนูมื้อนี้">
           <Ionicons name="ellipsis-horizontal" size={20} color={colors.inkMuted} />
         </Pressable>
         <Pressable
           onPress={onToggleDone}
-          hitSlop={8}
           accessibilityLabel={done ? 'ทำมื้อนี้แล้ว' : 'ยังไม่ทำมื้อนี้'}
           style={[styles.doneCircle, done && styles.doneCircleOn]}
         >
@@ -627,6 +826,34 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderColor: colors.border,
   },
   shopCtaText: { flex: 1, gap: 2 },
+  emptyWeek: {
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+    padding: spacing.md,
+    borderRadius: radius.xl,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  emptyWeekBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surface2,
+    borderWidth: 1,
+    borderColor: colors.border,
+    minHeight: 44,
+  },
+  navHit: {
+    minWidth: 44,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   weekNav: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -702,10 +929,16 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     gap: spacing.sm,
     paddingRight: spacing.xs,
   },
+  iconHit: {
+    minWidth: 44,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   doneCircle: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     borderWidth: 2,
     borderColor: colors.border,
     alignItems: 'center',
@@ -786,6 +1019,41 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderColor: colors.border,
   },
   calSummary: { textAlign: 'center', marginTop: spacing.sm },
+  shopGroup: { marginBottom: spacing.md },
+  shopGroupTitle: { marginBottom: spacing.xs, color: colors.orange },
+  shopCheckHit: {
+    minWidth: 44,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  shopSecondaryBtn: {
+    marginTop: spacing.md,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.md,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  manualInput: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    fontFamily: fonts.regular,
+    color: colors.ink,
+    marginBottom: spacing.md,
+  },
+  manualSave: {
+    backgroundColor: colors.orange,
+    borderRadius: radius.pill,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   shopSection: { marginTop: spacing.sm },
   shopHeader: {
     flexDirection: 'row',

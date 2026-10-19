@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -32,6 +32,7 @@ import { stepForUnit } from '@/lib/fridgeQuantity';
 import { isFridgeItemExpired, isFridgeItemExpiringSoon } from '@/lib/fridgeStatus';
 import { PLACE_LABELS, sortFridgeItemsByExpiry } from '@/lib/fridgeStorage';
 import { mergeIntoShoppingList } from '@/lib/shoppingList';
+import { useSnackbar } from '@/context/SnackbarContext';
 import type { FridgePlace } from '@/types/fridge';
 
 const POPULAR = ['ไข่ไก่', 'หมูสับ', 'นมสด', 'กะเพรา', 'ข้าวสวย'];
@@ -48,6 +49,16 @@ export default function FridgeScreen() {
   const [addSeed, setAddSeed] = useState<string>();
   const [matchFilter, setMatchFilter] = useState<CookMatchFilter>('all');
   const [prioritizeExpiring, setPrioritizeExpiring] = useState(true);
+  const params = useLocalSearchParams<{ expiring?: string }>();
+  const { showSnackbar } = useSnackbar();
+
+  useEffect(() => {
+    if (params.expiring === '1') {
+      setTab('cook');
+      setPrioritizeExpiring(true);
+      setMatchFilter('all');
+    }
+  }, [params.expiring]);
 
   const headerClearance = screenTopPadding(insets.top);
 
@@ -83,7 +94,7 @@ export default function FridgeScreen() {
     }));
     await mergeIntoShoppingList(entries);
     await refreshPlan();
-    Alert.alert('เพิ่มแล้ว', `เพิ่มของที่ขาด ${entries.length} รายการลงรายการซื้อของ`);
+    showSnackbar(`เพิ่มของที่ขาด ${entries.length} รายการลงรายการซื้อของ`);
   };
 
   return (
@@ -173,11 +184,18 @@ export default function FridgeScreen() {
                         onPress={() => router.push(`/fridge/${item.id}`)}
                         onUse={() => subtractAmount(item.id, stepForUnit(item.unit))}
                         onEdit={() => router.push(`/fridge/${item.id}`)}
-                        onDelete={() => {
-                          Alert.alert('ลบรายการ?', item.name, [
-                            { text: 'ยกเลิก', style: 'cancel' },
-                            { text: 'ลบ', style: 'destructive', onPress: () => removeItem(item.id) },
-                          ]);
+                        onDelete={async () => {
+                          const snapshot = { ...item };
+                          await removeItem(item.id);
+                          showSnackbar(`ลบ ${item.name} แล้ว`, async () => {
+                            await addItem({
+                              name: snapshot.name,
+                              quantity: snapshot.quantity,
+                              unit: snapshot.unit,
+                              place: snapshot.place,
+                              expiresAt: snapshot.expiresAt,
+                            });
+                          });
                         }}
                       />
                     ))}
@@ -213,6 +231,14 @@ export default function FridgeScreen() {
             onChange={(id) => setTab(id)}
           />
           <View style={styles.segmentSpacer} />
+          {params.expiring === '1' && (
+            <View style={styles.expiringBanner}>
+              <Ionicons name="time-outline" size={20} color={colors.cardYellow} />
+              <AppText variant="label" style={styles.expiringBannerText}>
+                ใช้ของที่ใกล้หมดอายุก่อน — เรียงตามวันหมดอายุ
+              </AppText>
+            </View>
+          )}
           <View style={styles.filterRow}>
             {(
               [
@@ -390,6 +416,18 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
+  expiringBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+    borderRadius: radius.lg,
+    backgroundColor: colors.warningBanner,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  expiringBannerText: { flex: 1 },
   filterRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginBottom: spacing.md },
   filterChip: {
     paddingHorizontal: spacing.md,
