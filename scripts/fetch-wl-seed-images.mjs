@@ -2,10 +2,10 @@
  * Download v4 weight-loss seed photos from Wikimedia Commons (see IMAGE_CREDITS.md).
  * Usage: node scripts/fetch-wl-seed-images.mjs
  */
-import { execFileSync } from 'node:child_process';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import sharp from 'sharp';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const seedDir = path.join(__dirname, '..', 'assets', 'seed');
@@ -16,7 +16,7 @@ const DOWNLOADS = [
   {
     out: 'wl-yum-khai-dao.jpg',
     dir: 'seed',
-    url: 'https://upload.wikimedia.org/wikipedia/commons/1/10/Yum_Khai_Dao_%28Crispy_Egg_Salad%29_-_Rosa%27s_Thai_2025-07-22.jpg',
+    url: 'https://upload.wikimedia.org/wikipedia/commons/e/ee/Boiled_Eggs_and_Tomato_slices_meal.jpg',
   },
   {
     out: 'wl-steamed-broccoli.jpg',
@@ -31,7 +31,7 @@ const DOWNLOADS = [
   {
     out: 'wl-grilled-chicken-breast.jpg',
     dir: 'seed',
-    url: 'https://upload.wikimedia.org/wikipedia/commons/b/b0/Grilled_chicken_breast%2C_Santo_Domingo%2C_La_Palma.jpg',
+    url: 'https://upload.wikimedia.org/wikipedia/commons/9/9d/Grilled_Chicken_Breasts_%2828905381261%29.jpg',
   },
   {
     out: 'wl-chawanmushi.jpg',
@@ -61,12 +61,12 @@ const DOWNLOADS = [
   {
     out: 'wl-ginger-beef-stirfry.jpg',
     dir: 'onedish',
-    url: 'https://upload.wikimedia.org/wikipedia/commons/a/ae/Ginger_beef_stir_fry.jpg',
+    url: 'https://upload.wikimedia.org/wikipedia/commons/d/de/Morning_glory_with_mince_pork_by_Trisorn_Triboon.jpg',
   },
   {
     out: 'wl-kaphrao-rice-3.jpg',
     dir: 'onedish',
-    url: 'https://upload.wikimedia.org/wikipedia/commons/5/5f/Ka-phrao_mu_%28basil_fried_minced_pork%29_with_rice_%26_egg%2C_Bangkok%2C_2017-11-07_%283%29.jpg',
+    url: 'https://upload.wikimedia.org/wikipedia/commons/9/9e/Organic_brown_rice%2C_pork%2C_kim_chi%2C_fried_egg_%288533213828%29.jpg',
   },
   {
     out: 'wl-ginger-chicken.jpg',
@@ -90,17 +90,12 @@ const DOWNLOADS = [
   },
 ];
 
-function resizeJpeg(src, dest) {
-  try {
-    execFileSync(
-      'convert',
-      [src, '-resize', '1200x1200>', '-strip', '-quality', '85', dest],
-      { stdio: 'pipe' },
-    );
-    return true;
-  } catch {
-    return false;
-  }
+async function resizeJpegBuffer(buf) {
+  return sharp(buf)
+    .rotate()
+    .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
+    .jpeg({ quality: 80, mozjpeg: true })
+    .toBuffer();
 }
 
 async function main() {
@@ -109,22 +104,18 @@ async function main() {
   const ua = 'SuttrBaanChanSeedBot/1.0 (https://github.com/promplooklpk-web/suttr-baan-chan)';
 
   for (const item of DOWNLOADS) {
+    await new Promise((r) => setTimeout(r, 2500));
     const dir = item.dir === 'onedish' ? onedishDir : seedDir;
     const dest = path.join(dir, item.out);
     const tmp = `${dest}.download`;
     const res = await fetch(item.url, { headers: { 'User-Agent': ua } });
     if (!res.ok) throw new Error(`HTTP ${res.status} for ${item.out}`);
-    const buf = Buffer.from(await res.arrayBuffer());
-    await writeFile(tmp, buf);
-    if (!resizeJpeg(tmp, dest)) {
-      await writeFile(dest, buf);
-    }
-    try {
-      await import('node:fs/promises').then((fs) => fs.unlink(tmp));
-    } catch {
-      /* ignore */
-    }
-    console.log('wrote', dest);
+    const raw = Buffer.from(await res.arrayBuffer());
+    await writeFile(tmp, raw);
+    const out = await resizeJpegBuffer(raw);
+    await writeFile(dest, out);
+    await unlink(tmp).catch(() => {});
+    console.log('wrote', dest, `(${(out.length / 1024).toFixed(1)} KB)`);
   }
 }
 
