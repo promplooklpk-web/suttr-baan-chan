@@ -46,7 +46,7 @@ const DOWNLOADS = [
   {
     out: 'wl-grilled-chicken-plate.jpg',
     dir: 'onedish',
-    url: 'https://upload.wikimedia.org/wikipedia/commons/9/9d/Grilled_Chicken_Breasts_%2828905381261%29.jpg',
+    url: 'https://upload.wikimedia.org/wikipedia/commons/d/d6/%22Pilaf%22_of_brown_rice%2C_quinoa%2C_and_vegetables%2C_grilled_chicken_thigh_meat%2C_and_saut%C3%A9ed_broccoli_sprouts_%E9%95%B7%E7%B2%92%E7%8E%84%E7%B1%B3%E3%81%A8%E3%82%AD%E3%83%8C%E3%82%A2%E3%81%AE%E3%83%94%E3%83%A9%E3%83%95%E3%82%82%E3%81%A9%E3%81%8D%E3%80%81%E9%B6%8F%E3%83%A2%E3%83%A2%E3%81%AE%E3%82%B0%E3%83%AA%E3%83%AB%E3%80%81%E8%8A%BD%E3%82%AD%E3%83%A3%E3%83%99%E3%83%84%E3%81%AE%E3%82%BD%E3%83%86%E3%83%BC.jpg',
   },
   {
     out: 'wl-egg-drop-soup.jpg',
