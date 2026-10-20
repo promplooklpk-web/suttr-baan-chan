@@ -122,6 +122,40 @@ export async function saveMealPlan(store: MealPlanStore): Promise<void> {
   await saveFile(file);
 }
 
+/** Remove meal slots that reference deleted recipe ids (e.g. after seed pack migration). */
+export async function purgeRemovedRecipeIdsFromMealPlan(
+  removedIds: ReadonlySet<string>,
+): Promise<void> {
+  if (removedIds.size === 0) return;
+  const file = await loadFile();
+  let changed = false;
+  for (const weekKey of Object.keys(file.weeks)) {
+    const days = file.weeks[weekKey];
+    if (!days?.length) continue;
+    file.weeks[weekKey] = days.map((day) => {
+      const meals = { ...day.meals };
+      const done = { ...(day.done ?? {}) };
+      let dayChanged = false;
+      for (const slot of Object.keys(meals) as MealSlot[]) {
+        const id = meals[slot];
+        if (id && removedIds.has(id)) {
+          delete meals[slot];
+          delete done[slot];
+          dayChanged = true;
+        }
+      }
+      if (!dayChanged) return day;
+      changed = true;
+      return {
+        ...day,
+        meals,
+        done: Object.keys(done).length > 0 ? done : undefined,
+      };
+    });
+  }
+  if (changed) await saveFile(file);
+}
+
 function updateDayInWeek(
   days: MealPlanDay[],
   date: string,

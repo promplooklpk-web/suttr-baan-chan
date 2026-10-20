@@ -14,6 +14,8 @@ import {
   installCleanSeedRecipes,
   installOnedishSeedRecipes,
 } from '@/lib/seedInstall';
+import { purgeRemovedRecipeIdsFromMealPlan } from '@/lib/mealPlanStorage';
+import { SEED_PACK_V3_RECIPE_IDS } from '@/lib/seedPackV3Ids';
 import {
   CURRENT_SEED_VERSION,
   getEffectiveSeedVersion,
@@ -167,6 +169,22 @@ async function migrateToVersion3(recipes: Recipe[]): Promise<Recipe[]> {
   return mergeSeedRecipes(clean, newOnedish, user);
 }
 
+async function migrateToVersion4(recipes: Recipe[]): Promise<Recipe[]> {
+  const toRemove = recipes.filter((r) => SEED_PACK_V3_RECIPE_IDS.has(r.id));
+  const removedIds = new Set(toRemove.map((r) => r.id));
+  for (const recipe of toRemove) {
+    await deleteAllRecipeImages(recipe);
+  }
+  await purgeRemovedRecipeIdsFromMealPlan(removedIds);
+
+  const userRecipes = recipes.filter(
+    (r) => !SEED_PACK_V3_RECIPE_IDS.has(r.id) && !isLegacyRound1SeedId(r.id),
+  );
+  const newClean = await installCleanSeedRecipes();
+  const newOnedish = await installOnedishSeedRecipes();
+  return mergeSeedRecipes(newClean, newOnedish, userRecipes);
+}
+
 async function migrateSeedData(store: RecipeStore): Promise<Recipe[]> {
   let recipes = store.recipes;
   let version = getEffectiveSeedVersion(store);
@@ -179,6 +197,11 @@ async function migrateSeedData(store: RecipeStore): Promise<Recipe[]> {
   if (version < 3) {
     recipes = await migrateToVersion3(recipes);
     version = 3;
+  }
+
+  if (version < 4) {
+    recipes = await migrateToVersion4(recipes);
+    version = 4;
   }
 
   await writeStore(recipes, CURRENT_SEED_VERSION);

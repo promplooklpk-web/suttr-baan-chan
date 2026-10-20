@@ -14,7 +14,7 @@ const root = path.join(__dirname, '..');
 const distDir = path.join(root, 'dist');
 const outDir = process.env.SHOT_DIR ?? path.join(root, 'artifacts', 'screenshots');
 
-const RECIPE_ID = '6da6201a-3a01-4726-aa9a-5bcfc5c8d8c7';
+const RECIPE_ID = 'b4010001-4a20-4f80-a001-000000000001';
 
 /** @type {{ name: string; path: string; setup?: (page: import('@playwright/test').Page) => Promise<void> }[]} */
 const ROUTES = [
