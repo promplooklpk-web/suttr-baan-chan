@@ -107,7 +107,7 @@
         "ชิมรสก่อนเสิร์ฟ ปรับเค็มหวานให้พอดี"
       ],
       "photo": {
-        "path": "images/boiled-egg-veggie-bowl.jpg",
+        "path": "images/wl-yum-khai-dao.jpg",
         "mime": "image/jpeg"
       },
       "ingredients": [
@@ -150,7 +150,7 @@
           "text": "ผสมน้ำยำ: น้ำมะนาว น้ำปลา พริก หอมแดง"
         },
         {
-          "text": "จัดไข่กับมะเขือเทอ ราดน้ำยำ คลุกเบาๆ"
+          "text": "จัดไข่กับมะเขือเทศ ราดน้ำยำ คลุกเบาๆ"
         }
       ],
       "createdAt": "2026-10-19T10:00:00+07:00",
@@ -275,7 +275,7 @@
         {
           "name": "พริกไทยป่น",
           "amount": 1,
-          "unit": "pinch"
+          "unit": "หยิบมือ"
         }
       ],
       "steps": [
@@ -354,7 +354,7 @@
           "text": "ต้มน้ำใส ใส่แครอท ต้มจนนิ่มเล็กน้อย"
         },
         {
-          "text": "ปั้นหมูสับเป็นทอง ลวกในซุปจนสุก"
+          "text": "ปั้นหมูสับเป็นก้อน ลวกในซุปจนสุก"
         },
         {
           "text": "ใส่เต้าหู้หั่น ปรุงรสด้วยซอสปรุงรส"
@@ -386,7 +386,7 @@
         "ชิมรสก่อนเสิร์ฟ ปรับเค็มหวานให้พอดี"
       ],
       "photo": {
-        "path": "images/grilled-chicken-skewers.jpg",
+        "path": "images/wl-grilled-chicken-breast.jpg",
         "mime": "image/jpeg"
       },
       "ingredients": [
@@ -451,13 +451,13 @@
       "cookMinutes": 6,
       "servings": 1,
       "difficulty": "easy",
-      "notes": "ประมาณ 180 กิโลแคลอรี/เสิร์ฟ โปรตีนราว 8 ก. (ค่าประมาณจากส่วนผสมหลัก ปรับตามแบรนด์และปริมาณจริง)",
+      "notes": "ประมาณ 90 กิโลแคลอรี/เสิร์ฟ โปรตีนราว 5 ก. (ค่าประมาณจากส่วนผสมหลัก ปรับตามแบรนด์และปริมาณจริง)",
       "tips": [
         "ใช้ไฟกลาง–แรงและน้ำมันน้อยที่สุดที่ทำได้",
         "ชิมรสก่อนเสิร์ฟ ปรับเค็มหวานให้พอดี"
       ],
       "photo": {
-        "path": "images/boiled-egg-veggie-bowl.jpg",
+        "path": "images/wl-steamed-broccoli.jpg",
         "mime": "image/jpeg"
       },
       "ingredients": [
@@ -522,7 +522,7 @@
         "ชิมรสก่อนเสิร์ฟ ปรับเค็มหวานให้พอดี"
       ],
       "photo": {
-        "path": "images/chicken-avocado-wrap.jpg",
+        "path": "images/wl-beef-broccoli-stirfry.jpg",
         "mime": "image/jpeg"
       },
       "ingredients": [
@@ -554,7 +554,7 @@
         {
           "name": "พริกไทยป่น",
           "amount": 1,
-          "unit": "pinch"
+          "unit": "หยิบมือ"
         }
       ],
       "steps": [
@@ -594,7 +594,7 @@
         "ชิมรสก่อนเสิร์ฟ ปรับเค็มหวานให้พอดี"
       ],
       "photo": {
-        "path": "images/grilled-chicken-skewers.jpg",
+        "path": "images/wl-grilled-pork-chops.jpg",
         "mime": "image/jpeg"
       },
       "ingredients": [
@@ -666,7 +666,7 @@
         "ชิมรสก่อนเสิร์ฟ ปรับเค็มหวานให้พอดี"
       ],
       "photo": {
-        "path": "images/tom-jued-tofu.jpg",
+        "path": "images/wl-chawanmushi.jpg",
         "mime": "image/jpeg"
       },
       "ingredients": [

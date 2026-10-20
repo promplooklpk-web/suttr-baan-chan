@@ -85,7 +85,7 @@ clean = [
         1,
         220,
         14,
-        "boiled-egg-veggie-bowl.jpg",
+        "wl-yum-khai-dao.jpg",
         [
             {"name": "ไข่ไก่", "amount": 2, "unit": "ฟอง"},
             {"name": "หอมแดงซอย", "amount": 1, "unit": "หัว"},
@@ -97,7 +97,7 @@ clean = [
         [
             "ต้มไข่ 10–11 นาทีจนกึ่งสุก–สุก แช่น้ำเย็น ปอกเปลือก ผ่าครึ่ง",
             "ผสมน้ำยำ: น้ำมะนาว น้ำปลา พริก หอมแดง",
-            "จัดไข่กับมะเขือเทอ ราดน้ำยำ คลุกเบาๆ",
+            "จัดไข่กับมะเขือเทศ ราดน้ำยำ คลุกเบาๆ",
         ],
     ),
     recipe(
@@ -142,7 +142,7 @@ clean = [
             {"name": "ไข่ไก่", "amount": 1, "unit": "ฟอง"},
             {"name": "ผักโขมสด", "amount": 1, "unit": "ถ้วย"},
             {"name": "น้ำมันรำข้าว", "amount": 1, "unit": "ช้อนชา"},
-            {"name": "พริกไทยป่น", "amount": 1, "unit": "pinch"},
+            {"name": "พริกไทยป่น", "amount": 1, "unit": "หยิบมือ"},
         ],
         [
             "ล้างผักโขม สะเด็ดน้ำ หั่นสั้น",
@@ -172,7 +172,7 @@ clean = [
         ],
         [
             "ต้มน้ำใส ใส่แครอท ต้มจนนิ่มเล็กน้อย",
-            "ปั้นหมูสับเป็นทอง ลวกในซุปจนสุก",
+            "ปั้นหมูสับเป็นก้อน ลวกในซุปจนสุก",
             "ใส่เต้าหู้หั่น ปรุงรสด้วยซอสปรุงรส",
             "โรยต้นหอม ยกไฟ",
         ],
@@ -187,7 +187,7 @@ clean = [
         1,
         290,
         40,
-        "grilled-chicken-skewers.jpg",
+        "wl-grilled-chicken-breast.jpg",
         [
             {"name": "อกไก่ไม่ติดหนัง", "amount": 170, "unit": "กรัม"},
             {"name": "น้ำปลา", "amount": 1, "unit": "ช้อนโต๊ะ"},
@@ -211,9 +211,9 @@ clean = [
         8,
         6,
         1,
-        180,
-        8,
-        "boiled-egg-veggie-bowl.jpg",
+        90,
+        5,
+        "wl-steamed-broccoli.jpg",
         [
             {"name": "บรอกโคลี", "amount": 200, "unit": "กรัม"},
             {"name": "น้ำปลา", "amount": 1, "unit": "ช้อนโต๊ะ"},
@@ -237,14 +237,14 @@ clean = [
         1,
         350,
         28,
-        "chicken-avocado-wrap.jpg",
+        "wl-beef-broccoli-stirfry.jpg",
         [
             {"name": "เนื้อสับไม่ติดมัน", "amount": 120, "unit": "กรัม"},
             {"name": "บรอกโคลีหั่นชิ้น", "amount": 150, "unit": "กรัม"},
             {"name": "กระเทียมสับ", "amount": 2, "unit": "กลีบ"},
             {"name": "น้ำมันรำข้าว", "amount": 1, "unit": "ช้อนชา"},
             {"name": "ซอสปรุงรส", "amount": 1, "unit": "ช้อนโต๊ะ"},
-            {"name": "พริกไทยป่น", "amount": 1, "unit": "pinch"},
+            {"name": "พริกไทยป่น", "amount": 1, "unit": "หยิบมือ"},
         ],
         [
             "ร้อนกระทะ ใส่น้ำมันน้อย ผัดกระเทียมหอม",
@@ -263,7 +263,7 @@ clean = [
         1,
         380,
         32,
-        "grilled-chicken-skewers.jpg",
+        "wl-grilled-pork-chops.jpg",
         [
             {"name": "หมูสันนอกไม่ติดมัน", "amount": 150, "unit": "กรัม"},
             {"name": "น้ำปลา", "amount": 1, "unit": "ช้อนโต๊ะ"},
@@ -289,7 +289,7 @@ clean = [
         2,
         260,
         20,
-        "tom-jued-tofu.jpg",
+        "wl-chawanmushi.jpg",
         [
             {"name": "ไข่ไก่", "amount": 3, "unit": "ฟอง"},
             {"name": "หมูสับ", "amount": 80, "unit": "กรัม"},
@@ -318,7 +318,7 @@ onedish = [
         1,
         420,
         38,
-        "khao-man-gai-luak-cover.jpg",
+        "wl-grilled-chicken-plate.jpg",
         [
             {"name": "ข้าวกล้องหุงสุก", "amount": 150, "unit": "กรัม"},
             {"name": "อกไก่", "amount": 120, "unit": "กรัม"},
@@ -343,7 +343,7 @@ onedish = [
         1,
         310,
         22,
-        "khao-tom-cover.jpg",
+        "wl-egg-drop-soup.jpg",
         [
             {"name": "ไข่ไก่", "amount": 2, "unit": "ฟอง"},
             {"name": "หมูสับ", "amount": 60, "unit": "กรัม"},
@@ -367,7 +367,7 @@ onedish = [
         1,
         340,
         24,
-        "kra-pao-gai-cover.jpg",
+        "wl-pork-broccoli-dish.jpg",
         [
             {"name": "หมูสับ", "amount": 100, "unit": "กรัม"},
             {"name": "บรอกโคลี", "amount": 180, "unit": "กรัม"},
@@ -392,7 +392,7 @@ onedish = [
         1,
         360,
         26,
-        "kra-pao-gai-cover.jpg",
+        "wl-ginger-beef-stirfry.jpg",
         [
             {"name": "เนื้อสับ", "amount": 120, "unit": "กรัม"},
             {"name": "ผักบุ้ง", "amount": 150, "unit": "กรัม"},
@@ -417,7 +417,7 @@ onedish = [
         1,
         430,
         25,
-        "khao-pad-gai-cover.jpg",
+        "wl-kaphrao-rice-3.jpg",
         [
             {"name": "ข้าวกล้อง", "amount": 150, "unit": "กรัม"},
             {"name": "หมูสับ", "amount": 90, "unit": "กรัม"},
@@ -464,7 +464,7 @@ onedish = [
         1,
         320,
         34,
-        "khao-pad-gai-cover.jpg",
+        "wl-ginger-chicken.jpg",
         [
             {"name": "อกไก่หั่น", "amount": 140, "unit": "กรัม"},
             {"name": "บรอกโคลี", "amount": 150, "unit": "กรัม"},
@@ -481,7 +481,7 @@ onedish = [
     ),
     recipe(
         "b4020008-4a20-4f80-a002-000000000008",
-        "ต้มจืดหมูสับฟองน้ำมะเขือ",
+        "ต้มจืดหมูสับฟองเต้าหู้มะเขือเทศ",
         "อาหารลดน้ำหนัก",
         ["ลดน้ำหนัก", "คลีน", "หมูสับ"],
         10,
@@ -489,18 +489,18 @@ onedish = [
         2,
         280,
         16,
-        "suki-nam-cover.jpg",
+        "wl-clear-soup.jpg",
         [
             {"name": "หมูสับ", "amount": 100, "unit": "กรัม"},
-            {"name": "ฟองน้ำแห้ง", "amount": 20, "unit": "กรัม"},
+            {"name": "ฟองเต้าหู้แห้ง", "amount": 20, "unit": "กรัม"},
             {"name": "มะเขือเทศ", "amount": 2, "unit": "ลูก"},
             {"name": "น้ำซุป", "amount": 700, "unit": "มล."},
             {"name": "ซอสปรุงรส", "amount": 1, "unit": "ช้อนโต๊ะ"},
         ],
         [
-            "แช่ฟองน้ำให้นิ่ม",
+            "แช่ฟองเต้าหู้ให้นิ่ม",
             "ต้มน้ำซุป ใส่หมูสับเป็นก้อน",
-            "ใส่ฟองน้ำ มะเขือเทอ ปรุงรส",
+            "ใส่ฟองเต้าหู้และมะเขือเทศ ปรุงรส",
         ],
     ),
     recipe(
@@ -513,14 +513,14 @@ onedish = [
         1,
         440,
         24,
-        "khao-pad-gai-step-egg.jpg",
+        "wl-kaphrao-rice-1.jpg",
         [
             {"name": "ข้าวกล้อง", "amount": 140, "unit": "กรัม"},
             {"name": "หมูสับ", "amount": 70, "unit": "กรัม"},
             {"name": "ไข่ไก่", "amount": 1, "unit": "ฟอง"},
             {"name": "น้ำมันรำข้าว", "amount": 1, "unit": "ช้อนชา"},
             {"name": "ซอสปรุงรส", "amount": 1, "unit": "ช้อนโต๊ะ"},
-            {"name": "พริกไทย", "amount": 1, "unit": "pinch"},
+            {"name": "พริกไทย", "amount": 1, "unit": "หยิบมือ"},
         ],
         [
             "ผัดหมูสับปรุงรส",
@@ -536,18 +536,18 @@ onedish = [
         12,
         25,
         1,
-        390,
-        30,
-        "suki-nam-cover.jpg",
+        320,
+        34,
+        "wl-steamed-pork-egg.jpg",
         [
-            {"name": "หมูสามชั้นอ่อน (ตัดมัน)", "amount": 100, "unit": "กรัม"},
+            {"name": "หมูสันใน", "amount": 120, "unit": "กรัม"},
             {"name": "บรอกโคลี", "amount": 200, "unit": "กรัม"},
             {"name": "น้ำปลา", "amount": 1, "unit": "ช้อนโต๊ะ"},
             {"name": "พริกป่น", "amount": 1, "unit": "ช้อนโต๊ะ"},
             {"name": "ข้าวคั่ว", "amount": 0.5, "unit": "ช้อนโต๊ะ"},
         ],
         [
-            "นึ่งหมูและบรอกโคลี 20 นาทีจนสุก",
+            "นึ่งหมูสันในและบรอกโคลี 20 นาทีจนสุก",
             "ผสมน้ำจิ้มแจ่ว",
             "เสิร์ฟร้อน",
         ],

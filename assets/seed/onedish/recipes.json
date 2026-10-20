@@ -26,7 +26,7 @@
         "ชิมรสก่อนเสิร์ฟ ปรับเค็มหวานให้พอดี"
       ],
       "photo": {
-        "path": "images/khao-man-gai-luak-cover.jpg",
+        "path": "images/wl-grilled-chicken-plate.jpg",
         "mime": "image/jpeg"
       },
       "ingredients": [
@@ -93,7 +93,7 @@
         "ชิมรสก่อนเสิร์ฟ ปรับเค็มหวานให้พอดี"
       ],
       "photo": {
-        "path": "images/khao-tom-cover.jpg",
+        "path": "images/wl-egg-drop-soup.jpg",
         "mime": "image/jpeg"
       },
       "ingredients": [
@@ -157,7 +157,7 @@
         "ชิมรสก่อนเสิร์ฟ ปรับเค็มหวานให้พอดี"
       ],
       "photo": {
-        "path": "images/kra-pao-gai-cover.jpg",
+        "path": "images/wl-pork-broccoli-dish.jpg",
         "mime": "image/jpeg"
       },
       "ingredients": [
@@ -225,7 +225,7 @@
         "ชิมรสก่อนเสิร์ฟ ปรับเค็มหวานให้พอดี"
       ],
       "photo": {
-        "path": "images/kra-pao-gai-cover.jpg",
+        "path": "images/wl-ginger-beef-stirfry.jpg",
         "mime": "image/jpeg"
       },
       "ingredients": [
@@ -293,7 +293,7 @@
         "ชิมรสก่อนเสิร์ฟ ปรับเค็มหวานให้พอดี"
       ],
       "photo": {
-        "path": "images/khao-pad-gai-cover.jpg",
+        "path": "images/wl-kaphrao-rice-3.jpg",
         "mime": "image/jpeg"
       },
       "ingredients": [
@@ -417,7 +417,7 @@
         "ชิมรสก่อนเสิร์ฟ ปรับเค็มหวานให้พอดี"
       ],
       "photo": {
-        "path": "images/khao-pad-gai-cover.jpg",
+        "path": "images/wl-ginger-chicken.jpg",
         "mime": "image/jpeg"
       },
       "ingredients": [
@@ -468,7 +468,7 @@
     },
     {
       "id": "b4020008-4a20-4f80-a002-000000000008",
-      "title": "ต้มจืดหมูสับฟองน้ำมะเขือ",
+      "title": "ต้มจืดหมูสับฟองเต้าหู้มะเขือเทศ",
       "category": "อาหารลดน้ำหนัก",
       "tags": [
         "ลดน้ำหนัก",
@@ -485,7 +485,7 @@
         "ชิมรสก่อนเสิร์ฟ ปรับเค็มหวานให้พอดี"
       ],
       "photo": {
-        "path": "images/suki-nam-cover.jpg",
+        "path": "images/wl-clear-soup.jpg",
         "mime": "image/jpeg"
       },
       "ingredients": [
@@ -495,7 +495,7 @@
           "unit": "กรัม"
         },
         {
-          "name": "ฟองน้ำแห้ง",
+          "name": "ฟองเต้าหู้แห้ง",
           "amount": 20,
           "unit": "กรัม"
         },
@@ -517,13 +517,13 @@
       ],
       "steps": [
         {
-          "text": "แช่ฟองน้ำให้นิ่ม"
+          "text": "แช่ฟองเต้าหู้ให้นิ่ม"
         },
         {
           "text": "ต้มน้ำซุป ใส่หมูสับเป็นก้อน"
         },
         {
-          "text": "ใส่ฟองน้ำ มะเขือเทอ ปรุงรส"
+          "text": "ใส่ฟองเต้าหู้และมะเขือเทศ ปรุงรส"
         }
       ],
       "createdAt": "2026-10-19T10:00:00+07:00",
@@ -549,7 +549,7 @@
         "ชิมรสก่อนเสิร์ฟ ปรับเค็มหวานให้พอดี"
       ],
       "photo": {
-        "path": "images/khao-pad-gai-step-egg.jpg",
+        "path": "images/wl-kaphrao-rice-1.jpg",
         "mime": "image/jpeg"
       },
       "ingredients": [
@@ -581,7 +581,7 @@
         {
           "name": "พริกไทย",
           "amount": 1,
-          "unit": "pinch"
+          "unit": "หยิบมือ"
         }
       ],
       "steps": [
@@ -612,19 +612,19 @@
       "cookMinutes": 25,
       "servings": 1,
       "difficulty": "easy",
-      "notes": "ประมาณ 390 กิโลแคลอรี/เสิร์ฟ โปรตีนราว 30 ก. (ค่าประมาณจากส่วนผสมหลัก ปรับตามแบรนด์และปริมาณจริง)",
+      "notes": "ประมาณ 320 กิโลแคลอรี/เสิร์ฟ โปรตีนราว 34 ก. (ค่าประมาณจากส่วนผสมหลัก ปรับตามแบรนด์และปริมาณจริง)",
       "tips": [
         "ใช้ไฟกลาง–แรงและน้ำมันน้อยที่สุดที่ทำได้",
         "ชิมรสก่อนเสิร์ฟ ปรับเค็มหวานให้พอดี"
       ],
       "photo": {
-        "path": "images/suki-nam-cover.jpg",
+        "path": "images/wl-steamed-pork-egg.jpg",
         "mime": "image/jpeg"
       },
       "ingredients": [
         {
-          "name": "หมูสามชั้นอ่อน (ตัดมัน)",
-          "amount": 100,
+          "name": "หมูสันใน",
+          "amount": 120,
           "unit": "กรัม"
         },
         {
@@ -650,7 +650,7 @@
       ],
       "steps": [
         {
-          "text": "นึ่งหมูและบรอกโคลี 20 นาทีจนสุก"
+          "text": "นึ่งหมูสันในและบรอกโคลี 20 นาทีจนสุก"
         },
         {
           "text": "ผสมน้ำจิ้มแจ่ว"
