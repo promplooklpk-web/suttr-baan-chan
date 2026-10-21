@@ -125,19 +125,20 @@ export function GlassTabBar({ state, descriptors, navigation }: {
         >
           <View style={styles.barFill} pointerEvents="none" />
           <View style={styles.tabsRow}>
-            {leftRoutes.map(renderTab)}
-            <View style={styles.fabSlot}>
-              <Pressable
-                onPress={() => setFabOpen(true)}
-                style={[styles.fab, accentGlow(colors, true)]}
-                accessibilityLabel="เพิ่มหรือสุ่มเมนู"
-              >
-                <Ionicons name="add" size={28} color={colors.onAccent} />
-              </Pressable>
-            </View>
-            {rightRoutes.map(renderTab)}
+            <View style={styles.tabGroup}>{leftRoutes.map(renderTab)}</View>
+            <View style={styles.fabSlot} pointerEvents="box-none" />
+            <View style={styles.tabGroup}>{rightRoutes.map(renderTab)}</View>
           </View>
         </BlurView>
+        <View style={styles.fabOverlay} pointerEvents="box-none">
+          <Pressable
+            onPress={() => setFabOpen(true)}
+            style={[styles.fab, accentGlow(colors, true)]}
+            accessibilityLabel="เพิ่มหรือสุ่มเมนู"
+          >
+            <Ionicons name="add" size={28} color={colors.onAccent} />
+          </Pressable>
+        </View>
       </View>
       <Modal visible={fabOpen} transparent animationType="fade" onRequestClose={() => setFabOpen(false)}>
         <Pressable style={styles.fabBackdrop} onPress={() => setFabOpen(false)}>
@@ -179,8 +180,8 @@ const createStyles = (colors: ThemeColors) =>
       bottom: 0,
     },
     barShadow: {
+      position: 'relative',
       borderRadius: radius.xl,
-      overflow: 'visible',
       shadowColor: colors.tabBarShadow,
       shadowOffset: { width: 0, height: 10 },
       shadowOpacity: 0.35,
@@ -189,7 +190,7 @@ const createStyles = (colors: ThemeColors) =>
     },
     blur: {
       borderRadius: radius.xl,
-      overflow: 'visible',
+      overflow: 'hidden',
       borderWidth: 1,
       borderColor: colors.tabBarBorder,
       backgroundColor: Platform.OS === 'android' ? colors.tabBarFill : undefined,
@@ -202,25 +203,31 @@ const createStyles = (colors: ThemeColors) =>
     tabsRow: {
       flexDirection: 'row',
       alignItems: 'flex-end',
-      paddingHorizontal: 2,
+      paddingHorizontal: spacing.sm,
       paddingTop: 8,
       paddingBottom: 6,
-      overflow: 'visible',
+    },
+    tabGroup: {
+      flex: 1,
+      flexDirection: 'row',
+      minWidth: 0,
+      overflow: 'hidden',
     },
     tabHit: {
       flex: 1,
       minWidth: 0,
-      overflow: 'visible',
+      paddingHorizontal: 2,
     },
     tabPill: {
       position: 'relative',
       alignItems: 'center',
       justifyContent: 'center',
+      alignSelf: 'stretch',
       paddingVertical: 4,
-      paddingHorizontal: 1,
-      borderRadius: radius.pill,
+      paddingHorizontal: 2,
+      borderRadius: radius.lg,
       gap: 1,
-      overflow: 'visible',
+      overflow: 'hidden',
     },
     tabPillActive: {
       backgroundColor: colors.tabBarActivePill,
@@ -279,9 +286,16 @@ const createStyles = (colors: ThemeColors) =>
     },
     fabSlot: {
       width: 58,
+      flexShrink: 0,
+    },
+    fabOverlay: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      bottom: 6,
       alignItems: 'center',
       justifyContent: 'flex-end',
-      marginBottom: 2,
+      zIndex: 4,
     },
     fabBackdrop: {
       flex: 1,
@@ -316,9 +330,9 @@ const createStyles = (colors: ThemeColors) =>
       backgroundColor: colors.orange,
       alignItems: 'center',
       justifyContent: 'center',
-      marginTop: -22,
+      marginBottom: 2,
+      transform: [{ translateY: -22 }],
       borderWidth: 2,
       borderColor: colors.tabBarFill,
-      zIndex: 3,
     },
   });
