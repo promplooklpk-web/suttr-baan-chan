@@ -1,9 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { Glass } from '@/components/Glass';
 import { fonts, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
@@ -39,22 +39,10 @@ export function floatingHeaderClearance(topInset: number): number {
 
 function GlassCapsule({ children, style }: { children: React.ReactNode; style?: object }) {
   const styles = useThemedStyles(createStyles);
-  const { blurTint } = useTheme();
   return (
-    <View style={[styles.capsuleShadowWrap, style]}>
-      <View style={styles.capsuleHairline}>
-        <View style={styles.capsuleBorder}>
-          <BlurView
-            intensity={Platform.OS === 'ios' ? 80 : 92}
-            tint={blurTint}
-            style={styles.capsuleBlur}
-          >
-            <View style={styles.capsuleTint} pointerEvents="none" />
-            <View style={styles.capsuleInner}>{children}</View>
-          </BlurView>
-        </View>
-      </View>
-    </View>
+    <Glass variant="chrome" borderRadius={radius.pill} intensity={72} style={style}>
+      <View style={styles.capsuleInner}>{children}</View>
+    </Glass>
   );
 }
 
@@ -150,35 +138,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: spacing.sm,
-  },
-  capsuleShadowWrap: {
-    borderRadius: radius.pill,
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: colors.shadow === colors.orange ? 0.28 : 0.16,
-    shadowRadius: 14,
-    elevation: 6,
-  },
-  capsuleHairline: {
-    borderRadius: radius.pill,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.glassHairline,
-    padding: StyleSheet.hairlineWidth,
-  },
-  capsuleBorder: {
-    borderRadius: radius.pill,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: colors.glassBorder,
-    backgroundColor: Platform.OS === 'android' ? colors.glassAndroidBg : undefined,
-  },
-  capsuleBlur: {
-    borderRadius: radius.pill,
-    overflow: 'hidden',
-  },
-  capsuleTint: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: colors.glassTint,
   },
   capsuleInner: {
     minHeight: FLOATING_HEADER_CAPSULE_HEIGHT,

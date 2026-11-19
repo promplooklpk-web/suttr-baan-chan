@@ -1,6 +1,7 @@
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
+import { Glass } from '@/components/Glass';
 import { fonts, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
@@ -30,46 +31,57 @@ export function ConfirmModal({
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
-      <Pressable style={styles.backdrop} onPress={onCancel}>
-        <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
-          <AppText variant="title">{title}</AppText>
-          <AppText muted style={styles.message}>{message}</AppText>
-          <View style={styles.actions}>
-            <Pressable style={styles.cancelBtn} onPress={onCancel}>
-              <AppText variant="label">{cancelLabel}</AppText>
-            </Pressable>
-            <Pressable
-              style={[styles.confirmBtn, destructive && styles.confirmDestructive]}
-              onPress={onConfirm}
-            >
-              <AppText
-                variant="label"
-                style={{ color: destructive ? styles.destructiveText.color : styles.confirmText.color }}
+      <View style={styles.root}>
+        <Pressable style={styles.backdrop} onPress={onCancel} accessibilityLabel="ปิด" />
+        <Glass variant="material" borderRadius={radius.sheet} style={styles.sheetWrap}>
+          <View style={styles.sheetInner}>
+            <AppText variant="title">{title}</AppText>
+            <AppText muted style={styles.message}>
+              {message}
+            </AppText>
+            <View style={styles.actions}>
+              <Pressable style={styles.cancelBtn} onPress={onCancel}>
+                <AppText variant="label">{cancelLabel}</AppText>
+              </Pressable>
+              <Pressable
+                style={[styles.confirmBtn, destructive && styles.confirmDestructive]}
+                onPress={onConfirm}
               >
-                {confirmLabel}
-              </AppText>
-            </Pressable>
+                <AppText
+                  variant="label"
+                  style={{
+                    color: destructive ? styles.destructiveText.color : styles.confirmText.color,
+                  }}
+                >
+                  {confirmLabel}
+                </AppText>
+              </Pressable>
+            </View>
           </View>
-        </Pressable>
-      </Pressable>
+        </Glass>
+      </View>
     </Modal>
   );
 }
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-    backdrop: {
+    root: {
       flex: 1,
-      backgroundColor: 'rgba(0,0,0,0.45)',
       justifyContent: 'center',
       padding: spacing.lg,
     },
-    sheet: {
-      backgroundColor: colors.cream,
-      borderRadius: radius.xl,
+    backdrop: {
+      ...StyleSheet.absoluteFill,
+      backgroundColor: colors.modalScrim,
+    },
+    sheetWrap: {
+      maxWidth: 400,
+      width: '100%',
+      alignSelf: 'center',
+    },
+    sheetInner: {
       padding: spacing.lg,
-      borderWidth: 1,
-      borderColor: colors.border,
       gap: spacing.sm,
     },
     message: { marginBottom: spacing.md },
@@ -81,14 +93,12 @@ const createStyles = (colors: ThemeColors) =>
     },
     confirmBtn: {
       minHeight: 44,
-      paddingHorizontal: spacing.lg,
-      borderRadius: radius.pill,
-      backgroundColor: colors.orange,
+      paddingHorizontal: spacing.md,
       justifyContent: 'center',
+      backgroundColor: colors.orange,
+      borderRadius: radius.pill,
     },
-    confirmDestructive: {
-      backgroundColor: colors.danger,
-    },
+    confirmDestructive: { backgroundColor: colors.danger },
     confirmText: { color: colors.onAccent, fontFamily: fonts.semiBold },
-    destructiveText: { color: colors.surface, fontFamily: fonts.semiBold },
+    destructiveText: { color: colors.textOnStatus, fontFamily: fonts.semiBold },
   });

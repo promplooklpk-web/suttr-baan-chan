@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { BackupNudgeBanner } from '@/components/BackupNudgeBanner';
+import { Glass } from '@/components/Glass';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { ScreenShell } from '@/components/ScreenShell';
 import { SegmentPills } from '@/components/SegmentPills';
@@ -27,7 +28,6 @@ import { setPendingImport } from '@/lib/export/importSession';
 import type { ThemePreference } from '@/lib/themeStorage';
 import { fonts } from '@/constants/theme';
 import { PROFILE_DISPLAY_NAME, profileAvatarInitial } from '@/lib/profile';
-import { accentGlow } from '@/lib/design';
 import { scrollPaddingBottom, screenTopPadding } from '@/lib/screenLayout';
 import { loadAppSettings, saveAppSettings } from '@/lib/appSettings';
 import {
@@ -168,22 +168,23 @@ export default function SettingsScreen() {
 
         <BackupNudgeBanner key={backupBannerKey} onExportPress={() => void exportAllZip()} />
 
-        <Pressable
-          style={[styles.profileCard, accentGlow(colors, false)]}
-          onPress={() => router.push('/about')}
-        >
-          <View style={styles.avatarLarge}>
-            <AppText style={styles.avatarLargeText}>{profileAvatarInitial()}</AppText>
-          </View>
-          <View style={styles.profileText}>
-            <AppText variant="title">{PROFILE_DISPLAY_NAME}</AppText>
-            <AppText variant="caption" muted>สมาชิกตั้งแต่ ก.ย. 2569</AppText>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color={colors.inkMuted} />
+        <Pressable onPress={() => router.push('/about')}>
+          <Glass variant="card" style={styles.profileCard}>
+            <View style={styles.profileCardInner}>
+              <View style={styles.avatarLarge}>
+                <AppText style={styles.avatarLargeText}>{profileAvatarInitial()}</AppText>
+              </View>
+              <View style={styles.profileText}>
+                <AppText variant="title">{PROFILE_DISPLAY_NAME}</AppText>
+                <AppText variant="caption" muted>สมาชิกตั้งแต่ ก.ย. 2569</AppText>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={colors.inkMuted} />
+            </View>
+          </Glass>
         </Pressable>
 
         <View style={styles.statsRow}>
-          <View style={[styles.statCard, accentGlow(colors, false)]}>
+          <View style={styles.statCard}>
             <AppText style={styles.statNumberAccent}>{recipes.length}</AppText>
             <AppText variant="caption" muted>สูตรของฉัน</AppText>
           </View>
@@ -349,27 +350,25 @@ function Row({
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: { flex: 1 },
   settingsTitle: { fontSize: 28, lineHeight: 34, marginBottom: spacing.lg, marginTop: 4 },
-  profileCard: {
+  profileCard: { marginBottom: spacing.lg },
+  profileCardInner: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: colors.surface,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
     padding: spacing.md,
-    marginBottom: spacing.lg,
   },
   avatarLarge: {
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: colors.orange,
+    backgroundColor: colors.surface2,
+    borderWidth: 1,
+    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarLargeText: {
-    color: colors.onAccent,
+    color: colors.orange,
     fontFamily: fonts.bold,
     fontSize: 22,
   },

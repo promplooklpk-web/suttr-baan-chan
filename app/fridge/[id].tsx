@@ -11,7 +11,9 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { Ionicons } from '@expo/vector-icons';
 import { AppText } from '@/components/AppText';
+import { Glass } from '@/components/Glass';
 import { FridgeQuantityEditor } from '@/components/fridge/FridgeQuantityEditor';
 import { FridgeUseAmountPanel } from '@/components/fridge/FridgeUseAmountPanel';
 import { RecipeCoverImage } from '@/components/RecipeCoverImage';
@@ -124,6 +126,26 @@ export default function FridgeItemDetailScreen() {
         contentContainerStyle={{ padding: spacing.md, paddingBottom: insets.bottom + spacing.xl }}
         keyboardShouldPersistTaps="handled"
       >
+        <Glass variant="card" style={styles.hero}>
+          <View style={styles.heroInner}>
+            <View style={[styles.heroIcon, { backgroundColor: colors.surface2, borderColor: colors.border }]}>
+              <Ionicons name="snow-outline" size={22} color={colors.orange} />
+            </View>
+            <AppText variant="title" numberOfLines={2}>
+              {itemName.trim() || item.name}
+            </AppText>
+            <AppText variant="caption" style={{ color: barColor }}>
+              {formatExpiryLine({ ...item, name: itemName, expiresAt })}
+            </AppText>
+            <View style={styles.barBg}>
+              <View style={[styles.barFill, { width: `${freshnessRatio * 100}%`, backgroundColor: barColor }]} />
+            </View>
+            <AppText variant="caption" muted>
+              {PLACE_LABELS[place]}
+            </AppText>
+          </View>
+        </Glass>
+
         <AppText variant="label" muted>ชื่อ</AppText>
         <TextInput
           keyboardAppearance={keyboardAppearance}
@@ -137,15 +159,6 @@ export default function FridgeItemDetailScreen() {
         {fieldErrors.name ? (
           <AppText variant="caption" style={styles.fieldError}>{fieldErrors.name}</AppText>
         ) : null}
-        <AppText variant="caption" style={{ color: barColor, marginTop: spacing.xs }}>
-          {formatExpiryLine({ ...item, name: itemName, expiresAt })}
-        </AppText>
-        <View style={styles.barBg}>
-          <View style={[styles.barFill, { width: `${freshnessRatio * 100}%`, backgroundColor: barColor }]} />
-        </View>
-        <AppText variant="caption" muted style={{ marginBottom: spacing.sm }}>
-          {PLACE_LABELS[place]}
-        </AppText>
 
         <FridgeUseAmountPanel item={{ ...item, quantity, unit }} onSubtract={onSubtract} />
 
@@ -251,6 +264,21 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   flex: { flex: 1 },
   screen: { flex: 1, backgroundColor: colors.cream },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  hero: { marginBottom: spacing.lg },
+  heroInner: {
+    padding: spacing.md,
+    gap: spacing.xs,
+    alignItems: 'flex-start',
+  },
+  heroIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.xs,
+  },
   barBg: {
     height: 8,
     backgroundColor: colors.border,

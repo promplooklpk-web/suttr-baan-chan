@@ -141,33 +141,39 @@ async function main() {
   const base = `http://127.0.0.1:${port}`;
 
   const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });
-  const context = await browser.newContext({
-    ...devices['iPhone 14'],
-    viewport: { width: 393, height: 852 },
-    deviceScaleFactor: 1,
-    colorScheme: 'dark',
-  });
+  const schemes = ['light', 'dark'];
 
-  await context.addInitScript(() => {
-    globalThis.__WEB_SEED__ = true;
-  });
+  for (const scheme of schemes) {
+    const context = await browser.newContext({
+      ...devices['iPhone 14'],
+      viewport: { width: 393, height: 852 },
+      deviceScaleFactor: 1,
+      colorScheme: scheme,
+    });
 
-  for (const route of ROUTES) {
-    const page = await context.newPage();
-    const url = `${base}${route.path}${route.path.includes('?') ? '&' : '?'}webSeed=1`;
-    await page.goto(url, { waitUntil: 'networkidle', timeout: 120_000 });
-    if (route.name === 'home') {
-      await waitForSeededHome(page);
-      await assertHomeRecipeCardHeights(page);
-    } else {
-      await page.waitForTimeout(2200);
+    await context.addInitScript(() => {
+      globalThis.__WEB_SEED__ = true;
+    });
+
+    for (const route of ROUTES) {
+      const page = await context.newPage();
+      const url = `${base}${route.path}${route.path.includes('?') ? '&' : '?'}webSeed=1`;
+      await page.goto(url, { waitUntil: 'networkidle', timeout: 120_000 });
+      if (route.name === 'home') {
+        await waitForSeededHome(page);
+        await assertHomeRecipeCardHeights(page);
+      } else {
+        await page.waitForTimeout(2200);
+      }
+      if (route.setup) await route.setup(page);
+      await page.waitForTimeout(500);
+      const file = path.join(outDir, `${route.name}-${scheme}.png`);
+      await page.screenshot({ path: file, fullPage: false });
+      console.log(`wrote ${file}`);
+      await page.close();
     }
-    if (route.setup) await route.setup(page);
-    await page.waitForTimeout(500);
-    const file = path.join(outDir, `${route.name}.png`);
-    await page.screenshot({ path: file, fullPage: false });
-    console.log(`wrote ${file}`);
-    await page.close();
+
+    await context.close();
   }
 
   await browser.close();

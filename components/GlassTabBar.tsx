@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
+import { Glass } from '@/components/Glass';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
@@ -33,7 +33,7 @@ export function GlassTabBar({ state, descriptors, navigation }: {
   navigation: { emit: (e: unknown) => { defaultPrevented?: boolean }; navigate: (name: string) => void };
 }) {
   const styles = useThemedStyles(createStyles);
-  const { colors, blurTint, tokens } = useTheme();
+  const { colors, tokens } = useTheme();
   const insets = useSafeAreaInsets();
   const bottom = Math.max(insets.bottom, spacing.sm);
   const { alertCount } = useFridge();
@@ -119,18 +119,13 @@ export function GlassTabBar({ state, descriptors, navigation }: {
   return (
     <View style={[styles.container, { paddingBottom: bottom }]} pointerEvents="box-none">
       <View style={styles.barShadow}>
-        <BlurView
-          intensity={Platform.OS === 'ios' ? 64 : 80}
-          tint={blurTint}
-          style={styles.blur}
-        >
-          <View style={styles.barFill} pointerEvents="none" />
+        <Glass variant="chrome" borderRadius={radius.tabBar} intensity={72} style={styles.barGlass}>
           <View style={styles.tabsRow}>
             <View style={styles.tabGroup}>{leftRoutes.map(renderTab)}</View>
             <View style={styles.fabSlot} pointerEvents="box-none" />
             <View style={styles.tabGroup}>{rightRoutes.map(renderTab)}</View>
           </View>
-        </BlurView>
+        </Glass>
         <View style={styles.fabOverlay} pointerEvents="box-none">
           <Pressable
             onPress={() => setFabOpen(true)}
@@ -142,8 +137,9 @@ export function GlassTabBar({ state, descriptors, navigation }: {
         </View>
       </View>
       <Modal visible={fabOpen} transparent animationType="fade" onRequestClose={() => setFabOpen(false)}>
-        <Pressable style={styles.fabBackdrop} onPress={() => setFabOpen(false)}>
-          <View style={styles.fabSheet}>
+        <View style={styles.fabModalRoot}>
+          <Pressable style={styles.fabBackdrop} onPress={() => setFabOpen(false)} />
+          <Glass variant="material" sheet style={styles.fabSheetGlass}>
             <Pressable
               style={styles.fabRow}
               onPress={() => {
@@ -165,8 +161,8 @@ export function GlassTabBar({ state, descriptors, navigation }: {
             <Pressable style={styles.fabCancel} onPress={() => setFabOpen(false)}>
               <AppText muted>ปิด</AppText>
             </Pressable>
-          </View>
-        </Pressable>
+          </Glass>
+        </View>
       </Modal>
     </View>
   );
@@ -176,37 +172,30 @@ const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     container: {
       position: 'absolute',
-      left: spacing.md,
-      right: spacing.md,
+      left: spacing.gutter,
+      right: spacing.gutter,
       bottom: 0,
     },
     barShadow: {
       position: 'relative',
-      borderRadius: radius.xl,
+      borderRadius: radius.tabBar,
       shadowColor: colors.tabBarShadow,
       shadowOffset: { width: 0, height: 10 },
-      shadowOpacity: 0.35,
-      shadowRadius: 20,
+      shadowOpacity: 0.22,
+      shadowRadius: 18,
       elevation: 12,
     },
-    blur: {
-      borderRadius: radius.xl,
+    barGlass: {
+      minHeight: 66,
       overflow: 'hidden',
-      borderWidth: 1,
-      borderColor: colors.tabBarBorder,
-      backgroundColor: Platform.OS === 'android' ? colors.tabBarFill : undefined,
-    },
-    barFill: {
-      ...StyleSheet.absoluteFill,
-      backgroundColor: colors.tabBarFill,
-      borderRadius: radius.xl,
     },
     tabsRow: {
       flexDirection: 'row',
       alignItems: 'flex-end',
       paddingHorizontal: spacing.sm,
       paddingTop: 8,
-      paddingBottom: 6,
+      paddingBottom: 8,
+      minHeight: 66,
     },
     tabGroup: {
       flex: 1,
@@ -223,7 +212,9 @@ const createStyles = (colors: ThemeColors) =>
       position: 'relative',
       alignItems: 'center',
       justifyContent: 'center',
-      alignSelf: 'stretch',
+      alignSelf: 'center',
+      width: 56,
+      minHeight: 52,
       paddingVertical: 4,
       paddingHorizontal: 2,
       borderRadius: radius.lg,
@@ -298,18 +289,18 @@ const createStyles = (colors: ThemeColors) =>
       justifyContent: 'flex-end',
       zIndex: 4,
     },
-    fabBackdrop: {
+    fabModalRoot: {
       flex: 1,
-      backgroundColor: 'rgba(0,0,0,0.45)',
       justifyContent: 'flex-end',
-      padding: spacing.md,
     },
-    fabSheet: {
-      backgroundColor: colors.cream,
-      borderRadius: radius.xl,
+    fabBackdrop: {
+      ...StyleSheet.absoluteFill,
+      backgroundColor: colors.modalScrim,
+    },
+    fabSheetGlass: {
       padding: spacing.md,
-      borderWidth: 1,
-      borderColor: colors.border,
+      marginHorizontal: spacing.sm,
+      marginBottom: spacing.sm,
     },
     fabRow: {
       minHeight: 44,
@@ -325,15 +316,15 @@ const createStyles = (colors: ThemeColors) =>
       marginTop: spacing.sm,
     },
     fab: {
-      width: 52,
-      height: 52,
-      borderRadius: 26,
+      width: 60,
+      height: 60,
+      borderRadius: 30,
       backgroundColor: colors.orange,
       alignItems: 'center',
       justifyContent: 'center',
       marginBottom: 2,
-      transform: [{ translateY: -22 }],
-      borderWidth: 2,
-      borderColor: colors.tabBarFill,
+      transform: [{ translateY: -14 }],
+      borderWidth: 4,
+      borderColor: colors.cream,
     },
   });

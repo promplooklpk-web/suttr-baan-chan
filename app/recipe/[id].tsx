@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { BlurView } from 'expo-blur';
+import { GlassIconButton } from '@/components/GlassIconButton';
 import {
   Modal,
   Platform,
@@ -151,20 +151,17 @@ export default function RecipeDetailScreen() {
                 accessibilityLabel="กลับ"
                 onPress={() => router.back()}
                 icon="chevron-back"
-                colors={colors}
               />
               <View style={styles.heroControlsRight}>
                 <GlassIconButton
                   accessibilityLabel="แก้ไขสูตร"
                   onPress={() => router.push({ pathname: '/recipe/edit', params: { id: recipe.id } })}
                   icon="create-outline"
-                  colors={colors}
                 />
                 <GlassIconButton
                   accessibilityLabel="โปรด"
                   onPress={() => toggleFavorite(recipe.id)}
                   icon={recipe.isFavorite ? 'heart' : 'heart-outline'}
-                  colors={colors}
                   accent
                 />
               </View>
@@ -483,60 +480,6 @@ function RoundBtn({ label, onPress }: { label: string; onPress: () => void }) {
     </Pressable>
   );
 }
-
-function GlassIconButton({
-  icon,
-  onPress,
-  accessibilityLabel,
-  colors,
-  accent,
-}: {
-  icon: keyof typeof Ionicons.glyphMap;
-  onPress: () => void;
-  accessibilityLabel: string;
-  colors: ThemeColors;
-  accent?: boolean;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityLabel={accessibilityLabel}
-      style={glassBtnStyles.outer}
-    >
-      <BlurView
-        intensity={Platform.OS === 'ios' ? 70 : 85}
-        tint="dark"
-        style={glassBtnStyles.blur}
-      >
-        <View style={[glassBtnStyles.tint, { backgroundColor: colors.glassTint }]} pointerEvents="none" />
-        <Ionicons
-          name={icon}
-          size={22}
-          color={accent ? colors.orange : colors.ink}
-        />
-      </BlurView>
-    </Pressable>
-  );
-}
-
-const glassBtnStyles = StyleSheet.create({
-  outer: {
-    borderRadius: 22,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.22)',
-  },
-  blur: {
-    width: 44,
-    height: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  tint: {
-    ...StyleSheet.absoluteFill,
-  },
-});
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: {

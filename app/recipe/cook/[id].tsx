@@ -12,6 +12,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { GlassIconButton } from '@/components/GlassIconButton';
 import { CookTimerBar, CookTimerBarSpacer } from '@/components/CookTimerBar';
 import { StepTimerChip } from '@/components/StepTimerChip';
 import { loadAppSettings } from '@/lib/appSettings';
@@ -89,9 +90,11 @@ export default function CookingModeScreen() {
       <CookTimerBar />
       <CookTimerBarSpacer />
       <View style={styles.topBar}>
-        <Pressable onPress={() => router.back()} style={styles.closeHit}>
-          <Ionicons name="close" size={28} color={colors.ink} />
-        </Pressable>
+        <GlassIconButton
+          icon="close"
+          onPress={() => router.back()}
+          accessibilityLabel="ปิดโหมดทำอาหาร"
+        />
         <AppText variant="label" muted>
           ขั้นที่ {stepIndex + 1}/{steps.length}
         </AppText>

@@ -14,6 +14,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { Glass } from '@/components/Glass';
 import { FridgeQuantityEditor } from '@/components/fridge/FridgeQuantityEditor';
 import { fonts, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
@@ -167,8 +168,12 @@ export function AddFridgeSheet({ visible, onClose, catalog, initialName, onSubmi
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 8 : 0}
       >
-        <Pressable style={styles.backdrop} onPress={onClose} />
-        <View style={[styles.sheet, { paddingBottom: insets.bottom + spacing.md }]}>
+        <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="ปิด" />
+        <Glass
+          variant="material"
+          sheet
+          style={[styles.sheet, { paddingBottom: insets.bottom + spacing.md }]}
+        >
           <AppText variant="title" style={styles.sheetTitle}>เพิ่มของเข้าตู้เย็น</AppText>
           <ScrollView
             keyboardShouldPersistTaps="handled"
@@ -300,7 +305,7 @@ export function AddFridgeSheet({ visible, onClose, catalog, initialName, onSubmi
               <AppText style={styles.saveBtnText}>เพิ่มเข้าตู้เย็น</AppText>
             </Pressable>
           </View>
-        </View>
+        </Glass>
       </KeyboardAvoidingView>
     </Modal>
   );
@@ -311,9 +316,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   backdrop: { ...StyleSheet.absoluteFill, backgroundColor: colors.modalScrim },
   sheet: {
     maxHeight: '92%',
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
     padding: spacing.lg,
   },
   sheetTitle: { marginBottom: spacing.md },
