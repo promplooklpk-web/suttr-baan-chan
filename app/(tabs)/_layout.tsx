@@ -1,28 +1,23 @@
 import { Tabs } from 'expo-router';
-import type { ComponentProps } from 'react';
 
 import { GlassTabBar } from '@/components/GlassTabBar';
 
 export default function TabLayout() {
   return (
     <Tabs
-      tabBar={(props) => <GlassTabBar {...(props as ComponentProps<typeof GlassTabBar>)} />}
+      tabBar={(props) => <GlassTabBar {...props} />}
       screenOptions={{
         headerShown: false,
       }}
     >
       <Tabs.Screen name="index" options={{ title: 'สูตร' }} />
       <Tabs.Screen name="fridge" options={{ title: 'ตู้เย็นของฉัน' }} />
-      <Tabs.Screen name="picker" options={{ href: null }} />
-      <Tabs.Screen name="search" options={{ href: null }} />
+      {/* SDK 58: href: null makes tabs unreachable — GlassTabBar omits these from the bar */}
+      <Tabs.Screen name="picker" options={{ title: 'สุ่มเมนู' }} />
+      <Tabs.Screen name="search" options={{ title: 'ค้นหา' }} />
       <Tabs.Screen name="planner" options={{ title: 'แพลนมื้อ' }} />
       <Tabs.Screen name="settings" options={{ title: 'โปรไฟล์' }} />
-      <Tabs.Screen
-        name="add"
-        options={{
-          href: null,
-        }}
-      />
+      <Tabs.Screen name="add" options={{ title: 'เพิ่ม' }} />
     </Tabs>
   );
 }

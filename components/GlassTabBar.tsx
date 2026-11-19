@@ -3,7 +3,6 @@ import { Glass } from '@/components/Glass';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { fonts, radius, spacing } from '@/constants/theme';
@@ -12,6 +11,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { accentGlow } from '@/lib/design';
 import { useFridge } from '@/context/FridgeContext';
+import type { BottomTabBarProps } from 'expo-router/build/react-navigation/bottom-tabs/types';
 
 const TAB_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   index: 'home',
@@ -27,27 +27,22 @@ function formatFridgeAlertBadge(count: number): string {
   return String(count);
 }
 
-export function GlassTabBar({ state, descriptors, navigation }: {
-  state: { routes: { key: string; name: string }[]; index: number };
-  descriptors: Record<string, { options: { title?: string } }>;
-  navigation: { emit: (e: unknown) => { defaultPrevented?: boolean }; navigate: (name: string) => void };
-}) {
+export function GlassTabBar({ state, descriptors, emitter, navigateToTab, insets: barInsets }: BottomTabBarProps) {
   const styles = useThemedStyles(createStyles);
   const { colors, tokens } = useTheme();
-  const insets = useSafeAreaInsets();
-  const bottom = Math.max(insets.bottom, spacing.sm);
+  const bottom = Math.max(barInsets.bottom, spacing.sm);
   const { alertCount } = useFridge();
   const [fabOpen, setFabOpen] = useState(false);
 
   const barRoutes = BAR_TAB_NAMES
-    .map((name) => state.routes.find((r) => r.name === name))
+    .map((name) => state.routes.find((r: { key: string; name: string }) => r.name === name))
     .filter((r): r is { key: string; name: string } => r != null);
 
   const leftRoutes = barRoutes.slice(0, 2);
   const rightRoutes = barRoutes.slice(2);
 
   const renderTab = (route: { key: string; name: string }) => {
-    const routeIndex = state.routes.findIndex((r) => r.key === route.key);
+    const routeIndex = state.routes.findIndex((r: { key: string }) => r.key === route.key);
     const { options } = descriptors[route.key];
     const label =
       route.name === 'fridge' ? 'ตู้เย็น' : (options.title ?? route.name);
@@ -56,13 +51,13 @@ export function GlassTabBar({ state, descriptors, navigation }: {
     const icon = (focused ? iconName : `${iconName}-outline`) as keyof typeof Ionicons.glyphMap;
 
     const onPress = () => {
-      const event = navigation.emit({
+      const event = emitter.emit({
         type: 'tabPress',
         target: route.key,
         canPreventDefault: true,
       });
       if (!focused && !event.defaultPrevented) {
-        navigation.navigate(route.name);
+        navigateToTab(route.key);
       }
     };
 

@@ -64,6 +64,16 @@ jest.mock('react-native-reanimated', () => {
   return Reanimated;
 });
 
+jest.mock('react-native-gesture-handler/ReanimatedSwipeable', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  return {
+    __esModule: true,
+    default: ({ children }: { children?: React.ReactNode }) =>
+      React.createElement(View, null, children),
+  };
+});
+
 jest.mock('@react-native-community/datetimepicker', () => 'DateTimePicker');
 
 jest.mock('@/lib/storage', () => {
