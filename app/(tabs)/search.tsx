@@ -28,7 +28,7 @@ import {
 
 export default function SearchScreen() {
   const styles = useThemedStyles(createStyles);
-  const { colors, keyboardAppearance } = useTheme();
+  const { colors, keyboardAppearance, tokens } = useTheme();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ tag?: string; favorites?: string; q?: string }>();
   const { recipes, searchRecipes } = useRecipes();
@@ -36,7 +36,8 @@ export default function SearchScreen() {
   const [recent, setRecent] = useState<string[]>([]);
   const [favoritesOnly, setFavoritesOnly] = useState(params.favorites === '1');
   const [tagFilter, setTagFilter] = useState(params.tag ?? '');
-  const [layoutMode, setLayoutMode] = useState<'grid' | 'list'>('grid');
+  const [layoutMode, setLayoutMode] = useState<'grid' | 'list'>('list');
+  const [searchFocused, setSearchFocused] = useState(false);
 
   useEffect(() => {
     loadRecentSearches().then(setRecent);
@@ -122,13 +123,23 @@ export default function SearchScreen() {
         ) : null}
       </View>
 
-      <View style={styles.searchBar}>
+      <View
+        style={[
+          styles.searchBar,
+          searchFocused && {
+            borderColor: tokens.accentText,
+            borderWidth: 1.5,
+          },
+        ]}
+      >
         <Ionicons name="search" size={20} color={colors.inkMuted} />
         <TextInput
           keyboardAppearance={keyboardAppearance}
           value={query}
           onChangeText={setQuery}
           onSubmitEditing={onSubmit}
+          onFocus={() => setSearchFocused(true)}
+          onBlur={() => setSearchFocused(false)}
           placeholder="ค้นหาจากชื่อสูตร ส่วนผสม แท็ก"
           placeholderTextColor={colors.inkLight}
           style={styles.input}
@@ -147,19 +158,20 @@ export default function SearchScreen() {
           {recent.length > 0 && (
             <View style={styles.block}>
               <AppText variant="label" style={styles.blockTitle}>ค้นล่าสุด</AppText>
-              {recent.map((item) => (
-                <Pressable
-                  key={item}
-                  style={styles.recentRow}
-                  onPress={() => setQuery(item)}
-                >
-                  <Ionicons name="time-outline" size={18} color={colors.inkMuted} />
-                  <AppText style={styles.recentText}>{item}</AppText>
-                  <Pressable onPress={() => clearRecent(item)} hitSlop={8}>
-                    <Ionicons name="close" size={18} color={colors.inkLight} />
+              <View style={styles.chipRow}>
+                {recent.map((item) => (
+                  <Pressable
+                    key={item}
+                    style={styles.neutralChip}
+                    onPress={() => setQuery(item)}
+                  >
+                    <Ionicons name="time-outline" size={16} color={colors.inkMuted} />
+                    <AppText variant="label" style={styles.chipText} numberOfLines={1}>
+                      {item}
+                    </AppText>
                   </Pressable>
-                </Pressable>
-              ))}
+                ))}
+              </View>
             </View>
           )}
 
@@ -169,10 +181,10 @@ export default function SearchScreen() {
               {popularTags.map((tag) => (
                 <Pressable
                   key={tag}
-                  style={styles.tag}
+                  style={styles.neutralChip}
                   onPress={() => setQuery(tag)}
                 >
-                  <AppText variant="label" style={{ color: colors.orange }}>#{tag}</AppText>
+                  <AppText variant="label" style={styles.chipText}>#{tag}</AppText>
                 </Pressable>
               ))}
             </View>
@@ -346,14 +358,24 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     flexWrap: 'wrap',
     gap: spacing.sm,
   },
-  tag: {
-    backgroundColor: colors.surface,
+  chipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  neutralChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    backgroundColor: colors.surface2,
     borderRadius: radius.pill,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderWidth: 1,
     borderColor: colors.border,
+    maxWidth: '100%',
   },
+  chipText: { color: colors.ink },
   suggestItem: {
     paddingVertical: spacing.sm,
   },

@@ -23,6 +23,7 @@ import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { useRecipes } from '@/context/RecipesContext';
 import { useSnackbar } from '@/context/SnackbarContext';
 import { ConfirmModal } from '@/components/ConfirmModal';
+import { GlassBottomBar } from '@/components/GlassBottomBar';
 import { IngredientRowsEditor } from '@/components/recipe/IngredientRowsEditor';
 import { parseAmountInput } from '@/lib/amountParse';
 import { clearRecipeDraft, loadRecipeDraft, saveRecipeDraft } from '@/lib/recipeDraft';
@@ -48,6 +49,7 @@ export default function RecipeEditScreen() {
   const [discardOpen, setDiscardOpen] = useState(false);
   const [editDiscardOpen, setEditDiscardOpen] = useState(false);
   const [skipDraftSave, setSkipDraftSave] = useState(false);
+  const [footerHeight, setFooterHeight] = useState(96);
   const existing = id ? getRecipe(id) : undefined;
   const isEdit = Boolean(existing);
 
@@ -267,7 +269,7 @@ export default function RecipeEditScreen() {
       </View>
 
       <ScrollView
-        contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 100 }]}
+        contentContainerStyle={[styles.scroll, { paddingBottom: footerHeight + insets.bottom + spacing.md }]}
         keyboardShouldPersistTaps="handled"
       >
         <Pressable style={styles.photoBox} onPress={pickImage}>
@@ -348,7 +350,13 @@ export default function RecipeEditScreen() {
                   onPress={() => setDifficulty(d)}
                   style={[styles.diffBtn, difficulty === d && styles.diffBtnOn]}
                 >
-                  <AppText variant="label" style={{ color: difficulty === d ? colors.surface : colors.ink }}>
+                  <AppText
+                    variant="label"
+                    style={{
+                      color: colors.ink,
+                      fontFamily: difficulty === d ? fonts.semiBold : fonts.medium,
+                    }}
+                  >
                     {label}
                   </AppText>
                 </Pressable>
@@ -425,11 +433,22 @@ export default function RecipeEditScreen() {
         </Field>
       </ScrollView>
 
-      <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}>
-        <Pressable style={styles.saveBtn} onPress={onSave} disabled={saving}>
-          <AppText style={styles.saveBtnText}>{saving ? 'กำลังบันทึก...' : 'บันทึกสูตร'}</AppText>
-        </Pressable>
-      </View>
+      <GlassBottomBar onLayout={(e) => setFooterHeight(e.nativeEvent.layout.height)}>
+        <View style={styles.footerRow}>
+          <Pressable
+            style={styles.discardBtn}
+            onPress={() => {
+              if (isEdit) setEditDiscardOpen(true);
+              else setDiscardOpen(true);
+            }}
+          >
+            <AppText style={styles.discardBtnText}>ทิ้ง</AppText>
+          </Pressable>
+          <Pressable style={styles.saveBtn} onPress={onSave} disabled={saving}>
+            <AppText style={styles.saveBtnText}>{saving ? 'กำลังบันทึก...' : 'บันทึกสูตร'}</AppText>
+          </Pressable>
+        </View>
+      </GlassBottomBar>
 
       <ConfirmModal
         visible={discardOpen}
@@ -580,15 +599,15 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   diffBtn: {
     flex: 1,
     paddingVertical: spacing.sm,
-    borderRadius: radius.md,
-    backgroundColor: colors.surface,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surface2,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: colors.border,
   },
   diffBtnOn: {
-    backgroundColor: colors.orange,
-    borderColor: colors.orange,
+    backgroundColor: colors.surface,
+    borderColor: colors.borderStrong,
   },
   sectionTitle: {
     marginTop: spacing.md,
@@ -621,18 +640,26 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   addLine: {
     marginBottom: spacing.md,
   },
-  footer: {
+  footerRow: { flexDirection: 'row', gap: spacing.sm, alignItems: 'stretch' },
+  discardBtn: {
+    minWidth: 88,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.md,
     paddingHorizontal: spacing.md,
-    paddingTop: spacing.sm,
-    backgroundColor: colors.cream,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+    backgroundColor: colors.surface2,
   },
+  discardBtnText: { color: colors.ink, fontFamily: fonts.semiBold, fontSize: 16 },
   saveBtn: {
+    flex: 1,
     backgroundColor: colors.orange,
     borderRadius: radius.pill,
     paddingVertical: spacing.md,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   saveBtnText: {
     color: colors.surface,

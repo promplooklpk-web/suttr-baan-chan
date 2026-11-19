@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ComponentRef } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
@@ -38,7 +38,7 @@ export function FridgeQuantityEditor({
   const [showCustomUnit, setShowCustomUnit] = useState(
     () => !FRIDGE_UNIT_OPTIONS.includes(unit as (typeof FRIDGE_UNIT_OPTIONS)[number]),
   );
-  const inputRef = useRef<TextInput>(null);
+  const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
 
   useEffect(() => {
     setText(formatQuantityLabel(quantity));

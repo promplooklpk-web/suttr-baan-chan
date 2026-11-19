@@ -1,9 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
+import { Glass } from '@/components/Glass';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { fonts, radius, spacing } from '@/constants/theme';
@@ -12,6 +11,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { accentGlow } from '@/lib/design';
 import { useFridge } from '@/context/FridgeContext';
+import type { BottomTabBarProps } from 'expo-router/build/react-navigation/bottom-tabs/types';
 
 const TAB_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   index: 'home',
@@ -27,41 +27,37 @@ function formatFridgeAlertBadge(count: number): string {
   return String(count);
 }
 
-export function GlassTabBar({ state, descriptors, navigation }: {
-  state: { routes: { key: string; name: string }[]; index: number };
-  descriptors: Record<string, { options: { title?: string } }>;
-  navigation: { emit: (e: unknown) => { defaultPrevented?: boolean }; navigate: (name: string) => void };
-}) {
+export function GlassTabBar({ state, descriptors, emitter, navigateToTab, insets: barInsets }: BottomTabBarProps) {
   const styles = useThemedStyles(createStyles);
-  const { colors, blurTint } = useTheme();
-  const insets = useSafeAreaInsets();
-  const bottom = Math.max(insets.bottom, spacing.sm);
+  const { colors, tokens } = useTheme();
+  const bottom = Math.max(barInsets.bottom, spacing.sm);
   const { alertCount } = useFridge();
   const [fabOpen, setFabOpen] = useState(false);
 
   const barRoutes = BAR_TAB_NAMES
-    .map((name) => state.routes.find((r) => r.name === name))
+    .map((name) => state.routes.find((r: { key: string; name: string }) => r.name === name))
     .filter((r): r is { key: string; name: string } => r != null);
 
   const leftRoutes = barRoutes.slice(0, 2);
   const rightRoutes = barRoutes.slice(2);
 
   const renderTab = (route: { key: string; name: string }) => {
-    const routeIndex = state.routes.findIndex((r) => r.key === route.key);
+    const routeIndex = state.routes.findIndex((r: { key: string }) => r.key === route.key);
     const { options } = descriptors[route.key];
-    const label = options.title ?? route.name;
+    const label =
+      route.name === 'fridge' ? 'ตู้เย็น' : (options.title ?? route.name);
     const focused = state.index === routeIndex;
     const iconName = TAB_ICONS[route.name] ?? 'home';
     const icon = (focused ? iconName : `${iconName}-outline`) as keyof typeof Ionicons.glyphMap;
 
     const onPress = () => {
-      const event = navigation.emit({
+      const event = emitter.emit({
         type: 'tabPress',
         target: route.key,
         canPreventDefault: true,
       });
       if (!focused && !event.defaultPrevented) {
-        navigation.navigate(route.name);
+        navigateToTab(route.key);
       }
     };
 
@@ -82,7 +78,7 @@ export function GlassTabBar({ state, descriptors, navigation }: {
             <Ionicons
               name={icon}
               size={21}
-              color={focused ? colors.orange : colors.inkMuted}
+              color={focused ? tokens.accentText : colors.inkMuted}
             />
           </View>
           {badge > 0 && (
@@ -118,18 +114,13 @@ export function GlassTabBar({ state, descriptors, navigation }: {
   return (
     <View style={[styles.container, { paddingBottom: bottom }]} pointerEvents="box-none">
       <View style={styles.barShadow}>
-        <BlurView
-          intensity={Platform.OS === 'ios' ? 64 : 80}
-          tint={blurTint}
-          style={styles.blur}
-        >
-          <View style={styles.barFill} pointerEvents="none" />
+        <Glass variant="chrome" borderRadius={radius.tabBar} intensity={72} style={styles.barGlass}>
           <View style={styles.tabsRow}>
             <View style={styles.tabGroup}>{leftRoutes.map(renderTab)}</View>
             <View style={styles.fabSlot} pointerEvents="box-none" />
             <View style={styles.tabGroup}>{rightRoutes.map(renderTab)}</View>
           </View>
-        </BlurView>
+        </Glass>
         <View style={styles.fabOverlay} pointerEvents="box-none">
           <Pressable
             onPress={() => setFabOpen(true)}
@@ -141,8 +132,9 @@ export function GlassTabBar({ state, descriptors, navigation }: {
         </View>
       </View>
       <Modal visible={fabOpen} transparent animationType="fade" onRequestClose={() => setFabOpen(false)}>
-        <Pressable style={styles.fabBackdrop} onPress={() => setFabOpen(false)}>
-          <View style={styles.fabSheet}>
+        <View style={styles.fabModalRoot}>
+          <Pressable style={styles.fabBackdrop} onPress={() => setFabOpen(false)} />
+          <Glass variant="material" sheet style={styles.fabSheetGlass}>
             <Pressable
               style={styles.fabRow}
               onPress={() => {
@@ -164,8 +156,8 @@ export function GlassTabBar({ state, descriptors, navigation }: {
             <Pressable style={styles.fabCancel} onPress={() => setFabOpen(false)}>
               <AppText muted>ปิด</AppText>
             </Pressable>
-          </View>
-        </Pressable>
+          </Glass>
+        </View>
       </Modal>
     </View>
   );
@@ -175,37 +167,30 @@ const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     container: {
       position: 'absolute',
-      left: spacing.md,
-      right: spacing.md,
+      left: spacing.gutter,
+      right: spacing.gutter,
       bottom: 0,
     },
     barShadow: {
       position: 'relative',
-      borderRadius: radius.xl,
+      borderRadius: radius.tabBar,
       shadowColor: colors.tabBarShadow,
       shadowOffset: { width: 0, height: 10 },
-      shadowOpacity: 0.35,
-      shadowRadius: 20,
+      shadowOpacity: 0.22,
+      shadowRadius: 18,
       elevation: 12,
     },
-    blur: {
-      borderRadius: radius.xl,
+    barGlass: {
+      minHeight: 66,
       overflow: 'hidden',
-      borderWidth: 1,
-      borderColor: colors.tabBarBorder,
-      backgroundColor: Platform.OS === 'android' ? colors.tabBarFill : undefined,
-    },
-    barFill: {
-      ...StyleSheet.absoluteFill,
-      backgroundColor: colors.tabBarFill,
-      borderRadius: radius.xl,
     },
     tabsRow: {
       flexDirection: 'row',
       alignItems: 'flex-end',
       paddingHorizontal: spacing.sm,
       paddingTop: 8,
-      paddingBottom: 6,
+      paddingBottom: 8,
+      minHeight: 66,
     },
     tabGroup: {
       flex: 1,
@@ -222,7 +207,9 @@ const createStyles = (colors: ThemeColors) =>
       position: 'relative',
       alignItems: 'center',
       justifyContent: 'center',
-      alignSelf: 'stretch',
+      alignSelf: 'center',
+      width: 56,
+      minHeight: 52,
       paddingVertical: 4,
       paddingHorizontal: 2,
       borderRadius: radius.lg,
@@ -297,18 +284,18 @@ const createStyles = (colors: ThemeColors) =>
       justifyContent: 'flex-end',
       zIndex: 4,
     },
-    fabBackdrop: {
+    fabModalRoot: {
       flex: 1,
-      backgroundColor: 'rgba(0,0,0,0.45)',
       justifyContent: 'flex-end',
-      padding: spacing.md,
     },
-    fabSheet: {
-      backgroundColor: colors.cream,
-      borderRadius: radius.xl,
+    fabBackdrop: {
+      ...StyleSheet.absoluteFill,
+      backgroundColor: colors.modalScrim,
+    },
+    fabSheetGlass: {
       padding: spacing.md,
-      borderWidth: 1,
-      borderColor: colors.border,
+      marginHorizontal: spacing.sm,
+      marginBottom: spacing.sm,
     },
     fabRow: {
       minHeight: 44,
@@ -324,15 +311,15 @@ const createStyles = (colors: ThemeColors) =>
       marginTop: spacing.sm,
     },
     fab: {
-      width: 52,
-      height: 52,
-      borderRadius: 26,
+      width: 60,
+      height: 60,
+      borderRadius: 30,
       backgroundColor: colors.orange,
       alignItems: 'center',
       justifyContent: 'center',
       marginBottom: 2,
-      transform: [{ translateY: -22 }],
-      borderWidth: 2,
-      borderColor: colors.tabBarFill,
+      transform: [{ translateY: -14 }],
+      borderWidth: 4,
+      borderColor: colors.cream,
     },
   });

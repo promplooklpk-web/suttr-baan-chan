@@ -10,8 +10,10 @@ import {
 } from 'react';
 
 import { darkColors, lightColors, type ThemeColors } from '@/constants/colorSchemes';
+import { getDesignTokens, type DesignTokens } from '@/lib/design';
 import {
   loadThemePreference,
+  readThemePreferenceSync,
   saveThemePreference,
   type ThemePreference,
 } from '@/lib/themeStorage';
@@ -20,6 +22,7 @@ export type ResolvedColorScheme = 'light' | 'dark';
 
 type ThemeContextValue = {
   colors: ThemeColors;
+  tokens: DesignTokens;
   colorScheme: ResolvedColorScheme;
   preference: ThemePreference;
   setPreference: (next: ThemePreference) => void;
@@ -50,7 +53,12 @@ export function ThemeProvider({
   forcedColorScheme,
 }: ThemeProviderProps) {
   const systemScheme = useSystemColorScheme();
-  const [preference, setPreferenceState] = useState<ThemePreference>(initialPreference);
+  const [preference, setPreferenceState] = useState<ThemePreference>(() => {
+    if (forcedColorScheme != null) return initialPreference;
+    const sync =
+      typeof readThemePreferenceSync === 'function' ? readThemePreferenceSync() : null;
+    return sync ?? initialPreference;
+  });
   useEffect(() => {
     if (forcedColorScheme != null) return;
     let cancelled = false;
@@ -79,6 +87,7 @@ export function ThemeProvider({
     const isDark = colorScheme === 'dark';
     return {
       colors,
+      tokens: getDesignTokens(colorScheme, colors),
       colorScheme,
       preference,
       setPreference,

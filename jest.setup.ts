@@ -64,6 +64,16 @@ jest.mock('react-native-reanimated', () => {
   return Reanimated;
 });
 
+jest.mock('react-native-gesture-handler/ReanimatedSwipeable', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  return {
+    __esModule: true,
+    default: ({ children }: { children?: React.ReactNode }) =>
+      React.createElement(View, null, children),
+  };
+});
+
 jest.mock('@react-native-community/datetimepicker', () => 'DateTimePicker');
 
 jest.mock('@/lib/storage', () => {
@@ -110,10 +120,15 @@ jest.mock('@/lib/shoppingList', () => {
   };
 });
 
-jest.mock('@/lib/themeStorage', () => ({
-  loadThemePreference: jest.fn(async () => 'dark' as const),
-  saveThemePreference: jest.fn(async () => undefined),
-}));
+jest.mock('@/lib/themeStorage', () => {
+  const actual = jest.requireActual<typeof import('@/lib/themeStorage')>('@/lib/themeStorage');
+  return {
+    ...actual,
+    loadThemePreference: jest.fn(async () => 'dark' as const),
+    saveThemePreference: jest.fn(async () => undefined),
+    readThemePreferenceSync: jest.fn(() => null),
+  };
+});
 
 jest.mock('@/lib/pickerHistory', () => {
   const actual = jest.requireActual('@/lib/pickerHistory');

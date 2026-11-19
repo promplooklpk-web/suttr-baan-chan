@@ -2,18 +2,24 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Pressable,
   ScrollView,
   StyleSheet,
   View,
+  ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { Glass } from '@/components/Glass';
+import { GlassIconButton } from '@/components/GlassIconButton';
+import { GlassBottomBar } from '@/components/GlassBottomBar';
+import { ProgressRing } from '@/components/ProgressRing';
+import { RecipeCoverImage } from '@/components/RecipeCoverImage';
+import { formatTimerSeconds } from '@/lib/format';
 import { CookTimerBar, CookTimerBarSpacer } from '@/components/CookTimerBar';
-import { StepTimerChip } from '@/components/StepTimerChip';
 import { loadAppSettings } from '@/lib/appSettings';
 import { fonts, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
@@ -32,7 +38,7 @@ export default function CookingModeScreen() {
   const { colors } = useTheme();
   const { id, servings: servingsParam } = useLocalSearchParams<{ id: string; servings?: string }>();
   const insets = useSafeAreaInsets();
-  const { getRecipe } = useRecipes();
+  const { getRecipe, loading: recipesLoading } = useRecipes();
   const { clearAllTimers } = useCookTimers();
   const recipe = getRecipe(id);
 
@@ -73,6 +79,20 @@ export default function CookingModeScreen() {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined);
   }, []);
 
+  const stepTimerSeconds = useMemo(() => {
+    if (step?.timerSeconds && step.timerSeconds > 0) return step.timerSeconds;
+    if (stepIndex === 0 && (recipe?.cookMinutes ?? 0) > 0) return (recipe?.cookMinutes ?? 0) * 60;
+    return undefined;
+  }, [step, stepIndex, recipe?.cookMinutes]);
+
+  if (recipesLoading) {
+    return (
+      <View style={styles.missing}>
+        <ActivityIndicator color={colors.orange} />
+      </View>
+    );
+  }
+
   if (!recipe || !step) {
     return (
       <View style={styles.missing}>
@@ -89,9 +109,11 @@ export default function CookingModeScreen() {
       <CookTimerBar />
       <CookTimerBarSpacer />
       <View style={styles.topBar}>
-        <Pressable onPress={() => router.back()} style={styles.closeHit}>
-          <Ionicons name="close" size={28} color={colors.ink} />
-        </Pressable>
+        <GlassIconButton
+          icon="close"
+          onPress={() => router.back()}
+          accessibilityLabel="ปิดโหมดทำอาหาร"
+        />
         <AppText variant="label" muted>
           ขั้นที่ {stepIndex + 1}/{steps.length}
         </AppText>
@@ -100,25 +122,51 @@ export default function CookingModeScreen() {
         </Pressable>
       </View>
 
-      <View style={styles.progressTrack}>
-        <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
+      <View style={styles.segmentRow}>
+        {steps.map((_, i) => (
+          <View
+            key={i}
+            style={[
+              styles.segment,
+              { backgroundColor: i <= stepIndex ? colors.orange : colors.surface2 },
+            ]}
+          />
+        ))}
       </View>
 
       <AppText variant="caption" muted style={styles.recipeTitle}>{recipe.title}</AppText>
 
-      <View style={styles.stepArea}>
-        <AppText style={styles.stepText}>{step.text}</AppText>
-        {step.timerSeconds != null && step.timerSeconds > 0 && (
-          <StepTimerChip
-            key={`timer-${stepIndex}`}
-            timerKey={`${recipe.id}-${stepIndex}`}
-            timerSeconds={step.timerSeconds}
-            timerLabel={`${recipe.title} · ขั้น ${stepIndex + 1}`}
-            autoStart={autoStartTimers}
-            onComplete={onTimerDone}
-          />
-        )}
-      </View>
+      <ScrollView
+        style={styles.stepScroll}
+        contentContainerStyle={styles.stepScrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <RecipeCoverImage recipe={recipe} style={styles.heroPhoto} rounded={radius.lg} iconSize={40} />
+        <Glass variant="card" style={styles.stepCard}>
+          <View style={styles.stepCardInner}>
+            <View style={[styles.stepBadge, { backgroundColor: colors.orange }]}>
+              <AppText variant="label" style={{ color: colors.onAccent }}>
+                {stepIndex + 1}
+              </AppText>
+            </View>
+            <AppText style={styles.stepTextInCard}>{step.text}</AppText>
+            {stepTimerSeconds != null && stepTimerSeconds > 0 ? (
+              <CookTimerBlock
+                timerKey={`${recipe.id}-${stepIndex}`}
+                timerSeconds={stepTimerSeconds}
+                timerLabel={`${recipe.title} · ขั้น ${stepIndex + 1}`}
+                autoStart={autoStartTimers}
+                onComplete={onTimerDone}
+              />
+            ) : null}
+            {stepIndex < steps.length - 1 ? (
+              <AppText variant="caption" muted style={styles.nextPreview}>
+                ถัดไป: {steps[stepIndex + 1]?.text}
+              </AppText>
+            ) : null}
+          </View>
+        </Glass>
+      </ScrollView>
 
       {showIngredients && (
         <ScrollView style={styles.ingPanel} contentContainerStyle={styles.ingContent}>
@@ -150,29 +198,123 @@ export default function CookingModeScreen() {
         </ScrollView>
       )}
 
-      <View style={styles.navRow}>
-        <Pressable
-          style={[styles.navBtn, stepIndex === 0 && styles.navBtnDisabled]}
-          disabled={stepIndex === 0}
-          onPress={() => setStepIndex((i) => Math.max(0, i - 1))}
-        >
-          <Ionicons name="chevron-back" size={22} color={colors.surface} />
-          <AppText style={styles.navBtnText}>ก่อนหน้า</AppText>
-        </Pressable>
-        {stepIndex < steps.length - 1 ? (
+      <GlassBottomBar>
+        <View style={styles.navRow}>
           <Pressable
-            style={styles.navBtn}
-            onPress={() => setStepIndex((i) => i + 1)}
+            style={[styles.navBtnSecondary, stepIndex === 0 && styles.navBtnDisabled]}
+            disabled={stepIndex === 0}
+            onPress={() => setStepIndex((i) => Math.max(0, i - 1))}
           >
-            <AppText style={styles.navBtnText}>ถัดไป</AppText>
-            <Ionicons name="chevron-forward" size={22} color={colors.surface} />
+            <Ionicons name="chevron-back" size={20} color={colors.ink} />
+            <AppText style={styles.navBtnSecondaryText}>ก่อนหน้า</AppText>
           </Pressable>
-        ) : (
-          <Pressable style={styles.navBtn} onPress={() => router.back()}>
-            <AppText style={styles.navBtnText}>เสร็จแล้ว</AppText>
-          </Pressable>
-        )}
+          {stepIndex < steps.length - 1 ? (
+            <Pressable style={styles.navBtnPrimary} onPress={() => setStepIndex((i) => i + 1)}>
+              <AppText style={styles.navBtnText}>ถัดไป</AppText>
+              <Ionicons name="chevron-forward" size={20} color={colors.onAccent} />
+            </Pressable>
+          ) : (
+            <Pressable style={styles.navBtnPrimary} onPress={() => router.back()}>
+              <AppText style={styles.navBtnText}>เสร็จแล้ว</AppText>
+            </Pressable>
+          )}
+        </View>
+      </GlassBottomBar>
+    </View>
+  );
+}
+
+function CookTimerBlock({
+  timerKey,
+  timerSeconds,
+  timerLabel,
+  autoStart,
+  onComplete,
+}: {
+  timerKey: string;
+  timerSeconds: number;
+  timerLabel: string;
+  autoStart: boolean;
+  onComplete: () => void;
+}) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
+  const {
+    getTimer,
+    remainingSeconds,
+    startTimer,
+    pauseTimer,
+    resumeTimer,
+  } = useCookTimers();
+  const timer = getTimer(timerKey);
+  const remaining = timer ? remainingSeconds(timerKey) : timerSeconds;
+  const progress = timerSeconds > 0 ? 1 - remaining / timerSeconds : 0;
+  const running = Boolean(timer && !timer.finished && timer.endAt > 0 && timer.pausedRemaining == null);
+  const paused = Boolean(timer && timer.pausedRemaining != null && !timer.finished);
+  const finished = Boolean(timer?.finished);
+  const autoStarted = useRef(false);
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
+
+  useEffect(() => {
+    autoStarted.current = false;
+  }, [timerKey, timerSeconds]);
+
+  useEffect(() => {
+    if (!autoStart || autoStarted.current || timerSeconds <= 0) return;
+    if (!getTimer(timerKey)) {
+      autoStarted.current = true;
+      startTimer(timerKey, timerLabel, timerSeconds);
+    }
+  }, [autoStart, timerKey, timerSeconds, timerLabel, getTimer, startTimer]);
+
+  useEffect(() => {
+    if (finished) onCompleteRef.current?.();
+  }, [finished]);
+
+  const toggleTimer = () => {
+    if (finished) return;
+    if (running) {
+      pauseTimer(timerKey);
+      return;
+    }
+    if (paused) {
+      resumeTimer(timerKey);
+      return;
+    }
+    startTimer(timerKey, timerLabel, timerSeconds);
+  };
+
+  return (
+    <View style={styles.timerCard}>
+      <ProgressRing
+        size={84}
+        progress={Math.min(1, Math.max(0, progress))}
+        color={colors.orange}
+        center={
+          <AppText variant="label" style={{ fontFamily: fonts.semiBold }}>
+            {formatTimerSeconds(remaining)}
+          </AppText>
+        }
+      />
+      <View style={styles.timerMeta}>
+        <AppText variant="label">ตัวจับเวลา</AppText>
+        <AppText variant="caption" muted>
+          {formatTimerSeconds(timerSeconds)}
+          {running ? ' · แตะหยุด' : paused ? ' · หยุดชั่วคราว' : ''}
+        </AppText>
       </View>
+      <Pressable
+        onPress={toggleTimer}
+        style={styles.timerPauseBtn}
+        accessibilityLabel={running ? 'หยุดตัวจับเวลา' : 'เริ่มตัวจับเวลา'}
+      >
+        <Ionicons
+          name={running ? 'pause' : 'play'}
+          size={22}
+          color={colors.onAccent}
+        />
+      </Pressable>
     </View>
   );
 }
@@ -201,19 +343,45 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  progressTrack: {
-    height: 6,
-    backgroundColor: colors.border,
-    borderRadius: 3,
-    overflow: 'hidden',
-    marginBottom: spacing.md,
+  segmentRow: { flexDirection: 'row', gap: 4, marginBottom: spacing.md },
+  segment: { flex: 1, height: 6, borderRadius: 3 },
+  nextPreview: { marginTop: spacing.lg, lineHeight: 20 },
+  timerCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    marginTop: spacing.sm,
+    padding: spacing.md,
+    borderRadius: radius.card,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
   },
-  progressFill: { height: '100%', backgroundColor: colors.orange },
-  recipeTitle: { marginBottom: spacing.lg },
-  stepArea: { flex: 1, justifyContent: 'center' },
-  stepText: {
-    fontSize: 28,
-    lineHeight: 40,
+  timerMeta: { flex: 1, gap: 4, minWidth: 0 },
+  timerPauseBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.orange,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  recipeTitle: { marginBottom: spacing.sm },
+  stepScroll: { flex: 1 },
+  stepScrollContent: { gap: spacing.md, paddingBottom: spacing.xl },
+  heroPhoto: { width: '100%', height: 160 },
+  stepCard: { width: '100%' },
+  stepCardInner: { padding: spacing.md, gap: spacing.md },
+  stepBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepTextInCard: {
+    fontSize: 18,
+    lineHeight: 28,
     fontFamily: fonts.semiBold,
     color: colors.ink,
   },
@@ -250,7 +418,20 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   ingName: { flex: 1 },
   navRow: { flexDirection: 'row', gap: spacing.md },
-  navBtn: {
+  navBtnSecondary: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+    backgroundColor: colors.surface2,
+  },
+  navBtnSecondaryText: { color: colors.ink, fontFamily: fonts.semiBold, fontSize: 16 },
+  navBtnPrimary: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
@@ -261,5 +442,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.md,
   },
   navBtnDisabled: { opacity: 0.4 },
-  navBtnText: { color: colors.surface, fontFamily: fonts.semiBold, fontSize: 17 },
+  navBtnText: { color: colors.onAccent, fontFamily: fonts.semiBold, fontSize: 17 },
 });

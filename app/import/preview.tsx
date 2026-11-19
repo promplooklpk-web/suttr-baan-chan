@@ -4,6 +4,7 @@ import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { GlassBottomBar } from '@/components/GlassBottomBar';
 import { radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
@@ -16,6 +17,30 @@ import { useFridge } from '@/context/FridgeContext';
 import { useMealPlan } from '@/context/MealPlanContext';
 import { useSnackbar } from '@/context/SnackbarContext';
 import type { DuplicatePolicy } from '@/types/export';
+
+function StatTile({
+  label,
+  value,
+  color,
+  styles,
+}: {
+  label: string;
+  value: number;
+  color: string;
+  styles: ReturnType<typeof createStyles>;
+}) {
+  return (
+    <View style={styles.statCard}>
+      <View style={[styles.statAccentBar, { backgroundColor: color }]} />
+      <AppText variant="title" style={styles.statValue}>
+        {value}
+      </AppText>
+      <AppText variant="caption" muted style={styles.statLabel}>
+        {label}
+      </AppText>
+    </View>
+  );
+}
 
 const POLICY_LABELS: Record<DuplicatePolicy, string> = {
   skip: 'ข้าม',
@@ -96,6 +121,21 @@ export default function ImportPreviewScreen() {
     <>
       <Stack.Screen options={{ title: 'ตรวจสอบก่อนนำเข้า' }} />
       <View style={[styles.screen, { paddingTop: spacing.md }]}>
+        <View style={styles.statRow}>
+          <StatTile
+            styles={styles}
+            label="สูตรใหม่"
+            value={plans.filter((p) => !p.isDuplicate).length}
+            color={colors.cardGreen}
+          />
+          <StatTile styles={styles} label="ซ้ำ" value={duplicateCount} color={colors.cardYellow} />
+          <StatTile
+            styles={styles}
+            label="ข้าม"
+            value={pending.skippedRecipeCount + plans.filter((p) => p.policy === 'skip' && p.isDuplicate).length}
+            color={colors.inkMuted}
+          />
+        </View>
         <View style={styles.summary}>
           <AppText variant="caption" style={{ color: colors.danger, marginBottom: spacing.sm }}>
             การยืนยันจะแทนที่ข้อมูลตู้เย็น แผนมื้อ และรายการซื้อจากไฟล์สำรอง
@@ -155,11 +195,13 @@ export default function ImportPreviewScreen() {
           )}
         />
 
-        <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}>
+        <GlassBottomBar>
           <Pressable style={styles.confirmBtn} onPress={confirm}>
-            <AppText style={styles.confirmText}>นำเข้าสูตร</AppText>
+            <AppText style={styles.confirmText}>
+              นำเข้า {plans.filter((p) => !(p.isDuplicate && p.policy === 'skip')).length} สูตร
+            </AppText>
           </Pressable>
-        </View>
+        </GlassBottomBar>
       </View>
     </>
   );
@@ -168,6 +210,31 @@ export default function ImportPreviewScreen() {
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.md },
+  statRow: {
+    flexDirection: 'row',
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.md,
+    gap: spacing.sm,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: colors.surface,
+    borderRadius: radius.card,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.sm,
+    alignItems: 'center',
+    gap: spacing.xs,
+    minHeight: 96,
+  },
+  statAccentBar: {
+    width: 28,
+    height: 4,
+    borderRadius: 2,
+  },
+  statValue: { fontSize: 26, lineHeight: 32 },
+  statLabel: { textAlign: 'center' },
   summary: { paddingHorizontal: spacing.md, marginBottom: spacing.md, gap: spacing.sm },
   policyRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, alignItems: 'center' },
   chip: {

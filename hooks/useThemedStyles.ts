@@ -1,10 +1,14 @@
 import { useMemo } from 'react';
-import type { StyleSheet } from 'react-native';
+import type { ImageStyle, TextStyle, ViewStyle } from 'react-native';
 
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
 
-export function useThemedStyles<T extends StyleSheet.NamedStyles<T>>(
+type NamedStyles<T> = {
+  [P in keyof T]: ViewStyle | TextStyle | ImageStyle;
+};
+
+export function useThemedStyles<T extends NamedStyles<T>>(
   factory: (colors: ThemeColors) => T,
 ): T {
   const { colors } = useTheme();

@@ -1,4 +1,8 @@
 import {
+  Prompt_500Medium,
+  Prompt_600SemiBold,
+} from '@expo-google-fonts/prompt';
+import {
   Sarabun_400Regular,
   Sarabun_500Medium,
   Sarabun_600SemiBold,
@@ -41,7 +45,7 @@ function RootStack() {
         screenOptions={{
           headerStyle: { backgroundColor: colors.cream },
           headerTintColor: colors.ink,
-          headerTitleStyle: { fontFamily: 'Sarabun_600SemiBold' },
+          headerTitleStyle: { fontFamily: 'Prompt_600SemiBold' },
           contentStyle: { backgroundColor: colors.cream },
         }}
       >
@@ -72,6 +76,8 @@ export default function RootLayout() {
     Sarabun_500Medium,
     Sarabun_600SemiBold,
     Sarabun_700Bold,
+    Prompt_500Medium,
+    Prompt_600SemiBold,
   });
 
   useEffect(() => {

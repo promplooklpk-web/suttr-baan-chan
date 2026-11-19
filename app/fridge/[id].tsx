@@ -11,10 +11,15 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { Ionicons } from '@expo/vector-icons';
 import { AppText } from '@/components/AppText';
+import { PhotoGlassHero } from '@/components/PhotoGlassHero';
+import { GlassBottomBar } from '@/components/GlassBottomBar';
+import { ProgressRing, ProgressRingLabel } from '@/components/ProgressRing';
 import { FridgeQuantityEditor } from '@/components/fridge/FridgeQuantityEditor';
 import { FridgeUseAmountPanel } from '@/components/fridge/FridgeUseAmountPanel';
 import { RecipeCoverImage } from '@/components/RecipeCoverImage';
+import { recipeCoverUri } from '@/lib/recipeMedia';
 import { fonts, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
@@ -71,6 +76,15 @@ export default function FridgeItemDetailScreen() {
       .slice(0, 6);
   }, [item, recipes]);
 
+  const heroImageSource = useMemo(() => {
+    const cover = linkedRecipes[0];
+    if (cover) {
+      const uri = recipeCoverUri(cover);
+      if (uri) return { uri };
+    }
+    return null;
+  }, [linkedRecipes]);
+
   if (!item) {
     return (
       <View style={styles.centered}>
@@ -121,9 +135,43 @@ export default function FridgeItemDetailScreen() {
     >
       <ScrollView
         style={styles.screen}
-        contentContainerStyle={{ padding: spacing.md, paddingBottom: insets.bottom + spacing.xl }}
+        contentContainerStyle={{ padding: spacing.md, paddingBottom: insets.bottom + 120 }}
         keyboardShouldPersistTaps="handled"
       >
+        <PhotoGlassHero
+          imageSource={heroImageSource}
+          panelLayout="center"
+          height={200}
+        >
+          <View style={styles.heroRow}>
+            <ProgressRing
+              size={76}
+              progress={freshnessRatio}
+              color={barColor}
+              center={
+                <ProgressRingLabel
+                  title={daysLeft != null ? `${Math.max(0, daysLeft)} วัน` : '—'}
+                  subtitle="ก่อนหมดอายุ"
+                  titleColor={barColor}
+                />
+              }
+            />
+            <View style={styles.heroTextCol}>
+              <AppText variant="caption" muted>
+                จำนวนคงเหลือ
+              </AppText>
+              <AppText variant="title">
+                {quantity} {unit}
+              </AppText>
+              <View style={[styles.expiryPill, { backgroundColor: colors.surface2, borderColor: colors.border }]}>
+                <AppText variant="micro" style={{ color: barColor }}>
+                  {formatExpiryLine({ ...item, name: itemName, expiresAt })}
+                </AppText>
+              </View>
+            </View>
+          </View>
+        </PhotoGlassHero>
+
         <AppText variant="label" muted>ชื่อ</AppText>
         <TextInput
           keyboardAppearance={keyboardAppearance}
@@ -137,15 +185,6 @@ export default function FridgeItemDetailScreen() {
         {fieldErrors.name ? (
           <AppText variant="caption" style={styles.fieldError}>{fieldErrors.name}</AppText>
         ) : null}
-        <AppText variant="caption" style={{ color: barColor, marginTop: spacing.xs }}>
-          {formatExpiryLine({ ...item, name: itemName, expiresAt })}
-        </AppText>
-        <View style={styles.barBg}>
-          <View style={[styles.barFill, { width: `${freshnessRatio * 100}%`, backgroundColor: barColor }]} />
-        </View>
-        <AppText variant="caption" muted style={{ marginBottom: spacing.sm }}>
-          {PLACE_LABELS[place]}
-        </AppText>
 
         <FridgeUseAmountPanel item={{ ...item, quantity, unit }} onSubtract={onSubtract} />
 
@@ -217,8 +256,11 @@ export default function FridgeItemDetailScreen() {
           </View>
         )}
 
-        <View style={styles.footer}>
+      </ScrollView>
+      <GlassBottomBar>
+        <View style={styles.footerRow}>
           <Pressable
+            style={styles.footerSecondary}
             onPress={async () => {
               const snapshot = { ...item, name: itemName, note, quantity, unit, place, expiresAt };
               await removeItem(item.id);
@@ -238,11 +280,11 @@ export default function FridgeItemDetailScreen() {
           >
             <AppText style={{ color: colors.danger, fontFamily: fonts.semiBold }}>ลบ</AppText>
           </Pressable>
-          <Pressable style={styles.saveBtn} onPress={save}>
+          <Pressable style={[styles.saveBtn, { flex: 1 }]} onPress={save}>
             <AppText style={styles.saveBtnText}>บันทึกการแก้ไข</AppText>
           </Pressable>
         </View>
-      </ScrollView>
+      </GlassBottomBar>
     </KeyboardAvoidingView>
   );
 }
@@ -251,6 +293,16 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   flex: { flex: 1 },
   screen: { flex: 1, backgroundColor: colors.cream },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  heroRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  heroTextCol: { flex: 1, gap: 4 },
+  expiryPill: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    marginTop: spacing.xs,
+  },
   barBg: {
     height: 8,
     backgroundColor: colors.border,
@@ -286,11 +338,20 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   recipeThumb: { width: 100, marginRight: spacing.md },
   thumbImg: { width: 100, height: 80 },
   thumbTitle: { marginTop: 4 },
-  footer: {
+  footerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: spacing.xl,
+    gap: spacing.md,
+  },
+  footerSecondary: {
+    minHeight: 48,
+    paddingHorizontal: spacing.lg,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+    backgroundColor: colors.surface2,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   saveBtn: {
     backgroundColor: colors.orange,

@@ -9,6 +9,8 @@ import { ConfirmModal } from '@/components/ConfirmModal';
 import { FloatingHeader, floatingHeaderClearance } from '@/components/FloatingHeader';
 import { ScreenShell } from '@/components/ScreenShell';
 import { accentGlow } from '@/lib/design';
+import { Glass } from '@/components/Glass';
+import { ProgressRing } from '@/components/ProgressRing';
 import { RecipeCoverImage } from '@/components/RecipeCoverImage';
 import { fonts, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
@@ -86,7 +88,7 @@ function sumDayCalories(day: MealPlanDay, getRecipe: (id: string) => Recipe | un
 
 export default function PlannerScreen() {
   const styles = useThemedStyles(createStyles);
-  const { colors } = useTheme();
+  const { colors, tokens } = useTheme();
   const insets = useSafeAreaInsets();
   const {
     plan,
@@ -372,7 +374,6 @@ export default function PlannerScreen() {
                 const isToday = day.date === today;
                 const isSelected = day.date === selectedDate;
                 const dayNum = day.date.slice(8, 10);
-                const kcal = sumDayCalories(day, getRecipe);
                 return (
                   <Pressable
                     key={day.date}
@@ -380,7 +381,6 @@ export default function PlannerScreen() {
                     style={[
                       styles.dayChip,
                       isSelected && styles.dayChipSelected,
-                      isSelected && accentGlow(colors),
                       isToday && !isSelected && styles.dayChipToday,
                     ]}
                   >
@@ -402,25 +402,16 @@ export default function PlannerScreen() {
                     >
                       {dayNum}
                     </AppText>
-                    {kcal > 0 ? (
-                      <AppText
-                        variant="caption"
-                        style={{
-                          fontSize: 9,
-                          color: isSelected ? colors.surface : colors.inkMuted,
-                          fontFamily: fonts.medium,
-                        }}
-                      >
-                        {kcal}
-                      </AppText>
-                    ) : dayHasMeals(day) ? (
+                    {dayHasMeals(day) ? (
                       <View
                         style={[
                           styles.dayDot,
                           { backgroundColor: isSelected ? colors.surface : colors.orange },
                         ]}
                       />
-                    ) : null}
+                    ) : (
+                      <View style={styles.dayDotSpacer} />
+                    )}
                   </Pressable>
                 );
               })}
@@ -449,8 +440,16 @@ export default function PlannerScreen() {
                     </AppText>
                   </View>
                   <AppText variant="title" style={styles.kcalValue}>
-                    {dayCalories > 0 ? `${dayCalories.toLocaleString()} kcal` : '—'}
+                    {dayCalories.toLocaleString()} / {kcalGoal.toLocaleString()} kcal
                   </AppText>
+                  <View style={styles.kcalMetaRow}>
+                    <AppText variant="caption" style={{ color: tokens.accentText }}>
+                      เหลือ {Math.max(0, kcalGoal - dayCalories).toLocaleString()} kcal
+                    </AppText>
+                    <AppText variant="caption" muted>
+                      {(['breakfast', 'lunch', 'dinner'] as MealSlot[]).filter((s) => selectedDay.meals[s]).length}/3 มื้อ
+                    </AppText>
+                  </View>
                   <View style={styles.kcalBarBg}>
                     <View
                       style={[
@@ -519,12 +518,37 @@ export default function PlannerScreen() {
 
         {section === 'shop' && (
           <View style={styles.shopSection}>
-            <View style={styles.shopHeader}>
-              <AppText variant="title">รายการซื้อของ</AppText>
-            </View>
-            <AppText variant="caption" muted style={{ marginBottom: spacing.sm }}>
-              {checkedCount}/{shopping.length} รายการ · จากแพลนลบของในตู้เย็น
-            </AppText>
+            <Glass variant="card" style={styles.shopSummaryCard}>
+              <View style={styles.shopSummaryInner}>
+                <ProgressRing
+                  size={80}
+                  stroke={7}
+                  progress={shopping.length > 0 ? checkedCount / shopping.length : 0}
+                  color={colors.orange}
+                  center={
+                    <AppText variant="caption" style={{ textAlign: 'center', fontFamily: fonts.semiBold }}>
+                      {checkedCount}/{shopping.length || 0}
+                    </AppText>
+                  }
+                />
+                <View style={{ flex: 1, gap: 4 }}>
+                  <AppText variant="title">รายการซื้อของ</AppText>
+                  <AppText variant="caption" muted>
+                    ซื้อแล้ว {checkedCount} จาก {shopping.length} รายการ
+                  </AppText>
+                  <AppText variant="caption" muted>
+                    สร้างจากแพลนสัปดาห์
+                  </AppText>
+                </View>
+              </View>
+              {checkedCount > 0 && (
+                <Pressable style={styles.shopPrimaryBtn} onPress={() => moveCheckedToFridge()}>
+                  <AppText variant="label" style={{ color: colors.onAccent }}>
+                    ย้ายที่ติ๊กแล้วเข้าตู้เย็น
+                  </AppText>
+                </Pressable>
+              )}
+            </Glass>
             {shopping.length === 0 ? (
               <AppText muted style={{ textAlign: 'center', marginTop: spacing.lg }}>
                 ยังไม่มีของต้องซื้อ — ลองเพิ่มเมนูในแพลนหรือกดเพิ่มเอง
@@ -564,13 +588,6 @@ export default function PlannerScreen() {
                 );
               })
             )}
-            {checkedCount > 0 && (
-              <Pressable style={styles.shopSecondaryBtn} onPress={() => moveCheckedToFridge()}>
-                <AppText variant="label" style={{ color: colors.orange }}>
-                  ย้ายที่ติ๊กแล้วเข้าตู้เย็น
-                </AppText>
-              </Pressable>
-            )}
           </View>
         )}
 
@@ -586,7 +603,7 @@ export default function PlannerScreen() {
 
         <Modal visible={mealMenu != null} transparent animationType="fade">
           <Pressable style={styles.modalBackdrop} onPress={() => setMealMenu(null)}>
-            <View style={styles.modalSheet}>
+            <Glass variant="material" sheet style={styles.modalSheet}>
               {mealMenu && (
                 <>
                   <AppText variant="title" style={{ marginBottom: spacing.md }}>
@@ -645,13 +662,13 @@ export default function PlannerScreen() {
                   </Pressable>
                 </>
               )}
-            </View>
+            </Glass>
           </Pressable>
         </Modal>
 
         <Modal visible={copyMealSource != null} transparent animationType="slide">
           <View style={styles.modalBackdrop}>
-            <View style={styles.modalSheet}>
+            <Glass variant="material" sheet style={styles.modalSheet}>
               <AppText variant="title" style={{ marginBottom: spacing.sm }}>คัดลอกไปวัน/มื้อ</AppText>
               <AppText variant="caption" muted style={{ marginBottom: spacing.md }}>
                 เลือกวันและมื้อปลายทาง
@@ -714,13 +731,13 @@ export default function PlannerScreen() {
               <Pressable onPress={() => setCopyMealSource(null)}>
                 <AppText muted style={{ textAlign: 'center', marginTop: spacing.md }}>ยกเลิก</AppText>
               </Pressable>
-            </View>
+            </Glass>
           </View>
         </Modal>
 
         <Modal visible={manualAddOpen} transparent animationType="fade">
           <View style={styles.modalBackdrop}>
-            <View style={styles.modalSheet}>
+            <Glass variant="material" sheet style={styles.modalSheet}>
               <AppText variant="title" style={{ marginBottom: spacing.md }}>เพิ่มรายการเอง</AppText>
               <TextInput
                 value={manualName}
@@ -745,13 +762,13 @@ export default function PlannerScreen() {
               <Pressable onPress={() => setManualAddOpen(false)}>
                 <AppText muted style={{ textAlign: 'center', marginTop: spacing.md }}>ปิด</AppText>
               </Pressable>
-            </View>
+            </Glass>
           </View>
         </Modal>
 
         <Modal visible={picker != null} transparent animationType="slide">
           <View style={styles.modalBackdrop}>
-            <View style={styles.modalSheet}>
+            <Glass variant="material" sheet style={styles.modalSheet}>
               <AppText variant="title" style={{ marginBottom: spacing.md }}>เลือกสูตร</AppText>
               <ScrollView style={{ maxHeight: 360 }}>
                 {recipes.map((r) => (
@@ -782,7 +799,7 @@ export default function PlannerScreen() {
               <Pressable onPress={() => setPicker(null)}>
                 <AppText muted style={{ textAlign: 'center', marginTop: spacing.md }}>ปิด</AppText>
               </Pressable>
-            </View>
+            </Glass>
           </View>
         </Modal>
       </ScrollView>
@@ -927,6 +944,23 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  kcalMetaRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: spacing.xs,
+    marginBottom: spacing.xs,
+  },
+  shopSummaryCard: { marginBottom: spacing.md },
+  shopSummaryInner: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md },
+  shopPrimaryBtn: {
+    marginHorizontal: spacing.md,
+    marginBottom: spacing.md,
+    backgroundColor: colors.orange,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.sm,
+    alignItems: 'center',
+  },
   kcalBarBg: {
     height: 6,
     backgroundColor: colors.surface2,
@@ -999,10 +1033,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingRight: spacing.sm,
   },
   dayChip: {
-    width: 52,
+    width: 48,
     alignItems: 'center',
-    paddingVertical: spacing.sm,
-    borderRadius: radius.lg,
+    paddingVertical: 10,
+    borderRadius: radius.pill,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
@@ -1021,6 +1055,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: 3,
     marginTop: 2,
   },
+  dayDotSpacer: { width: 6, height: 6, marginTop: 2 },
   dayPanel: { marginTop: spacing.xs },
   dayPanelHeader: {
     flexDirection: 'row',
@@ -1201,9 +1236,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalSheet: {
-    backgroundColor: colors.cream,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
     padding: spacing.lg,
     maxHeight: '80%',
   },

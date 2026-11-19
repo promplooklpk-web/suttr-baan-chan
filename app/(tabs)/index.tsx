@@ -8,6 +8,7 @@ import { AppText } from '@/components/AppText';
 import { HomeTopBar, homeTopBarClearance } from '@/components/HomeTopBar';
 import { HomeFilterChips, type HomeFilterId } from '@/components/HomeFilterChips';
 import { BackupNudgeBanner } from '@/components/BackupNudgeBanner';
+import { HomeHeroCard } from '@/components/HomeHeroCard';
 import { EmptyState } from '@/components/EmptyState';
 import { RecipeMenuCard } from '@/components/RecipeMenuCard';
 import { ScreenShell } from '@/components/ScreenShell';
@@ -15,6 +16,7 @@ import { radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
+import { useFridge } from '@/context/FridgeContext';
 import { useRecipes } from '@/context/RecipesContext';
 import { useFridgeRecipeMatches } from '@/hooks/useFridgeRecipeMatches';
 import { scrollPaddingBottom } from '@/lib/screenLayout';
@@ -34,8 +36,17 @@ export default function HomeScreen() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { recipes, loading } = useRecipes();
+  const { items: fridgeItems, alertCount: expiringCount } = useFridge();
   const [filter, setFilter] = useState<HomeFilterId>('all');
   const fridgeMatches = useFridgeRecipeMatches(recipes);
+
+  const readyRecipes = useMemo(
+    () => recipes.filter((r) => (fridgeMatches.getPercent(r.id) ?? 0) >= 100),
+    [recipes, fridgeMatches],
+  );
+  const readyCount = readyRecipes.length;
+  const heroCoverRecipe = readyRecipes[0] ?? recipes[0] ?? null;
+  const hasPerfectMatch = readyCount > 0;
 
   const filtered = useMemo(() => {
     let list = recipes;
@@ -75,6 +86,14 @@ export default function HomeScreen() {
         ]}
         showsVerticalScrollIndicator={false}
       >
+        <HomeHeroCard
+          readyCount={readyCount}
+          fridgeItemCount={fridgeItems.length}
+          expiringCount={expiringCount}
+          coverRecipe={heroCoverRecipe}
+          hasPerfectMatch={hasPerfectMatch}
+        />
+
         <BackupNudgeBanner onExportPress={() => router.push('/(tabs)/settings')} />
 
         <HomeFilterChips selected={filter} onSelect={setFilter} />

@@ -1,9 +1,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { webSeedEnabled } from '@/lib/webSeed';
+
 const KEY = 'search-recent-v1';
 const MAX = 8;
 
+const WEB_SEED_RECENT = ['ลาบไก่', 'ข้าวผัด', 'ไข่', 'สลัดอกไก่'];
+
 export async function loadRecentSearches(): Promise<string[]> {
+  if (webSeedEnabled()) return [...WEB_SEED_RECENT];
   try {
     const raw = await AsyncStorage.getItem(KEY);
     if (!raw) return [];

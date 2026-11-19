@@ -2,7 +2,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { BlurView } from 'expo-blur';
+import { GlassIconButton } from '@/components/GlassIconButton';
+import { Glass } from '@/components/Glass';
+import { GlassBottomBar } from '@/components/GlassBottomBar';
 import {
   Modal,
   Platform,
@@ -151,20 +153,17 @@ export default function RecipeDetailScreen() {
                 accessibilityLabel="กลับ"
                 onPress={() => router.back()}
                 icon="chevron-back"
-                colors={colors}
               />
               <View style={styles.heroControlsRight}>
                 <GlassIconButton
                   accessibilityLabel="แก้ไขสูตร"
                   onPress={() => router.push({ pathname: '/recipe/edit', params: { id: recipe.id } })}
                   icon="create-outline"
-                  colors={colors}
                 />
                 <GlassIconButton
                   accessibilityLabel="โปรด"
                   onPress={() => toggleFavorite(recipe.id)}
                   icon={recipe.isFavorite ? 'heart' : 'heart-outline'}
-                  colors={colors}
                   accent
                 />
               </View>
@@ -349,17 +348,14 @@ export default function RecipeDetailScreen() {
           </View>
         </ScrollView>
 
-        <View
-          style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}
-          onLayout={(e) => setFooterHeight(e.nativeEvent.layout.height)}
-        >
+        <GlassBottomBar onLayout={(e) => setFooterHeight(e.nativeEvent.layout.height)}>
           <View style={styles.footerRow}>
             <Pressable style={styles.footerSecondary} onPress={() => setPlanOpen(true)}>
               <Ionicons name="calendar-outline" size={18} color={colors.orange} />
               <AppText variant="caption" style={styles.footerSecondaryText}>เพิ่มลงแผน</AppText>
             </Pressable>
             <Pressable
-              style={styles.footerSecondary}
+              style={styles.footerShopSoft}
               onPress={async () => {
                 try {
                   const entries = shoppingEntriesForRecipe(recipe, fridgeItems, factor).map((e) => ({
@@ -378,8 +374,8 @@ export default function RecipeDetailScreen() {
                 }
               }}
             >
-              <Ionicons name="cart-outline" size={18} color={colors.orange} />
-              <AppText variant="caption" style={styles.footerSecondaryText}>ของที่ขาด → ซื้อ</AppText>
+              <Ionicons name="cart-outline" size={18} color={colors.ink} />
+              <AppText variant="caption" style={styles.footerShopText}>ของที่ขาด → ซื้อ</AppText>
             </Pressable>
           </View>
           <Pressable
@@ -394,11 +390,12 @@ export default function RecipeDetailScreen() {
             <Ionicons name="play" size={20} color={colors.onAccent} />
             <AppText style={styles.cookBtnText}>เริ่มทำเมนูนี้ ({servings} เสิร์ฟ)</AppText>
           </Pressable>
-        </View>
+        </GlassBottomBar>
 
         <Modal visible={planOpen} transparent animationType="fade">
           <Pressable style={styles.planBackdrop} onPress={() => setPlanOpen(false)}>
-            <Pressable style={styles.planSheet} onPress={(e) => e.stopPropagation()}>
+            <Pressable onPress={(e) => e.stopPropagation()}>
+              <Glass variant="material" sheet style={styles.planSheet}>
               <AppText variant="title" style={{ marginBottom: spacing.md }}>เพิ่มลงแผน</AppText>
               <ScrollView style={{ maxHeight: 360 }}>
                 {planDays.map((date) => (
@@ -434,6 +431,7 @@ export default function RecipeDetailScreen() {
                   </View>
                 ))}
               </ScrollView>
+              </Glass>
             </Pressable>
           </Pressable>
         </Modal>
@@ -483,60 +481,6 @@ function RoundBtn({ label, onPress }: { label: string; onPress: () => void }) {
     </Pressable>
   );
 }
-
-function GlassIconButton({
-  icon,
-  onPress,
-  accessibilityLabel,
-  colors,
-  accent,
-}: {
-  icon: keyof typeof Ionicons.glyphMap;
-  onPress: () => void;
-  accessibilityLabel: string;
-  colors: ThemeColors;
-  accent?: boolean;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityLabel={accessibilityLabel}
-      style={glassBtnStyles.outer}
-    >
-      <BlurView
-        intensity={Platform.OS === 'ios' ? 70 : 85}
-        tint="dark"
-        style={glassBtnStyles.blur}
-      >
-        <View style={[glassBtnStyles.tint, { backgroundColor: colors.glassTint }]} pointerEvents="none" />
-        <Ionicons
-          name={icon}
-          size={22}
-          color={accent ? colors.orange : colors.ink}
-        />
-      </BlurView>
-    </Pressable>
-  );
-}
-
-const glassBtnStyles = StyleSheet.create({
-  outer: {
-    borderRadius: 22,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.22)',
-  },
-  blur: {
-    width: 44,
-    height: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  tint: {
-    ...StyleSheet.absoluteFill,
-  },
-});
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: {
@@ -862,17 +806,28 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     backgroundColor: colors.surface,
   },
   footerSecondaryText: { color: colors.orange, fontFamily: fonts.semiBold },
+  footerShopSoft: {
+    flex: 1,
+    minHeight: 44,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface2,
+  },
+  footerShopText: { color: colors.ink, fontFamily: fonts.semiBold },
   planBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.45)',
     justifyContent: 'flex-end',
   },
   planSheet: {
-    backgroundColor: colors.cream,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
     padding: spacing.lg,
     gap: spacing.sm,
+    maxHeight: '75%',
   },
   planSlotBtn: {
     minHeight: 44,

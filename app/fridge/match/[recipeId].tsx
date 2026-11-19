@@ -1,8 +1,11 @@
+import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
+import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { GlassBottomBar } from '@/components/GlassBottomBar';
 import { fonts, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
@@ -19,6 +22,7 @@ export default function FridgeMatchDetailScreen() {
   const { colors } = useTheme();
   const { recipeId } = useLocalSearchParams<{ recipeId: string }>();
   const insets = useSafeAreaInsets();
+  const [footerHeight, setFooterHeight] = useState(120);
   const { items } = useFridge();
   const { recipes } = useRecipes();
   const { refresh: refreshPlan } = useMealPlan();
@@ -48,68 +52,75 @@ export default function FridgeMatchDetailScreen() {
   };
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={{ padding: spacing.md, paddingBottom: insets.bottom + 100 }}
-    >
-      <AppText variant="title">{recipe.title}</AppText>
-      <AppText muted style={{ marginBottom: spacing.lg }}>
-        มีในตู้ {match.haveCount}/{match.totalCount} ({match.percent}%)
-      </AppText>
+    <View style={styles.screen}>
+      <ScrollView
+        contentContainerStyle={{
+          padding: spacing.md,
+          paddingBottom: footerHeight + insets.bottom + spacing.md,
+        }}
+      >
+        <AppText variant="title">{recipe.title}</AppText>
+        <AppText muted style={{ marginBottom: spacing.lg }}>
+          มีในตู้ {match.haveCount}/{match.totalCount} ({match.percent}%)
+        </AppText>
 
-      <AppText variant="label" style={styles.section}>มีในตู้</AppText>
-      {have.length === 0 ? (
-        <AppText muted>ยังไม่มีส่วนผสมที่ตรงในตู้</AppText>
-      ) : (
-        have.map((d) => (
-          <View key={d.ingredientName} style={styles.row}>
-            <AppText style={styles.check}>✓</AppText>
-            <View style={{ flex: 1 }}>
-              <AppText>{d.ingredientName}</AppText>
-              <AppText variant="caption" muted>
-                ต้องใช้ {[d.requiredAmount, d.requiredUnit].filter(Boolean).join(' ')}
-                {d.availableAmount != null
-                  ? ` · มี ${d.availableAmount} ${d.availableUnit ?? ''}`
-                  : ''}
-              </AppText>
-              {d.expiringSoon && (
-                <AppText variant="caption" style={{ color: colors.cardYellow }}>ใกล้หมดอายุ</AppText>
-              )}
+        <AppText variant="label" style={styles.section}>มีในตู้</AppText>
+        {have.length === 0 ? (
+          <AppText muted>ยังไม่มีส่วนผสมที่ตรงในตู้</AppText>
+        ) : (
+          have.map((d) => (
+            <View key={d.ingredientName} style={styles.row}>
+              <AppText style={styles.check}>✓</AppText>
+              <View style={{ flex: 1 }}>
+                <AppText>{d.ingredientName}</AppText>
+                <AppText variant="caption" muted>
+                  ต้องใช้ {[d.requiredAmount, d.requiredUnit].filter(Boolean).join(' ')}
+                  {d.availableAmount != null
+                    ? ` · มี ${d.availableAmount} ${d.availableUnit ?? ''}`
+                    : ''}
+                </AppText>
+                {d.expiringSoon && (
+                  <AppText variant="caption" style={{ color: colors.cardYellow }}>ใกล้หมดอายุ</AppText>
+                )}
+              </View>
             </View>
-          </View>
-        ))
-      )}
+          ))
+        )}
 
-      <AppText variant="label" style={styles.section}>ขาด</AppText>
-      {missing.length === 0 ? (
-        <AppText muted>ครบทุกอย่าง</AppText>
-      ) : (
-        missing.map((d) => (
-          <View key={d.ingredientName} style={styles.row}>
-            <AppText style={styles.cross}>✕</AppText>
-            <View style={{ flex: 1 }}>
-              <AppText>{d.ingredientName}</AppText>
-              <AppText variant="caption" style={{ color: colors.danger }}>
-                {d.expiredInFridge ? 'ในตู้หมดอายุแล้ว' : 'ยังไม่มีในตู้'}
-              </AppText>
+        <AppText variant="label" style={styles.section}>ขาด</AppText>
+        {missing.length === 0 ? (
+          <AppText muted>ครบทุกอย่าง</AppText>
+        ) : (
+          missing.map((d) => (
+            <View key={d.ingredientName} style={styles.row}>
+              <AppText style={styles.cross}>✕</AppText>
+              <View style={{ flex: 1 }}>
+                <AppText>{d.ingredientName}</AppText>
+                <AppText variant="caption" style={{ color: colors.danger }}>
+                  {d.expiredInFridge ? 'ในตู้หมดอายุแล้ว' : 'ยังไม่มีในตู้'}
+                </AppText>
+              </View>
             </View>
-          </View>
-        ))
-      )}
+          ))
+        )}
+      </ScrollView>
 
-      {missing.length > 0 && (
-        <Pressable style={styles.primary} onPress={addMissing}>
-          <AppText style={styles.primaryText}>
-            เพิ่มของที่ขาด {missing.length} อย่างลงรายการซื้อ
-          </AppText>
-        </Pressable>
-      )}
-      {match.percent === 100 && (
-        <Pressable style={styles.primary} onPress={() => router.push(`/recipe/cook/${recipe.id}`)}>
-          <AppText style={styles.primaryText}>เริ่มทำอาหาร</AppText>
-        </Pressable>
-      )}
-    </ScrollView>
+      <GlassBottomBar onLayout={(e) => setFooterHeight(e.nativeEvent.layout.height)}>
+        {missing.length > 0 ? (
+          <Pressable style={styles.primary} onPress={addMissing}>
+            <Ionicons name="cart-outline" size={18} color={colors.onAccent} />
+            <AppText style={styles.primaryText}>
+              เพิ่มของที่ขาด {missing.length} อย่างลงรายการซื้อ
+            </AppText>
+          </Pressable>
+        ) : (
+          <Pressable style={styles.primary} onPress={() => router.push(`/recipe/cook/${recipe.id}`)}>
+            <Ionicons name="play" size={18} color={colors.onAccent} />
+            <AppText style={styles.primaryText}>เริ่มทำอาหาร</AppText>
+          </Pressable>
+        )}
+      </GlassBottomBar>
+    </View>
   );
 }
 
@@ -121,11 +132,13 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   check: { color: colors.cardGreen, fontFamily: fonts.bold },
   cross: { color: colors.danger, fontFamily: fonts.bold },
   primary: {
-    marginTop: spacing.xl,
+    flexDirection: 'row',
+    gap: spacing.sm,
     backgroundColor: colors.orange,
     borderRadius: radius.pill,
     paddingVertical: spacing.md,
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  primaryText: { color: colors.surface, fontFamily: fonts.semiBold },
+  primaryText: { color: colors.onAccent, fontFamily: fonts.semiBold, fontSize: 16 },
 });

@@ -5,7 +5,9 @@ module.exports = {
   testMatch: ['**/__tests__/**/*.test.ts?(x)'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
-    '^expo-modules-core$': require.resolve('expo-modules-core'),
+    '^expo-modules-core$': require.resolve('expo-modules-core', {
+      paths: [require.resolve('expo/package.json')],
+    }),
   },
   transformIgnorePatterns: [
     'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*)',

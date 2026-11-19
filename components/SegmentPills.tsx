@@ -5,8 +5,6 @@ import { fonts, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
-import { accentGlow } from '@/lib/design';
-
 export type SegmentOption<T extends string> = {
   id: T;
   label: string;
@@ -34,15 +32,15 @@ export function SegmentPills<T extends string>({
       <Pressable
         key={opt.id}
         onPress={() => onChange(opt.id)}
-        style={[
-          styles.pill,
-          active && styles.pillActive,
-          active && accentGlow(colors, false),
-        ]}
+        style={[styles.pill, active && styles.pillActive]}
       >
         <AppText
           variant="label"
-          style={{ color: active ? colors.onAccent : colors.inkMuted, fontSize: 14 }}
+          style={{
+            color: active ? colors.ink : colors.inkMuted,
+            fontFamily: active ? fonts.semiBold : fonts.medium,
+            fontSize: 14,
+          }}
         >
           {opt.label}
         </AppText>
@@ -84,7 +82,7 @@ const createStyles = (colors: ThemeColors) =>
       alignItems: 'center',
     },
     pillActive: {
-      backgroundColor: colors.orange,
-      borderColor: colors.orange,
+      backgroundColor: colors.surface,
+      borderColor: colors.borderStrong,
     },
   });

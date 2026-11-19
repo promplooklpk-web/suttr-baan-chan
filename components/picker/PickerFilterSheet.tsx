@@ -3,6 +3,7 @@ import { Modal, Pressable, StyleSheet, Switch, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { Glass } from '@/components/Glass';
 import { fonts, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
@@ -65,8 +66,13 @@ export function PickerFilterSheet({
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <Pressable style={styles.backdrop} onPress={onClose} />
-      <View style={[styles.sheet, { paddingBottom: insets.bottom + spacing.md }]}>
+      <View style={styles.modalRoot}>
+        <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="ปิด" />
+        <Glass
+          variant="material"
+          sheet
+          style={[styles.sheetGlass, { paddingBottom: insets.bottom + spacing.md }]}
+        >
         <View style={styles.sheetHeader}>
           <AppText variant="title">ตัวกรอง</AppText>
           <Pressable onPress={onClose} hitSlop={12}>
@@ -123,20 +129,22 @@ export function PickerFilterSheet({
         <Pressable style={styles.resetBtn} onPress={onReset}>
           <AppText style={styles.resetText}>รีเซ็ตตัวกรอง</AppText>
         </Pressable>
+        </Glass>
       </View>
     </Modal>
   );
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
-  backdrop: {
+  modalRoot: {
     flex: 1,
+    justifyContent: 'flex-end',
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFill,
     backgroundColor: colors.modalScrim,
   },
-  sheet: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
+  sheetGlass: {
     paddingHorizontal: spacing.md,
     paddingTop: spacing.md,
     maxHeight: '85%',
