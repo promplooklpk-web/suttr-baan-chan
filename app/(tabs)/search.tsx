@@ -28,7 +28,7 @@ import {
 
 export default function SearchScreen() {
   const styles = useThemedStyles(createStyles);
-  const { colors, keyboardAppearance } = useTheme();
+  const { colors, keyboardAppearance, tokens } = useTheme();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ tag?: string; favorites?: string; q?: string }>();
   const { recipes, searchRecipes } = useRecipes();
@@ -36,7 +36,8 @@ export default function SearchScreen() {
   const [recent, setRecent] = useState<string[]>([]);
   const [favoritesOnly, setFavoritesOnly] = useState(params.favorites === '1');
   const [tagFilter, setTagFilter] = useState(params.tag ?? '');
-  const [layoutMode, setLayoutMode] = useState<'grid' | 'list'>('grid');
+  const [layoutMode, setLayoutMode] = useState<'grid' | 'list'>('list');
+  const [searchFocused, setSearchFocused] = useState(false);
 
   useEffect(() => {
     loadRecentSearches().then(setRecent);
@@ -122,13 +123,23 @@ export default function SearchScreen() {
         ) : null}
       </View>
 
-      <View style={styles.searchBar}>
+      <View
+        style={[
+          styles.searchBar,
+          searchFocused && {
+            borderColor: tokens.accentText,
+            borderWidth: 1.5,
+          },
+        ]}
+      >
         <Ionicons name="search" size={20} color={colors.inkMuted} />
         <TextInput
           keyboardAppearance={keyboardAppearance}
           value={query}
           onChangeText={setQuery}
           onSubmitEditing={onSubmit}
+          onFocus={() => setSearchFocused(true)}
+          onBlur={() => setSearchFocused(false)}
           placeholder="ค้นหาจากชื่อสูตร ส่วนผสม แท็ก"
           placeholderTextColor={colors.inkLight}
           style={styles.input}

@@ -20,7 +20,7 @@ export default function NotFoundScreen() {
       <View style={styles.container}>
         <View style={[styles.rings, { borderColor: colors.surface2 }]}>
           <View style={[styles.ringMid, { backgroundColor: colors.surface2 }]}>
-            <Ionicons name="search-outline" size={32} color={colors.orange} />
+            <Ionicons name="search-outline" size={32} color={colors.inkMuted} />
           </View>
         </View>
         <AppText variant="title">ไม่พบหน้านี้</AppText>

@@ -356,7 +356,7 @@ export default function RecipeDetailScreen() {
               <AppText variant="caption" style={styles.footerSecondaryText}>เพิ่มลงแผน</AppText>
             </Pressable>
             <Pressable
-              style={styles.footerSecondary}
+              style={styles.footerShopSoft}
               onPress={async () => {
                 try {
                   const entries = shoppingEntriesForRecipe(recipe, fridgeItems, factor).map((e) => ({
@@ -375,8 +375,8 @@ export default function RecipeDetailScreen() {
                 }
               }}
             >
-              <Ionicons name="cart-outline" size={18} color={colors.orange} />
-              <AppText variant="caption" style={styles.footerSecondaryText}>ของที่ขาด → ซื้อ</AppText>
+              <Ionicons name="cart-outline" size={18} color={colors.ink} />
+              <AppText variant="caption" style={styles.footerShopText}>ของที่ขาด → ซื้อ</AppText>
             </Pressable>
           </View>
           <Pressable
@@ -805,6 +805,19 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     backgroundColor: colors.surface,
   },
   footerSecondaryText: { color: colors.orange, fontFamily: fonts.semiBold },
+  footerShopSoft: {
+    flex: 1,
+    minHeight: 44,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface2,
+  },
+  footerShopText: { color: colors.ink, fontFamily: fonts.semiBold },
   planBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.45)',

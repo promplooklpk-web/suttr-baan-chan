@@ -40,10 +40,13 @@ export default function HomeScreen() {
   const [filter, setFilter] = useState<HomeFilterId>('all');
   const fridgeMatches = useFridgeRecipeMatches(recipes);
 
-  const readyCount = useMemo(
-    () => recipes.filter((r) => (fridgeMatches.getPercent(r.id) ?? 0) >= 100).length,
+  const readyRecipes = useMemo(
+    () => recipes.filter((r) => (fridgeMatches.getPercent(r.id) ?? 0) >= 100),
     [recipes, fridgeMatches],
   );
+  const readyCount = readyRecipes.length;
+  const heroCoverRecipe = readyRecipes[0] ?? recipes[0] ?? null;
+  const hasPerfectMatch = readyCount > 0;
 
   const filtered = useMemo(() => {
     let list = recipes;
@@ -87,6 +90,8 @@ export default function HomeScreen() {
           readyCount={readyCount}
           fridgeItemCount={fridgeItems.length}
           expiringCount={expiringCount}
+          coverRecipe={heroCoverRecipe}
+          hasPerfectMatch={hasPerfectMatch}
         />
 
         <BackupNudgeBanner onExportPress={() => router.push('/(tabs)/settings')} />

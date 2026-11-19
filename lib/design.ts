@@ -10,16 +10,23 @@ export const CARD_RADIUS = radius.card;
 export type DesignTokens = {
   /** Brand accent colour (same as `colors.orange`) for links and active labels */
   accentText: string;
-  /** Neutral soft fill for inline edit rows etc. */
+  /** Neutral soft fill (surface2) for inline rows — not a green tint */
   accentSoft: string;
+  sheetFill: string;
+  glassHighlight: string;
+  segmentActive: string;
   info: string;
 };
 
 export function getDesignTokens(scheme: ResolvedColorScheme, colors: ThemeColors): DesignTokens {
+  const isDark = scheme === 'dark';
   return {
     accentText: colors.orange,
-    accentSoft: scheme === 'dark' ? 'rgba(255,255,255,0.06)' : colors.surface2,
-    info: scheme === 'dark' ? '#38BDF8' : '#0369A1',
+    accentSoft: colors.surface2,
+    sheetFill: isDark ? 'rgba(23,25,24,0.80)' : 'rgba(255,255,255,0.78)',
+    glassHighlight: isDark ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.95)',
+    segmentActive: isDark ? '#2A2D2B' : '#FFFFFF',
+    info: isDark ? '#38BDF8' : '#0369A1',
   };
 }
 
@@ -49,12 +56,12 @@ export function surfaceCardElevated(colors: ThemeColors, isDark = false): ViewSt
 }
 
 /** Glow for primary FAB / buttons only */
-export function accentGlow(colors: ThemeColors, strong = false): ViewStyle {
+export function accentGlow(colors: ThemeColors, strong = false, isDark = false): ViewStyle {
   return {
-    shadowColor: colors.orange,
-    shadowOffset: { width: 0, height: strong ? 8 : 4 },
-    shadowOpacity: strong ? 0.35 : 0.22,
-    shadowRadius: strong ? 16 : 10,
+    shadowColor: isDark ? '#000000' : colors.orange,
+    shadowOffset: { width: 0, height: strong ? 8 : 6 },
+    shadowOpacity: isDark ? (strong ? 0.5 : 0.4) : strong ? 0.28 : 0.22,
+    shadowRadius: strong ? 14 : 10,
     elevation: strong ? 8 : 4,
   };
 }

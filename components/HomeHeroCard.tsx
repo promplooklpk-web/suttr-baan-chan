@@ -4,7 +4,10 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { Glass } from '@/components/Glass';
-import { fonts, spacing } from '@/constants/theme';
+import { RecipeCoverImage } from '@/components/RecipeCoverImage';
+import { fonts, radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/colorSchemes';
+import type { Recipe } from '@/types/recipe';
 import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 
@@ -12,82 +15,136 @@ type HomeHeroCardProps = {
   readyCount: number;
   fridgeItemCount: number;
   expiringCount: number;
+  coverRecipe?: Recipe | null;
+  hasPerfectMatch?: boolean;
 };
 
-export function HomeHeroCard({ readyCount, fridgeItemCount, expiringCount }: HomeHeroCardProps) {
+export function HomeHeroCard({
+  readyCount,
+  fridgeItemCount,
+  expiringCount,
+  coverRecipe,
+  hasPerfectMatch,
+}: HomeHeroCardProps) {
   const styles = useThemedStyles(createStyles);
   const { colors, tokens } = useTheme();
 
   return (
-    <Glass variant="card" style={styles.cardWrap}>
-      <View style={styles.cardInner}>
-        <View style={styles.topRow}>
-          <View style={[styles.iconTile, { borderColor: colors.border, backgroundColor: colors.surface2 }]}>
-            <Ionicons name="leaf-outline" size={22} color={tokens.accentText} />
-          </View>
-          <View style={styles.topText}>
+    <View style={styles.heroShell}>
+      {coverRecipe ? (
+        <RecipeCoverImage recipe={coverRecipe} style={styles.heroPhoto} rounded={0} />
+      ) : (
+        <View style={[styles.heroPhoto, { backgroundColor: colors.imagePlaceholder }]} />
+      )}
+      <View style={styles.glassPanelWrap} pointerEvents="box-none">
+        <Glass variant="card" borderRadius={20} intensity={56} style={styles.glassPanel}>
+          <View style={styles.panelInner}>
             <AppText variant="caption" muted>
               ทำได้เลยจากของในตู้
             </AppText>
-            <AppText style={[styles.bigNumber, { color: tokens.accentText }]}>{readyCount} เมนู</AppText>
+            <View style={styles.countRow}>
+              <AppText style={[styles.bigNumber, { color: tokens.accentText }]}>{readyCount}</AppText>
+              <AppText style={styles.menuLabel}>เมนู</AppText>
+            </View>
+            <AppText variant="caption" muted style={styles.subline}>
+              ตู้เย็น {fridgeItemCount} รายการ · ใกล้หมดอายุ {expiringCount}
+            </AppText>
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => router.push('/(tabs)/picker')}
+              style={[styles.ctaPill, { backgroundColor: colors.orange }]}
+            >
+              <Ionicons name="shuffle-outline" size={16} color={colors.onAccent} />
+              <AppText variant="label" style={{ color: colors.onAccent }}>
+                วันนี้กินอะไรดี?
+              </AppText>
+            </Pressable>
           </View>
-        </View>
-        <AppText variant="caption" muted style={styles.subline}>
-          ตู้เย็น {fridgeItemCount} รายการ · ใกล้หมดอายุ {expiringCount}
-        </AppText>
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => router.push('/(tabs)/picker')}
-          style={styles.cta}
-        >
-          <AppText variant="label" style={{ color: tokens.accentText }}>
-            วันนี้กินอะไรดี?
-          </AppText>
-          <Ionicons name="arrow-forward" size={16} color={tokens.accentText} />
-        </Pressable>
+        </Glass>
       </View>
-    </Glass>
+      {hasPerfectMatch ? (
+        <View style={styles.matchChip} pointerEvents="none">
+          <Glass variant="chrome" borderRadius={radius.pill} intensity={50} style={styles.matchChipGlass}>
+            <AppText variant="micro" style={styles.matchChipText}>
+              ✓ มีครบ 100%
+            </AppText>
+          </Glass>
+        </View>
+      ) : null}
+    </View>
   );
 }
 
-const createStyles = () =>
+const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-    cardWrap: {
+    heroShell: {
       marginHorizontal: spacing.gutter,
       marginBottom: spacing.md,
+      height: 196,
+      borderRadius: 26,
+      overflow: 'hidden',
+      position: 'relative',
     },
-    cardInner: {
-      padding: spacing.gutter,
+    heroPhoto: {
+      ...StyleSheet.absoluteFill,
     },
-    topRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.md,
+    glassPanelWrap: {
+      position: 'absolute',
+      left: 8,
+      top: 8,
+      bottom: 8,
+      width: '58%',
+      maxWidth: 226,
     },
-    iconTile: {
-      width: 44,
-      height: 44,
-      borderRadius: 12,
-      alignItems: 'center',
+    glassPanel: {
+      flex: 1,
+    },
+    panelInner: {
+      flex: 1,
+      padding: spacing.md,
       justifyContent: 'center',
-      borderWidth: 1,
+      gap: 4,
     },
-    topText: { flex: 1, gap: 2 },
+    countRow: {
+      flexDirection: 'row',
+      alignItems: 'baseline',
+      gap: 6,
+    },
     bigNumber: {
-      fontSize: 28,
+      fontSize: 36,
       fontFamily: fonts.display,
-      lineHeight: 38,
+      lineHeight: 42,
+    },
+    menuLabel: {
+      fontSize: 22,
+      fontFamily: fonts.display,
+      lineHeight: 30,
+      color: colors.ink,
     },
     subline: {
-      marginTop: spacing.sm,
+      marginTop: 2,
     },
-    cta: {
-      marginTop: spacing.md,
+    ctaPill: {
+      marginTop: spacing.sm,
       alignSelf: 'flex-start',
       flexDirection: 'row',
       alignItems: 'center',
       gap: 6,
-      paddingVertical: 8,
-      paddingHorizontal: 4,
+      paddingVertical: 10,
+      paddingHorizontal: 14,
+      borderRadius: radius.pill,
+    },
+    matchChip: {
+      position: 'absolute',
+      top: 12,
+      right: 12,
+    },
+    matchChipGlass: {
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+    },
+    matchChipText: {
+      fontFamily: fonts.semiBold,
+      color: colors.ink,
     },
   });

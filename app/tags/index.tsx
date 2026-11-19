@@ -131,7 +131,16 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.sm,
   },
   tagPress: { flex: 1 },
-  editRow: { flexDirection: 'row', gap: spacing.sm, alignItems: 'center' },
+  editRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    alignItems: 'center',
+    backgroundColor: colors.surface2,
+    borderRadius: radius.md,
+    padding: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
   input: {
     flex: 1,
     borderWidth: 1,
