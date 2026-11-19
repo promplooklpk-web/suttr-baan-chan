@@ -7,7 +7,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { BackupNudgeBanner } from '@/components/BackupNudgeBanner';
-import { Glass } from '@/components/Glass';
+import { PhotoGlassHero } from '@/components/PhotoGlassHero';
+import { recipeCoverUri } from '@/lib/recipeMedia';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { ScreenShell } from '@/components/ScreenShell';
 import { SegmentPills } from '@/components/SegmentPills';
@@ -41,9 +42,10 @@ const APP_VERSION = '2.4.0';
 
 export default function SettingsScreen() {
   const styles = useThemedStyles(createStyles);
-  const { preference, setPreference, colors } = useTheme();
+  const { preference, setPreference, colors, tokens } = useTheme();
   const insets = useSafeAreaInsets();
   const { recipes, refresh } = useRecipes();
+  const profileCoverUri = recipes[0] ? recipeCoverUri(recipes[0]) : null;
   const { items: fridgeItems } = useFridge();
   const { refresh: refreshPlan } = useMealPlan();
   const { refresh: refreshFridge } = useFridge();
@@ -169,30 +171,39 @@ export default function SettingsScreen() {
         <BackupNudgeBanner key={backupBannerKey} onExportPress={() => void exportAllZip()} />
 
         <Pressable onPress={() => router.push('/about')}>
-          <Glass variant="card" style={styles.profileCard}>
-            <View style={styles.profileCardInner}>
+          <PhotoGlassHero
+            imageSource={
+              profileCoverUri
+                ? { uri: profileCoverUri }
+                : require('@/assets/seed/wl-chawanmushi.jpg')
+            }
+            panelLayout="center"
+            height={168}
+            style={styles.profileHero}
+          >
+            <View style={styles.profileHeroInner}>
               <View style={styles.avatarLarge}>
-                <AppText style={styles.avatarLargeText}>{profileAvatarInitial()}</AppText>
+                <Ionicons name="leaf" size={22} color={tokens.accentText} />
               </View>
-              <View style={styles.profileText}>
-                <AppText variant="title">{PROFILE_DISPLAY_NAME}</AppText>
-                <AppText variant="caption" muted>สมาชิกตั้งแต่ ก.ย. 2569</AppText>
+              <AppText variant="title" style={{ textAlign: 'center' }}>
+                {PROFILE_DISPLAY_NAME}
+              </AppText>
+              <AppText variant="caption" muted style={{ textAlign: 'center' }}>
+                สมาชิกตั้งแต่ ก.ย. 2569
+              </AppText>
+              <View style={styles.statsRow}>
+                <View style={styles.statCard}>
+                  <AppText style={styles.statNumberAccent}>{recipes.length}</AppText>
+                  <AppText variant="caption" muted>สูตรของฉัน</AppText>
+                </View>
+                <View style={styles.statCard}>
+                  <AppText style={styles.statNumberAccent}>{fridgeItems.length}</AppText>
+                  <AppText variant="caption" muted>ของในตู้เย็น</AppText>
+                </View>
               </View>
-              <Ionicons name="chevron-forward" size={20} color={colors.inkMuted} />
             </View>
-          </Glass>
+          </PhotoGlassHero>
         </Pressable>
-
-        <View style={styles.statsRow}>
-          <View style={styles.statCard}>
-            <AppText style={styles.statNumberAccent}>{recipes.length}</AppText>
-            <AppText variant="caption" muted>สูตรของฉัน</AppText>
-          </View>
-          <View style={styles.statCard}>
-            <AppText style={styles.statNumber}>{fridgeItems.length}</AppText>
-            <AppText variant="caption" muted>ของในตู้เย็น</AppText>
-          </View>
-        </View>
 
         <Section title="แพลนและทำอาหาร">
           <View style={styles.kcalRow}>
@@ -350,34 +361,23 @@ function Row({
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: { flex: 1 },
   settingsTitle: { fontSize: 28, lineHeight: 34, marginBottom: spacing.lg, marginTop: 4 },
-  profileCard: { marginBottom: spacing.lg },
-  profileCardInner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    padding: spacing.md,
-  },
+  profileHero: { marginBottom: spacing.lg, marginHorizontal: 0 },
+  profileHeroInner: { alignItems: 'center', gap: spacing.sm },
   avatarLarge: {
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: colors.surface2,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarLargeText: {
-    color: colors.orange,
-    fontFamily: fonts.bold,
-    fontSize: 22,
-  },
-  profileText: { flex: 1, gap: 2 },
-  statsRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.lg },
+  statsRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm, width: '100%' },
   statCard: {
     flex: 1,
-    backgroundColor: colors.surface,
-    borderRadius: radius.xl,
+    backgroundColor: colors.surface2,
+    borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
     padding: spacing.md,

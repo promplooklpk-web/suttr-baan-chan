@@ -3,6 +3,7 @@ import { Image } from 'expo-image';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { GlassIconButton } from '@/components/GlassIconButton';
+import { GlassBottomBar } from '@/components/GlassBottomBar';
 import {
   Modal,
   Platform,
@@ -346,10 +347,7 @@ export default function RecipeDetailScreen() {
           </View>
         </ScrollView>
 
-        <View
-          style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}
-          onLayout={(e) => setFooterHeight(e.nativeEvent.layout.height)}
-        >
+        <GlassBottomBar onLayout={(e) => setFooterHeight(e.nativeEvent.layout.height)}>
           <View style={styles.footerRow}>
             <Pressable style={styles.footerSecondary} onPress={() => setPlanOpen(true)}>
               <Ionicons name="calendar-outline" size={18} color={colors.orange} />
@@ -391,7 +389,7 @@ export default function RecipeDetailScreen() {
             <Ionicons name="play" size={20} color={colors.onAccent} />
             <AppText style={styles.cookBtnText}>เริ่มทำเมนูนี้ ({servings} เสิร์ฟ)</AppText>
           </Pressable>
-        </View>
+        </GlassBottomBar>
 
         <Modal visible={planOpen} transparent animationType="fade">
           <Pressable style={styles.planBackdrop} onPress={() => setPlanOpen(false)}>

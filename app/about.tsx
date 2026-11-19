@@ -3,6 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
 import { AppText } from '@/components/AppText';
+import { PhotoGlassHero } from '@/components/PhotoGlassHero';
 import { Glass } from '@/components/Glass';
 import { ScreenShell } from '@/components/ScreenShell';
 import { fonts, spacing } from '@/constants/theme';
@@ -10,6 +11,8 @@ import { screenTopPadding, scrollPaddingBottom } from '@/lib/screenLayout';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
+
+const HERO_IMAGE = require('@/assets/seed/wl-grilled-chicken-breast.jpg');
 
 export default function AboutScreen() {
   const styles = useThemedStyles(createStyles);
@@ -25,21 +28,30 @@ export default function AboutScreen() {
           paddingBottom: scrollPaddingBottom(insets.bottom),
         }}
       >
-        <Glass variant="card" style={styles.hero}>
+        <PhotoGlassHero imageSource={HERO_IMAGE} panelLayout="center" height={176}>
           <View style={styles.heroInner}>
-            <View style={[styles.iconTile, { borderColor: colors.border, backgroundColor: colors.surface2 }]}>
+            <View style={[styles.iconTile, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <Ionicons name="restaurant-outline" size={28} color={tokens.accentText} />
             </View>
             <AppText variant="title">สูตรบ้านฉัน</AppText>
             <AppText variant="caption" muted>เวอร์ชัน 1.0.0</AppText>
             <View style={[styles.pill, { backgroundColor: colors.surface2, borderColor: colors.border }]}>
-              <AppText variant="micro" muted>local-first</AppText>
+              <AppText variant="micro" muted>
+                local-first
+              </AppText>
             </View>
           </View>
+        </PhotoGlassHero>
+        <Glass variant="card" style={styles.descCard}>
+          <View style={styles.descInner}>
+            <View style={[styles.infoTile, { backgroundColor: colors.surface2, borderColor: colors.border }]}>
+              <Ionicons name="information-circle-outline" size={22} color={colors.ink} />
+            </View>
+            <AppText style={styles.p}>
+              แอปเก็บสูตรอาหารไทยแบบ local-first ไม่ต้องล็อกอิน ข้อมูลอยู่ในเครื่องของคุณ
+            </AppText>
+          </View>
         </Glass>
-        <AppText style={styles.p}>
-          แอปเก็บสูตรอาหารไทยแบบ local-first ไม่ต้องล็อกอิน ข้อมูลอยู่ในเครื่องของคุณ
-        </AppText>
         <AppText variant="label" style={styles.h}>
           เครดิตรูปตัวอย่าง
         </AppText>
@@ -51,7 +63,15 @@ export default function AboutScreen() {
         <AppText variant="label" style={styles.h}>
           เทคโนโลยี
         </AppText>
-        <AppText style={styles.p}>Expo SDK 57 · React Native · Expo Router</AppText>
+        <View style={styles.techRow}>
+          {['Expo SDK 57', 'React Native', 'Expo Router'].map((t) => (
+            <View key={t} style={[styles.techChip, { backgroundColor: colors.surface2, borderColor: colors.border }]}>
+              <AppText variant="micro" muted>
+                {t}
+              </AppText>
+            </View>
+          ))}
+        </View>
       </ScrollView>
     </ScreenShell>
   );
@@ -60,9 +80,7 @@ export default function AboutScreen() {
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.cream },
-    hero: { marginBottom: spacing.lg },
     heroInner: {
-      padding: spacing.gutter,
       alignItems: 'center',
       gap: spacing.sm,
     },
@@ -82,6 +100,23 @@ const createStyles = (colors: ThemeColors) =>
       borderWidth: 1,
       marginTop: spacing.xs,
     },
-    p: { lineHeight: 22, marginBottom: spacing.md, fontFamily: fonts.regular },
+    descCard: { marginTop: spacing.md, marginBottom: spacing.lg },
+    descInner: { flexDirection: 'row', gap: spacing.md, padding: spacing.md, alignItems: 'flex-start' },
+    infoTile: {
+      width: 40,
+      height: 40,
+      borderRadius: 12,
+      borderWidth: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    p: { lineHeight: 22, marginBottom: spacing.md, fontFamily: fonts.regular, flex: 1 },
     h: { marginBottom: spacing.sm },
+    techRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+    techChip: {
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 999,
+      borderWidth: 1,
+    },
   });

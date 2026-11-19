@@ -4,9 +4,9 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
 import { Glass } from '@/components/Glass';
-import { RecipeCoverImage } from '@/components/RecipeCoverImage';
+import { PhotoGlassHero } from '@/components/PhotoGlassHero';
+import { recipeCoverUri } from '@/lib/recipeMedia';
 import { fonts, radius, spacing } from '@/constants/theme';
-import type { ThemeColors } from '@/constants/colorSchemes';
 import type { Recipe } from '@/types/recipe';
 import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
@@ -28,83 +28,50 @@ export function HomeHeroCard({
 }: HomeHeroCardProps) {
   const styles = useThemedStyles(createStyles);
   const { colors, tokens } = useTheme();
+  const uri = coverRecipe ? recipeCoverUri(coverRecipe) : null;
 
   return (
-    <View style={styles.heroShell}>
-      {coverRecipe ? (
-        <RecipeCoverImage recipe={coverRecipe} style={styles.heroPhoto} rounded={0} />
-      ) : (
-        <View style={[styles.heroPhoto, { backgroundColor: colors.imagePlaceholder }]} />
-      )}
-      <View style={styles.glassPanelWrap} pointerEvents="box-none">
-        <Glass variant="card" borderRadius={20} intensity={56} style={styles.glassPanel}>
-          <View style={styles.panelInner}>
-            <AppText variant="caption" muted>
-              ทำได้เลยจากของในตู้
-            </AppText>
-            <View style={styles.countRow}>
-              <AppText style={[styles.bigNumber, { color: tokens.accentText }]}>{readyCount}</AppText>
-              <AppText style={styles.menuLabel}>เมนู</AppText>
-            </View>
-            <AppText variant="caption" muted style={styles.subline}>
-              ตู้เย็น {fridgeItemCount} รายการ · ใกล้หมดอายุ {expiringCount}
-            </AppText>
-            <Pressable
-              accessibilityRole="button"
-              onPress={() => router.push('/(tabs)/picker')}
-              style={[styles.ctaPill, { backgroundColor: colors.orange }]}
-            >
-              <Ionicons name="shuffle-outline" size={16} color={colors.onAccent} />
-              <AppText variant="label" style={{ color: colors.onAccent }}>
-                วันนี้กินอะไรดี?
-              </AppText>
-            </Pressable>
-          </View>
-        </Glass>
-      </View>
-      {hasPerfectMatch ? (
-        <View style={styles.matchChip} pointerEvents="none">
+    <PhotoGlassHero
+      imageSource={uri ? { uri } : null}
+      style={styles.marginH}
+      panelLayout="inset-left"
+      topRight={
+        hasPerfectMatch ? (
           <Glass variant="chrome" borderRadius={radius.pill} intensity={50} style={styles.matchChipGlass}>
-            <AppText variant="micro" style={styles.matchChipText}>
+            <AppText variant="micro" style={[styles.matchChipText, { color: colors.ink }]}>
               ✓ มีครบ 100%
             </AppText>
           </Glass>
-        </View>
-      ) : null}
-    </View>
+        ) : undefined
+      }
+    >
+      <AppText variant="caption" muted>
+        ทำได้เลยจากของในตู้
+      </AppText>
+      <View style={styles.countRow}>
+        <AppText style={[styles.bigNumber, { color: tokens.accentText }]}>{readyCount}</AppText>
+        <AppText style={[styles.menuLabel, { color: colors.ink }]}>เมนู</AppText>
+      </View>
+      <AppText variant="caption" muted style={styles.subline}>
+        ตู้เย็น {fridgeItemCount} รายการ · ใกล้หมดอายุ {expiringCount}
+      </AppText>
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => router.push('/(tabs)/picker')}
+        style={[styles.ctaPill, { backgroundColor: colors.orange }]}
+      >
+        <Ionicons name="shuffle-outline" size={16} color={colors.onAccent} />
+        <AppText variant="label" style={{ color: colors.onAccent }}>
+          วันนี้กินอะไรดี?
+        </AppText>
+      </Pressable>
+    </PhotoGlassHero>
   );
 }
 
-const createStyles = (colors: ThemeColors) =>
+const createStyles = () =>
   StyleSheet.create({
-    heroShell: {
-      marginHorizontal: spacing.gutter,
-      marginBottom: spacing.md,
-      height: 196,
-      borderRadius: 26,
-      overflow: 'hidden',
-      position: 'relative',
-    },
-    heroPhoto: {
-      ...StyleSheet.absoluteFill,
-    },
-    glassPanelWrap: {
-      position: 'absolute',
-      left: 8,
-      top: 8,
-      bottom: 8,
-      width: '58%',
-      maxWidth: 226,
-    },
-    glassPanel: {
-      flex: 1,
-    },
-    panelInner: {
-      flex: 1,
-      padding: spacing.md,
-      justifyContent: 'center',
-      gap: 4,
-    },
+    marginH: { marginHorizontal: spacing.gutter },
     countRow: {
       flexDirection: 'row',
       alignItems: 'baseline',
@@ -119,7 +86,6 @@ const createStyles = (colors: ThemeColors) =>
       fontSize: 22,
       fontFamily: fonts.display,
       lineHeight: 30,
-      color: colors.ink,
     },
     subline: {
       marginTop: 2,
@@ -134,17 +100,11 @@ const createStyles = (colors: ThemeColors) =>
       paddingHorizontal: 14,
       borderRadius: radius.pill,
     },
-    matchChip: {
-      position: 'absolute',
-      top: 12,
-      right: 12,
-    },
     matchChipGlass: {
       paddingHorizontal: 10,
       paddingVertical: 6,
     },
     matchChipText: {
       fontFamily: fonts.semiBold,
-      color: colors.ink,
     },
   });

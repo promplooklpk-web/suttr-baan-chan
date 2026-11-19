@@ -4,6 +4,7 @@ import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { GlassBottomBar } from '@/components/GlassBottomBar';
 import { radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
@@ -16,6 +17,18 @@ import { useFridge } from '@/context/FridgeContext';
 import { useMealPlan } from '@/context/MealPlanContext';
 import { useSnackbar } from '@/context/SnackbarContext';
 import type { DuplicatePolicy } from '@/types/export';
+
+function StatTile({ label, value, color }: { label: string; value: number; color: string }) {
+  return (
+    <View style={{ flex: 1, alignItems: 'center', gap: 4 }}>
+      <View style={{ width: 4, height: 28, borderRadius: 2, backgroundColor: color }} />
+      <AppText variant="title">{value}</AppText>
+      <AppText variant="caption" muted>
+        {label}
+      </AppText>
+    </View>
+  );
+}
 
 const POLICY_LABELS: Record<DuplicatePolicy, string> = {
   skip: 'ข้าม',
@@ -96,6 +109,15 @@ export default function ImportPreviewScreen() {
     <>
       <Stack.Screen options={{ title: 'ตรวจสอบก่อนนำเข้า' }} />
       <View style={[styles.screen, { paddingTop: spacing.md }]}>
+        <View style={styles.statRow}>
+          <StatTile label="สูตรใหม่" value={plans.filter((p) => !p.isDuplicate).length} color={colors.cardGreen} />
+          <StatTile label="ซ้ำ" value={duplicateCount} color={colors.cardYellow} />
+          <StatTile
+            label="ข้าม"
+            value={pending.skippedRecipeCount + plans.filter((p) => p.policy === 'skip' && p.isDuplicate).length}
+            color={colors.inkMuted}
+          />
+        </View>
         <View style={styles.summary}>
           <AppText variant="caption" style={{ color: colors.danger, marginBottom: spacing.sm }}>
             การยืนยันจะแทนที่ข้อมูลตู้เย็น แผนมื้อ และรายการซื้อจากไฟล์สำรอง
@@ -155,11 +177,13 @@ export default function ImportPreviewScreen() {
           )}
         />
 
-        <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}>
+        <GlassBottomBar>
           <Pressable style={styles.confirmBtn} onPress={confirm}>
-            <AppText style={styles.confirmText}>นำเข้าสูตร</AppText>
+            <AppText style={styles.confirmText}>
+              นำเข้า {plans.filter((p) => !(p.isDuplicate && p.policy === 'skip')).length} สูตร
+            </AppText>
           </Pressable>
-        </View>
+        </GlassBottomBar>
       </View>
     </>
   );
@@ -168,6 +192,12 @@ export default function ImportPreviewScreen() {
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.cream },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.md },
+  statRow: {
+    flexDirection: 'row',
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.md,
+    gap: spacing.sm,
+  },
   summary: { paddingHorizontal: spacing.md, marginBottom: spacing.md, gap: spacing.sm },
   policyRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, alignItems: 'center' },
   chip: {

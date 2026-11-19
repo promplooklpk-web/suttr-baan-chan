@@ -13,6 +13,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
 import { GlassIconButton } from '@/components/GlassIconButton';
+import { GlassBottomBar } from '@/components/GlassBottomBar';
+import { ProgressRing } from '@/components/ProgressRing';
+import { formatTimerSeconds } from '@/lib/format';
 import { CookTimerBar, CookTimerBarSpacer } from '@/components/CookTimerBar';
 import { StepTimerChip } from '@/components/StepTimerChip';
 import { loadAppSettings } from '@/lib/appSettings';
@@ -103,8 +106,16 @@ export default function CookingModeScreen() {
         </Pressable>
       </View>
 
-      <View style={styles.progressTrack}>
-        <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
+      <View style={styles.segmentRow}>
+        {steps.map((_, i) => (
+          <View
+            key={i}
+            style={[
+              styles.segment,
+              { backgroundColor: i <= stepIndex ? colors.orange : colors.surface2 },
+            ]}
+          />
+        ))}
       </View>
 
       <AppText variant="caption" muted style={styles.recipeTitle}>{recipe.title}</AppText>
@@ -112,14 +123,18 @@ export default function CookingModeScreen() {
       <View style={styles.stepArea}>
         <AppText style={styles.stepText}>{step.text}</AppText>
         {step.timerSeconds != null && step.timerSeconds > 0 && (
-          <StepTimerChip
-            key={`timer-${stepIndex}`}
+          <CookTimerBlock
             timerKey={`${recipe.id}-${stepIndex}`}
             timerSeconds={step.timerSeconds}
             timerLabel={`${recipe.title} · ขั้น ${stepIndex + 1}`}
             autoStart={autoStartTimers}
             onComplete={onTimerDone}
           />
+        )}
+        {stepIndex < steps.length - 1 && (
+          <AppText variant="caption" muted style={styles.nextPreview}>
+            ถัดไป: {steps[stepIndex + 1]?.text}
+          </AppText>
         )}
       </View>
 
@@ -153,28 +168,73 @@ export default function CookingModeScreen() {
         </ScrollView>
       )}
 
-      <View style={styles.navRow}>
-        <Pressable
-          style={[styles.navBtn, stepIndex === 0 && styles.navBtnDisabled]}
-          disabled={stepIndex === 0}
-          onPress={() => setStepIndex((i) => Math.max(0, i - 1))}
-        >
-          <Ionicons name="chevron-back" size={22} color={colors.surface} />
-          <AppText style={styles.navBtnText}>ก่อนหน้า</AppText>
-        </Pressable>
-        {stepIndex < steps.length - 1 ? (
+      <GlassBottomBar>
+        <View style={styles.navRow}>
           <Pressable
-            style={styles.navBtn}
-            onPress={() => setStepIndex((i) => i + 1)}
+            style={[styles.navBtnSecondary, stepIndex === 0 && styles.navBtnDisabled]}
+            disabled={stepIndex === 0}
+            onPress={() => setStepIndex((i) => Math.max(0, i - 1))}
           >
-            <AppText style={styles.navBtnText}>ถัดไป</AppText>
-            <Ionicons name="chevron-forward" size={22} color={colors.surface} />
+            <Ionicons name="chevron-back" size={20} color={colors.ink} />
+            <AppText style={styles.navBtnSecondaryText}>ก่อนหน้า</AppText>
           </Pressable>
-        ) : (
-          <Pressable style={styles.navBtn} onPress={() => router.back()}>
-            <AppText style={styles.navBtnText}>เสร็จแล้ว</AppText>
-          </Pressable>
-        )}
+          {stepIndex < steps.length - 1 ? (
+            <Pressable style={styles.navBtnPrimary} onPress={() => setStepIndex((i) => i + 1)}>
+              <AppText style={styles.navBtnText}>ถัดไป</AppText>
+              <Ionicons name="chevron-forward" size={20} color={colors.onAccent} />
+            </Pressable>
+          ) : (
+            <Pressable style={styles.navBtnPrimary} onPress={() => router.back()}>
+              <AppText style={styles.navBtnText}>เสร็จแล้ว</AppText>
+            </Pressable>
+          )}
+        </View>
+      </GlassBottomBar>
+    </View>
+  );
+}
+
+function CookTimerBlock({
+  timerKey,
+  timerSeconds,
+  timerLabel,
+  autoStart,
+  onComplete,
+}: {
+  timerKey: string;
+  timerSeconds: number;
+  timerLabel: string;
+  autoStart: boolean;
+  onComplete: () => void;
+}) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
+  const { getTimer, remainingSeconds } = useCookTimers();
+  const timer = getTimer(timerKey);
+  const remaining = timer ? remainingSeconds(timerKey) : timerSeconds;
+  const progress = timerSeconds > 0 ? 1 - remaining / timerSeconds : 0;
+
+  return (
+    <View style={styles.timerBlock}>
+      <ProgressRing
+        size={58}
+        progress={Math.min(1, Math.max(0, progress))}
+        color={colors.orange}
+        center={
+          <AppText variant="micro" style={{ fontFamily: fonts.semiBold }}>
+            {formatTimerSeconds(remaining)}
+          </AppText>
+        }
+      />
+      <View style={styles.timerTextCol}>
+        <AppText variant="label">ตัวจับเวลา</AppText>
+        <StepTimerChip
+          timerKey={timerKey}
+          timerSeconds={timerSeconds}
+          timerLabel={timerLabel}
+          autoStart={autoStart}
+          onComplete={onComplete}
+        />
       </View>
     </View>
   );
@@ -204,14 +264,21 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  progressTrack: {
-    height: 6,
-    backgroundColor: colors.border,
-    borderRadius: 3,
-    overflow: 'hidden',
-    marginBottom: spacing.md,
+  segmentRow: { flexDirection: 'row', gap: 4, marginBottom: spacing.md },
+  segment: { flex: 1, height: 6, borderRadius: 3 },
+  nextPreview: { marginTop: spacing.lg, lineHeight: 20 },
+  timerBlock: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    marginTop: spacing.lg,
+    padding: spacing.md,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface2,
   },
-  progressFill: { height: '100%', backgroundColor: colors.orange },
+  timerTextCol: { flex: 1, gap: spacing.xs },
   recipeTitle: { marginBottom: spacing.lg },
   stepArea: { flex: 1, justifyContent: 'center' },
   stepText: {
@@ -253,7 +320,20 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   ingName: { flex: 1 },
   navRow: { flexDirection: 'row', gap: spacing.md },
-  navBtn: {
+  navBtnSecondary: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+    backgroundColor: colors.surface2,
+  },
+  navBtnSecondaryText: { color: colors.ink, fontFamily: fonts.semiBold, fontSize: 16 },
+  navBtnPrimary: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
@@ -264,5 +344,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.md,
   },
   navBtnDisabled: { opacity: 0.4 },
-  navBtnText: { color: colors.surface, fontFamily: fonts.semiBold, fontSize: 17 },
+  navBtnText: { color: colors.onAccent, fontFamily: fonts.semiBold, fontSize: 17 },
 });

@@ -9,6 +9,8 @@ import { ConfirmModal } from '@/components/ConfirmModal';
 import { FloatingHeader, floatingHeaderClearance } from '@/components/FloatingHeader';
 import { ScreenShell } from '@/components/ScreenShell';
 import { accentGlow } from '@/lib/design';
+import { Glass } from '@/components/Glass';
+import { ProgressRing } from '@/components/ProgressRing';
 import { RecipeCoverImage } from '@/components/RecipeCoverImage';
 import { fonts, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
@@ -86,7 +88,7 @@ function sumDayCalories(day: MealPlanDay, getRecipe: (id: string) => Recipe | un
 
 export default function PlannerScreen() {
   const styles = useThemedStyles(createStyles);
-  const { colors } = useTheme();
+  const { colors, tokens } = useTheme();
   const insets = useSafeAreaInsets();
   const {
     plan,
@@ -449,8 +451,16 @@ export default function PlannerScreen() {
                     </AppText>
                   </View>
                   <AppText variant="title" style={styles.kcalValue}>
-                    {dayCalories > 0 ? `${dayCalories.toLocaleString()} kcal` : '—'}
+                    {dayCalories.toLocaleString()} / {kcalGoal.toLocaleString()} kcal
                   </AppText>
+                  <View style={styles.kcalMetaRow}>
+                    <AppText variant="caption" style={{ color: tokens.accentText }}>
+                      เหลือ {Math.max(0, kcalGoal - dayCalories).toLocaleString()} kcal
+                    </AppText>
+                    <AppText variant="caption" muted>
+                      {(['breakfast', 'lunch', 'dinner'] as MealSlot[]).filter((s) => selectedDay.meals[s]).length}/3 มื้อ
+                    </AppText>
+                  </View>
                   <View style={styles.kcalBarBg}>
                     <View
                       style={[
@@ -519,12 +529,37 @@ export default function PlannerScreen() {
 
         {section === 'shop' && (
           <View style={styles.shopSection}>
-            <View style={styles.shopHeader}>
-              <AppText variant="title">รายการซื้อของ</AppText>
-            </View>
-            <AppText variant="caption" muted style={{ marginBottom: spacing.sm }}>
-              {checkedCount}/{shopping.length} รายการ · จากแพลนลบของในตู้เย็น
-            </AppText>
+            <Glass variant="card" style={styles.shopSummaryCard}>
+              <View style={styles.shopSummaryInner}>
+                <ProgressRing
+                  size={80}
+                  stroke={7}
+                  progress={shopping.length > 0 ? checkedCount / shopping.length : 0}
+                  color={colors.orange}
+                  center={
+                    <AppText variant="caption" style={{ textAlign: 'center', fontFamily: fonts.semiBold }}>
+                      {checkedCount}/{shopping.length || 0}
+                    </AppText>
+                  }
+                />
+                <View style={{ flex: 1, gap: 4 }}>
+                  <AppText variant="title">รายการซื้อของ</AppText>
+                  <AppText variant="caption" muted>
+                    ซื้อแล้ว {checkedCount} จาก {shopping.length} รายการ
+                  </AppText>
+                  <AppText variant="caption" muted>
+                    สร้างจากแพลนสัปดาห์
+                  </AppText>
+                </View>
+              </View>
+              {checkedCount > 0 && (
+                <Pressable style={styles.shopPrimaryBtn} onPress={() => moveCheckedToFridge()}>
+                  <AppText variant="label" style={{ color: colors.onAccent }}>
+                    ย้ายที่ติ๊กแล้วเข้าตู้เย็น
+                  </AppText>
+                </Pressable>
+              )}
+            </Glass>
             {shopping.length === 0 ? (
               <AppText muted style={{ textAlign: 'center', marginTop: spacing.lg }}>
                 ยังไม่มีของต้องซื้อ — ลองเพิ่มเมนูในแพลนหรือกดเพิ่มเอง
@@ -563,13 +598,6 @@ export default function PlannerScreen() {
                   </View>
                 );
               })
-            )}
-            {checkedCount > 0 && (
-              <Pressable style={styles.shopSecondaryBtn} onPress={() => moveCheckedToFridge()}>
-                <AppText variant="label" style={{ color: colors.orange }}>
-                  ย้ายที่ติ๊กแล้วเข้าตู้เย็น
-                </AppText>
-              </Pressable>
             )}
           </View>
         )}
@@ -926,6 +954,23 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  kcalMetaRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: spacing.xs,
+    marginBottom: spacing.xs,
+  },
+  shopSummaryCard: { marginBottom: spacing.md },
+  shopSummaryInner: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md },
+  shopPrimaryBtn: {
+    marginHorizontal: spacing.md,
+    marginBottom: spacing.md,
+    backgroundColor: colors.orange,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.sm,
+    alignItems: 'center',
   },
   kcalBarBg: {
     height: 6,

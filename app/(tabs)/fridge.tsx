@@ -18,6 +18,8 @@ import { screenTopPadding } from '@/lib/screenLayout';
 import { ScreenShell } from '@/components/ScreenShell';
 import { SegmentPills } from '@/components/SegmentPills';
 import { RecipeCoverImage } from '@/components/RecipeCoverImage';
+import { ProgressRing } from '@/components/ProgressRing';
+import { Glass } from '@/components/Glass';
 import { fonts, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
@@ -63,6 +65,12 @@ export default function FridgeScreen() {
 
   const expiringCount = items.filter((i) => isFridgeItemExpiringSoon(i)).length;
   const expiredCount = items.filter((i) => isFridgeItemExpired(i)).length;
+  const okCount = Math.max(0, items.length - expiringCount - expiredCount);
+  const statusSegments = [
+    { value: okCount, color: colors.cardGreen },
+    { value: expiringCount, color: colors.cardYellow },
+    { value: expiredCount, color: colors.danger },
+  ].filter((s) => s.value > 0);
 
   const grouped = useMemo(() => {
     const places: FridgePlace[] = ['chilled', 'frozen', 'dry'];
@@ -119,6 +127,30 @@ export default function FridgeScreen() {
               <Ionicons name="add" size={22} color={colors.onAccent} />
             </Pressable>
           </View>
+          {items.length > 0 && (
+            <Glass variant="card" style={styles.summaryCard}>
+              <View style={styles.summaryInner}>
+                <ProgressRing
+                  size={88}
+                  stroke={8}
+                  segments={statusSegments.length > 0 ? statusSegments : [{ value: 1, color: colors.border }]}
+                  center={
+                    <View style={{ alignItems: 'center' }}>
+                      <AppText variant="title">{items.length}</AppText>
+                      <AppText variant="micro" muted>
+                        รายการ
+                      </AppText>
+                    </View>
+                  }
+                />
+                <View style={styles.legendCol}>
+                  <LegendRow color={colors.cardGreen} label="ปกติ" count={okCount} />
+                  <LegendRow color={colors.cardYellow} label="ใกล้หมดอายุ" count={expiringCount} />
+                  <LegendRow color={colors.danger} label="หมดอายุแล้ว" count={expiredCount} />
+                </View>
+              </View>
+            </Glass>
+          )}
           <SegmentPills
             options={[
               { id: 'items', label: `ของในตู้ ${items.length}` },
@@ -358,7 +390,24 @@ export default function FridgeScreen() {
   );
 }
 
+function LegendRow({ color, label, count }: { color: string; label: string; count: number }) {
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+      <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: color }} />
+      <AppText variant="caption" muted style={{ flex: 1 }}>
+        {label}
+      </AppText>
+      <AppText variant="caption" style={{ fontFamily: fonts.semiBold }}>
+        {count}
+      </AppText>
+    </View>
+  );
+}
+
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
+  summaryCard: { marginBottom: spacing.md },
+  summaryInner: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg, padding: spacing.md },
+  legendCol: { flex: 1 },
   titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
