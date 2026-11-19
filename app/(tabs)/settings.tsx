@@ -178,8 +178,20 @@ export default function SettingsScreen() {
                 : require('@/assets/seed/wl-chawanmushi.jpg')
             }
             panelLayout="center"
-            height={168}
+            height={200}
             style={styles.profileHero}
+            footer={
+              <View style={styles.statsRow}>
+                <View style={styles.statCard}>
+                  <AppText style={styles.statNumberAccent}>{recipes.length}</AppText>
+                  <AppText variant="caption" muted>สูตรของฉัน</AppText>
+                </View>
+                <View style={styles.statCard}>
+                  <AppText style={styles.statNumberAccent}>{fridgeItems.length}</AppText>
+                  <AppText variant="caption" muted>ของในตู้เย็น</AppText>
+                </View>
+              </View>
+            }
           >
             <View style={styles.profileHeroInner}>
               <View style={styles.avatarLarge}>
@@ -191,16 +203,6 @@ export default function SettingsScreen() {
               <AppText variant="caption" muted style={{ textAlign: 'center' }}>
                 สมาชิกตั้งแต่ ก.ย. 2569
               </AppText>
-              <View style={styles.statsRow}>
-                <View style={styles.statCard}>
-                  <AppText style={styles.statNumberAccent}>{recipes.length}</AppText>
-                  <AppText variant="caption" muted>สูตรของฉัน</AppText>
-                </View>
-                <View style={styles.statCard}>
-                  <AppText style={styles.statNumberAccent}>{fridgeItems.length}</AppText>
-                  <AppText variant="caption" muted>ของในตู้เย็น</AppText>
-                </View>
-              </View>
             </View>
           </PhotoGlassHero>
         </Pressable>
@@ -362,7 +364,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: { flex: 1 },
   settingsTitle: { fontSize: 28, lineHeight: 34, marginBottom: spacing.lg, marginTop: 4 },
   profileHero: { marginBottom: spacing.lg, marginHorizontal: 0 },
-  profileHeroInner: { alignItems: 'center', gap: spacing.sm },
+  profileHeroInner: { alignItems: 'center', gap: spacing.sm, paddingBottom: spacing.sm },
   avatarLarge: {
     width: 52,
     height: 52,
@@ -373,10 +375,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  statsRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm, width: '100%' },
+  statsRow: { flexDirection: 'row', gap: spacing.sm, width: '100%' },
   statCard: {
     flex: 1,
-    backgroundColor: colors.surface2,
+    backgroundColor: colors.glassAndroidBg,
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,

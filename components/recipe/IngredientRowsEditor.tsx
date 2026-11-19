@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { AppText } from '@/components/AppText';
+import { Glass } from '@/components/Glass';
 import { FRIDGE_UNIT_OPTIONS } from '@/lib/fridgeQuantity';
 import { parseIngredientLines } from '@/lib/parseIngredientLines';
 import { fonts, radius, spacing } from '@/constants/theme';
@@ -33,6 +34,7 @@ export function IngredientRowsEditor({
   const { colors } = useTheme();
   const [pasteOpen, setPasteOpen] = useState(false);
   const [pasteText, setPasteText] = useState('');
+  const [unitMenuRow, setUnitMenuRow] = useState<number | null>(null);
   const [customUnitRow, setCustomUnitRow] = useState<number | null>(null);
   const [customUnitText, setCustomUnitText] = useState('');
 
@@ -51,6 +53,7 @@ export function IngredientRowsEditor({
       ingredients.filter((_, idx) => idx !== i),
       amountTexts.filter((_, idx) => idx !== i),
     );
+    if (unitMenuRow === i) setUnitMenuRow(null);
   };
 
   const applyPaste = () => {
@@ -61,7 +64,10 @@ export function IngredientRowsEditor({
     }
     onChange(
       [...ingredients.filter((i) => i.name.trim()), ...parsed],
-      [...amountTexts.filter((_, idx) => ingredients[idx]?.name.trim()), ...parsed.map((p) => (p.amount != null ? String(p.amount) : ''))],
+      [
+        ...amountTexts.filter((_, idx) => ingredients[idx]?.name.trim()),
+        ...parsed.map((p) => (p.amount != null ? String(p.amount) : '')),
+      ],
     );
     setPasteOpen(false);
     setPasteText('');
@@ -74,16 +80,22 @@ export function IngredientRowsEditor({
         <AppText variant="label" style={{ color: colors.orange }}>วางรายการส่วนผสม</AppText>
       </Pressable>
       {ingredients.map((ing, i) => (
-        <View key={i} style={styles.row}>
-          <TextInput
-            keyboardAppearance={keyboardAppearance}
-            value={ing.name}
-            onChangeText={(v) => updateRow(i, { name: v })}
-            placeholder="ชื่อส่วนผสม"
-            placeholderTextColor={colors.inkLight}
-            style={styles.nameInput}
-          />
-          <View style={styles.amountRow}>
+        <View key={i} style={styles.rowCard}>
+          <View style={styles.rowHead}>
+            <Ionicons name="reorder-three" size={22} color={colors.inkMuted} />
+            <TextInput
+              keyboardAppearance={keyboardAppearance}
+              value={ing.name}
+              onChangeText={(v) => updateRow(i, { name: v })}
+              placeholder="ชื่อส่วนผสม"
+              placeholderTextColor={colors.inkLight}
+              style={styles.nameInput}
+            />
+            <Pressable onPress={() => removeRow(i)} style={styles.trash} hitSlop={12}>
+              <Ionicons name="trash-outline" size={22} color={colors.inkLight} />
+            </Pressable>
+          </View>
+          <View style={styles.rowFields}>
             <TextInput
               keyboardAppearance={keyboardAppearance}
               value={amountTexts[i] ?? ''}
@@ -91,54 +103,69 @@ export function IngredientRowsEditor({
               placeholder="ปริมาณ"
               placeholderTextColor={colors.inkLight}
               keyboardType="decimal-pad"
-              style={styles.amountInput}
+              style={styles.fieldBox}
             />
-            <View style={styles.unitChips}>
-              {UNIT_CHIPS.map((u) => (
+            <Pressable
+              style={styles.unitBox}
+              onPress={() => {
+                setUnitMenuRow((prev) => (prev === i ? null : i));
+                setCustomUnitRow(null);
+              }}
+            >
+              <AppText variant="label" numberOfLines={1} style={{ flex: 1 }}>
+                {ing.unit?.trim() ? ing.unit : 'หน่วย'}
+              </AppText>
+              <Ionicons name="chevron-down" size={16} color={colors.inkMuted} />
+            </Pressable>
+          </View>
+          {unitMenuRow === i ? (
+            <View style={styles.unitPicker}>
+              <View style={styles.unitChips}>
+                {UNIT_CHIPS.map((u) => (
+                  <Pressable
+                    key={u}
+                    onPress={() => {
+                      setCustomUnitRow(null);
+                      updateRow(i, { unit: u });
+                      setUnitMenuRow(null);
+                    }}
+                    style={[styles.unitChip, ing.unit === u && styles.unitChipOn]}
+                  >
+                    <AppText variant="caption" style={{ color: ing.unit === u ? colors.onAccent : colors.inkMuted }}>
+                      {u}
+                    </AppText>
+                  </Pressable>
+                ))}
                 <Pressable
-                  key={u}
                   onPress={() => {
-                    setCustomUnitRow(null);
-                    updateRow(i, { unit: u });
+                    setCustomUnitRow(i);
+                    setCustomUnitText(ing.unit ?? '');
                   }}
-                  style={[styles.unitChip, ing.unit === u && styles.unitChipOn]}
+                  style={[styles.unitChip, customUnitRow === i && styles.unitChipOn]}
                 >
-                  <AppText variant="caption" style={{ color: ing.unit === u ? colors.onAccent : colors.inkMuted }}>
-                    {u}
+                  <AppText variant="caption" style={{ color: customUnitRow === i ? colors.onAccent : colors.inkMuted }}>
+                    กำหนดเอง
                   </AppText>
                 </Pressable>
-              ))}
-              <Pressable
-                onPress={() => {
-                  setCustomUnitRow(i);
-                  setCustomUnitText(ing.unit ?? '');
-                }}
-                style={[styles.unitChip, customUnitRow === i && styles.unitChipOn]}
-              >
-                <AppText variant="caption" style={{ color: customUnitRow === i ? colors.onAccent : colors.inkMuted }}>
-                  กำหนดเอง
-                </AppText>
-              </Pressable>
+              </View>
+              {customUnitRow === i ? (
+                <TextInput
+                  keyboardAppearance={keyboardAppearance}
+                  value={customUnitText}
+                  onChangeText={setCustomUnitText}
+                  onSubmitEditing={() => {
+                    const u = customUnitText.trim();
+                    if (u) updateRow(i, { unit: u });
+                    setCustomUnitRow(null);
+                    setUnitMenuRow(null);
+                  }}
+                  placeholder="หน่วยกำหนดเอง"
+                  placeholderTextColor={colors.inkLight}
+                  style={styles.customUnitInput}
+                />
+              ) : null}
             </View>
-            {customUnitRow === i ? (
-              <TextInput
-                keyboardAppearance={keyboardAppearance}
-                value={customUnitText}
-                onChangeText={setCustomUnitText}
-                onSubmitEditing={() => {
-                  const u = customUnitText.trim();
-                  if (u) updateRow(i, { unit: u });
-                  setCustomUnitRow(null);
-                }}
-                placeholder="หน่วยกำหนดเอง"
-                placeholderTextColor={colors.inkLight}
-                style={styles.customUnitInput}
-              />
-            ) : null}
-          </View>
-          <Pressable onPress={() => removeRow(i)} style={styles.trash} hitSlop={12}>
-            <Ionicons name="trash-outline" size={22} color={colors.inkLight} />
-          </Pressable>
+          ) : null}
         </View>
       ))}
       <Pressable onPress={addRow} style={styles.addLine}>
@@ -146,28 +173,30 @@ export function IngredientRowsEditor({
       </Pressable>
 
       <Modal visible={pasteOpen} transparent animationType="slide">
-        <View style={styles.modalScrim}>
-          <View style={styles.modalCard}>
-            <AppText variant="title">วางรายการส่วนผสม</AppText>
-            <TextInput
-              multiline
-              value={pasteText}
-              onChangeText={setPasteText}
-              placeholder="หนึ่งบรรทัดต่อหนึ่งรายการ"
-              placeholderTextColor={colors.inkLight}
-              style={styles.pasteInput}
-              keyboardAppearance={keyboardAppearance}
-            />
-            <View style={styles.modalActions}>
-              <Pressable onPress={() => setPasteOpen(false)}>
-                <AppText muted>ยกเลิก</AppText>
-              </Pressable>
-              <Pressable onPress={applyPaste}>
-                <AppText style={{ color: colors.orange }}>เพิ่มรายการ</AppText>
-              </Pressable>
-            </View>
-          </View>
-        </View>
+        <Pressable style={styles.modalScrim} onPress={() => setPasteOpen(false)}>
+          <Pressable onPress={(e) => e.stopPropagation()}>
+            <Glass variant="material" sheet style={styles.modalSheet}>
+              <AppText variant="title">วางรายการส่วนผสม</AppText>
+              <TextInput
+                multiline
+                value={pasteText}
+                onChangeText={setPasteText}
+                placeholder="หนึ่งบรรทัดต่อหนึ่งรายการ"
+                placeholderTextColor={colors.inkLight}
+                style={styles.pasteInput}
+                keyboardAppearance={keyboardAppearance}
+              />
+              <View style={styles.modalActions}>
+                <Pressable onPress={() => setPasteOpen(false)}>
+                  <AppText muted>ยกเลิก</AppText>
+                </Pressable>
+                <Pressable onPress={applyPaste}>
+                  <AppText style={{ color: colors.orange }}>เพิ่มรายการ</AppText>
+                </Pressable>
+              </View>
+            </Glass>
+          </Pressable>
+        </Pressable>
       </Modal>
     </View>
   );
@@ -182,30 +211,59 @@ const createStyles = (colors: ThemeColors) =>
       marginBottom: spacing.sm,
       minHeight: 44,
     },
-    row: {
-      marginBottom: spacing.md,
+    rowCard: {
+      marginBottom: spacing.sm,
+      padding: spacing.sm,
+      borderRadius: radius.card,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      gap: spacing.sm,
+    },
+    rowHead: {
+      flexDirection: 'row',
+      alignItems: 'center',
       gap: spacing.sm,
       minWidth: 0,
     },
     nameInput: {
+      flex: 1,
+      minWidth: 0,
+      fontFamily: fonts.regular,
+      color: colors.ink,
+      fontSize: 16,
+      paddingVertical: spacing.xs,
+    },
+    rowFields: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+    },
+    fieldBox: {
+      flex: 1,
+      backgroundColor: colors.surface2,
+      borderRadius: radius.md,
       borderWidth: 1,
       borderColor: colors.border,
-      borderRadius: radius.md,
-      padding: spacing.sm,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.sm,
       fontFamily: fonts.regular,
       color: colors.ink,
       minWidth: 0,
     },
-    amountRow: { gap: spacing.sm, minWidth: 0 },
-    amountInput: {
+    unitBox: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      backgroundColor: colors.surface2,
+      borderRadius: radius.md,
       borderWidth: 1,
       borderColor: colors.border,
-      borderRadius: radius.md,
-      padding: spacing.sm,
-      fontFamily: fonts.regular,
-      color: colors.ink,
-      minWidth: 0,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.sm,
+      minHeight: 44,
     },
+    unitPicker: { gap: spacing.sm },
     unitChips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs },
     unitChip: {
       paddingHorizontal: spacing.sm,
@@ -214,11 +272,11 @@ const createStyles = (colors: ThemeColors) =>
       borderWidth: 1,
       borderColor: colors.border,
       backgroundColor: colors.surface2,
-      minHeight: 36,
+      minHeight: 32,
       justifyContent: 'center',
     },
     unitChipOn: { backgroundColor: colors.orange, borderColor: colors.orange },
-    trash: { alignSelf: 'flex-end', minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
+    trash: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
     customUnitInput: {
       borderWidth: 1,
       borderColor: colors.border,
@@ -226,7 +284,7 @@ const createStyles = (colors: ThemeColors) =>
       padding: spacing.sm,
       fontFamily: fonts.regular,
       color: colors.ink,
-      minWidth: 0,
+      backgroundColor: colors.surface2,
     },
     addLine: { paddingVertical: spacing.sm, minHeight: 44, justifyContent: 'center' },
     modalScrim: {
@@ -234,13 +292,9 @@ const createStyles = (colors: ThemeColors) =>
       backgroundColor: colors.modalScrim,
       justifyContent: 'flex-end',
     },
-    modalCard: {
-      backgroundColor: colors.cream,
-      borderTopLeftRadius: radius.xl,
-      borderTopRightRadius: radius.xl,
+    modalSheet: {
       padding: spacing.md,
       gap: spacing.sm,
-      maxHeight: '70%',
     },
     pasteInput: {
       minHeight: 160,
@@ -251,6 +305,7 @@ const createStyles = (colors: ThemeColors) =>
       textAlignVertical: 'top',
       color: colors.ink,
       fontFamily: fonts.regular,
+      backgroundColor: colors.surface2,
     },
     modalActions: {
       flexDirection: 'row',

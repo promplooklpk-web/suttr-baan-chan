@@ -16,6 +16,8 @@ type PhotoGlassHeroProps = {
   /** left inset panel (home) vs centered card (settings/about) */
   panelLayout?: 'inset-left' | 'center';
   topRight?: React.ReactNode;
+  /** Renders below the glass panel, still inside the photo card (e.g. stat pills) */
+  footer?: React.ReactNode;
 };
 
 export function PhotoGlassHero({
@@ -27,6 +29,7 @@ export function PhotoGlassHero({
   panelBorderRadius = 20,
   panelLayout = 'inset-left',
   topRight,
+  footer,
 }: PhotoGlassHeroProps) {
   const styles = useThemedStyles(createStyles);
 
@@ -46,6 +49,7 @@ export function PhotoGlassHero({
         </Glass>
       </View>
       {topRight ? <View style={styles.topRight}>{topRight}</View> : null}
+      {footer ? <View style={styles.footerSlot}>{footer}</View> : null}
     </View>
   );
 }
@@ -94,5 +98,11 @@ const createStyles = (colors: ThemeColors) =>
       position: 'absolute',
       top: 12,
       right: 12,
+    },
+    footerSlot: {
+      position: 'absolute',
+      left: 12,
+      right: 12,
+      bottom: 12,
     },
   });

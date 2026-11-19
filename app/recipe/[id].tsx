@@ -3,6 +3,7 @@ import { Image } from 'expo-image';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { GlassIconButton } from '@/components/GlassIconButton';
+import { Glass } from '@/components/Glass';
 import { GlassBottomBar } from '@/components/GlassBottomBar';
 import {
   Modal,
@@ -393,7 +394,8 @@ export default function RecipeDetailScreen() {
 
         <Modal visible={planOpen} transparent animationType="fade">
           <Pressable style={styles.planBackdrop} onPress={() => setPlanOpen(false)}>
-            <Pressable style={styles.planSheet} onPress={(e) => e.stopPropagation()}>
+            <Pressable onPress={(e) => e.stopPropagation()}>
+              <Glass variant="material" sheet style={styles.planSheet}>
               <AppText variant="title" style={{ marginBottom: spacing.md }}>เพิ่มลงแผน</AppText>
               <ScrollView style={{ maxHeight: 360 }}>
                 {planDays.map((date) => (
@@ -429,6 +431,7 @@ export default function RecipeDetailScreen() {
                   </View>
                 ))}
               </ScrollView>
+              </Glass>
             </Pressable>
           </Pressable>
         </Modal>
@@ -822,11 +825,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'flex-end',
   },
   planSheet: {
-    backgroundColor: colors.cream,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
     padding: spacing.lg,
     gap: spacing.sm,
+    maxHeight: '75%',
   },
   planSlotBtn: {
     minHeight: 44,

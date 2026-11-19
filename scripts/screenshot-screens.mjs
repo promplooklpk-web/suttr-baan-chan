@@ -25,7 +25,9 @@ const ROUTES = [
   { name: 'planner-shop', path: '/planner?section=shop' },
   { name: 'recipe', path: `/recipe/${RECIPE_ID}` },
   { name: 'settings', path: '/settings' },
+  { name: 'search', path: '/search' },
   { name: 'recipe-edit', path: '/recipe/edit' },
+  { name: 'add-recipe', path: '/recipe/edit' },
   { name: 'recipe-cook', path: `/recipe/cook/${RECIPE_ID}` },
   { name: 'tags', path: '/tags' },
   { name: 'about', path: '/about' },
@@ -46,6 +48,19 @@ const ROUTES = [
       await page.waitForTimeout(600);
     },
   },
+  {
+    name: 'add-sheet',
+    path: '/',
+    setup: async (page) => {
+      await waitForSeededHome(page);
+      await page.getByLabel('เพิ่มหรือสุ่มเมนู').click({ timeout: 15_000 });
+      await page.waitForTimeout(600);
+    },
+  },
+  { name: 'fridge-item', path: '/fridge/web-seed-0-0' },
+  { name: 'fridge-match', path: `/fridge/match/${RECIPE_ID}` },
+  { name: 'import-preview', path: '/import/preview' },
+  { name: 'not-found', path: '/__not-found-screenshot__' },
 ];
 
 function serveStatic(dir, port) {

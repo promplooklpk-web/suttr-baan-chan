@@ -19,6 +19,7 @@ import { ProgressRing, ProgressRingLabel } from '@/components/ProgressRing';
 import { FridgeQuantityEditor } from '@/components/fridge/FridgeQuantityEditor';
 import { FridgeUseAmountPanel } from '@/components/fridge/FridgeUseAmountPanel';
 import { RecipeCoverImage } from '@/components/RecipeCoverImage';
+import { recipeCoverUri } from '@/lib/recipeMedia';
 import { fonts, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
 import { useTheme } from '@/context/ThemeContext';
@@ -75,6 +76,15 @@ export default function FridgeItemDetailScreen() {
       .slice(0, 6);
   }, [item, recipes]);
 
+  const heroImageSource = useMemo(() => {
+    const cover = linkedRecipes[0];
+    if (cover) {
+      const uri = recipeCoverUri(cover);
+      if (uri) return { uri };
+    }
+    return null;
+  }, [linkedRecipes]);
+
   if (!item) {
     return (
       <View style={styles.centered}>
@@ -129,7 +139,7 @@ export default function FridgeItemDetailScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <PhotoGlassHero
-          imageSource={require('@/assets/seed/onedish/wl-egg-drop-soup.jpg')}
+          imageSource={heroImageSource}
           panelLayout="center"
           height={200}
         >
