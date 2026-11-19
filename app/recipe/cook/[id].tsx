@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -20,7 +20,6 @@ import { ProgressRing } from '@/components/ProgressRing';
 import { RecipeCoverImage } from '@/components/RecipeCoverImage';
 import { formatTimerSeconds } from '@/lib/format';
 import { CookTimerBar, CookTimerBarSpacer } from '@/components/CookTimerBar';
-import { StepTimerChip } from '@/components/StepTimerChip';
 import { loadAppSettings } from '@/lib/appSettings';
 import { fonts, radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/colorSchemes';
@@ -240,33 +239,82 @@ function CookTimerBlock({
 }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
-  const { getTimer, remainingSeconds } = useCookTimers();
+  const {
+    getTimer,
+    remainingSeconds,
+    startTimer,
+    pauseTimer,
+    resumeTimer,
+  } = useCookTimers();
   const timer = getTimer(timerKey);
   const remaining = timer ? remainingSeconds(timerKey) : timerSeconds;
   const progress = timerSeconds > 0 ? 1 - remaining / timerSeconds : 0;
+  const running = Boolean(timer && !timer.finished && timer.endAt > 0 && timer.pausedRemaining == null);
+  const paused = Boolean(timer && timer.pausedRemaining != null && !timer.finished);
+  const finished = Boolean(timer?.finished);
+  const autoStarted = useRef(false);
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
+
+  useEffect(() => {
+    autoStarted.current = false;
+  }, [timerKey, timerSeconds]);
+
+  useEffect(() => {
+    if (!autoStart || autoStarted.current || timerSeconds <= 0) return;
+    if (!getTimer(timerKey)) {
+      autoStarted.current = true;
+      startTimer(timerKey, timerLabel, timerSeconds);
+    }
+  }, [autoStart, timerKey, timerSeconds, timerLabel, getTimer, startTimer]);
+
+  useEffect(() => {
+    if (finished) onCompleteRef.current?.();
+  }, [finished]);
+
+  const toggleTimer = () => {
+    if (finished) return;
+    if (running) {
+      pauseTimer(timerKey);
+      return;
+    }
+    if (paused) {
+      resumeTimer(timerKey);
+      return;
+    }
+    startTimer(timerKey, timerLabel, timerSeconds);
+  };
 
   return (
-    <View style={styles.timerBlock}>
+    <View style={styles.timerCard}>
       <ProgressRing
-        size={58}
+        size={84}
         progress={Math.min(1, Math.max(0, progress))}
         color={colors.orange}
         center={
-          <AppText variant="micro" style={{ fontFamily: fonts.semiBold }}>
+          <AppText variant="label" style={{ fontFamily: fonts.semiBold }}>
             {formatTimerSeconds(remaining)}
           </AppText>
         }
       />
-      <View style={styles.timerTextCol}>
+      <View style={styles.timerMeta}>
         <AppText variant="label">ตัวจับเวลา</AppText>
-        <StepTimerChip
-          timerKey={timerKey}
-          timerSeconds={timerSeconds}
-          timerLabel={timerLabel}
-          autoStart={autoStart}
-          onComplete={onComplete}
-        />
+        <AppText variant="caption" muted>
+          {formatTimerSeconds(timerSeconds)}
+          {running ? ' · แตะหยุด' : paused ? ' · หยุดชั่วคราว' : ''}
+        </AppText>
       </View>
+      <Pressable
+        onPress={toggleTimer}
+        style={styles.timerPauseBtn}
+        accessibilityLabel={running ? 'หยุดตัวจับเวลา' : 'เริ่มตัวจับเวลา'}
+      >
+        <Ionicons
+          name={running ? 'pause' : 'play'}
+          size={22}
+          color={colors.onAccent}
+        />
+      </Pressable>
     </View>
   );
 }
@@ -298,18 +346,26 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   segmentRow: { flexDirection: 'row', gap: 4, marginBottom: spacing.md },
   segment: { flex: 1, height: 6, borderRadius: 3 },
   nextPreview: { marginTop: spacing.lg, lineHeight: 20 },
-  timerBlock: {
+  timerCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    marginTop: spacing.lg,
+    marginTop: spacing.sm,
     padding: spacing.md,
-    borderRadius: radius.lg,
+    borderRadius: radius.card,
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: colors.surface2,
+    backgroundColor: colors.surface,
   },
-  timerTextCol: { flex: 1, gap: spacing.xs },
+  timerMeta: { flex: 1, gap: 4, minWidth: 0 },
+  timerPauseBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.orange,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   recipeTitle: { marginBottom: spacing.sm },
   stepScroll: { flex: 1 },
   stepScrollContent: { gap: spacing.md, paddingBottom: spacing.xl },

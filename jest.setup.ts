@@ -110,10 +110,15 @@ jest.mock('@/lib/shoppingList', () => {
   };
 });
 
-jest.mock('@/lib/themeStorage', () => ({
-  loadThemePreference: jest.fn(async () => 'dark' as const),
-  saveThemePreference: jest.fn(async () => undefined),
-}));
+jest.mock('@/lib/themeStorage', () => {
+  const actual = jest.requireActual<typeof import('@/lib/themeStorage')>('@/lib/themeStorage');
+  return {
+    ...actual,
+    loadThemePreference: jest.fn(async () => 'dark' as const),
+    saveThemePreference: jest.fn(async () => undefined),
+    readThemePreferenceSync: jest.fn(() => null),
+  };
+});
 
 jest.mock('@/lib/pickerHistory', () => {
   const actual = jest.requireActual('@/lib/pickerHistory');

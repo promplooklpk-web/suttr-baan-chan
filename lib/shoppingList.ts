@@ -3,7 +3,7 @@ import * as Crypto from 'expo-crypto';
 
 import { loadAllMealPlanDays, loadMealPlan } from '@/lib/mealPlanStorage';
 import { loadRecipes } from '@/lib/storage';
-import { webSeedEnabled, webSeedFridge } from '@/lib/webSeed';
+import { webSeedEnabled } from '@/lib/webSeed';
 import { readJsonFile, writeJsonFileAtomic } from '@/lib/jsonFile';
 import { addAmounts, mergeItemKey } from '@/lib/shoppingUnitMerge';
 import { todayLocalIso } from '@/utils/localDate';
@@ -93,8 +93,47 @@ export async function loadShoppingList(): Promise<ShoppingListStore> {
     const recipes = await loadRecipes();
     const recipesById = new Map(recipes.map((r) => [r.id, r]));
     const days = (await loadMealPlan()).days;
-    const fridge = webSeedFridge(recipes);
-    const items = generateShoppingItems(days, recipesById, fridge);
+    const generated = generateShoppingItems(days, recipesById, []);
+    const items = generated.map((item, i) => ({
+      ...item,
+      id: `web-shop-${i}`,
+      checked: i % 4 === 0 || i % 4 === 1,
+    }));
+    if (items.length === 0) {
+      return {
+        items: [
+          {
+            id: 'web-shop-fallback-1',
+            name: 'น้ำปลา',
+            amount: 2,
+            unit: 'ช้อนโต๊ะ',
+            checked: true,
+            sourceRecipeIds: [],
+            manual: false,
+          },
+          {
+            id: 'web-shop-fallback-2',
+            name: 'หอมแดง',
+            amount: 3,
+            unit: 'หัว',
+            checked: false,
+            sourceRecipeIds: [],
+            manual: false,
+          },
+          {
+            id: 'web-shop-fallback-3',
+            name: 'พริกป่น',
+            amount: 1,
+            unit: 'ช้อนโต๊ะ',
+            checked: false,
+            sourceRecipeIds: [],
+            manual: false,
+          },
+        ],
+        dismissedPlanKeys: [],
+        updatedAt: new Date().toISOString(),
+      };
+    }
     return { items, dismissedPlanKeys: [], updatedAt: new Date().toISOString() };
   }
 
@@ -203,10 +242,15 @@ export async function syncShoppingFromPlan(
   recipes: Recipe[],
   fridgeItems: FridgeItem[] = [],
 ): Promise<ShoppingItem[]> {
+  if (webSeedEnabled()) {
+    const prev = await loadShoppingList();
+    if (recipes.length === 0) return prev.items;
+  }
   const allDays = await loadAllMealPlanDays();
   const days = filterPlanDaysFromToday(allDays);
   const byId = new Map(recipes.map((r) => [r.id, r]));
-  const generated = generateShoppingItems(days, byId, fridgeItems);
+  const stockFridge = webSeedEnabled() ? [] : fridgeItems;
+  const generated = generateShoppingItems(days, byId, stockFridge);
   const prev = await loadShoppingList();
   const dismissed = new Set(prev.dismissedPlanKeys ?? []);
   const checked = new Map(

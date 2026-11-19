@@ -55,7 +55,9 @@ export function ThemeProvider({
   const systemScheme = useSystemColorScheme();
   const [preference, setPreferenceState] = useState<ThemePreference>(() => {
     if (forcedColorScheme != null) return initialPreference;
-    return readThemePreferenceSync() ?? initialPreference;
+    const sync =
+      typeof readThemePreferenceSync === 'function' ? readThemePreferenceSync() : null;
+    return sync ?? initialPreference;
   });
   useEffect(() => {
     if (forcedColorScheme != null) return;
