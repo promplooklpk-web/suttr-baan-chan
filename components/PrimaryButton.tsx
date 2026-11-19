@@ -1,4 +1,12 @@
-import { Pressable, StyleSheet, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
+import {
+  Pressable,
+  StyleSheet,
+  View,
+  type PressableProps,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 import { AppText } from '@/components/AppText';
 import { fonts } from '@/constants/theme';
@@ -11,15 +19,31 @@ type PrimaryButtonProps = PressableProps & {
   label: string;
   style?: StyleProp<ViewStyle>;
   compact?: boolean;
+  icon?: keyof typeof Ionicons.glyphMap;
 };
 
-export function PrimaryButton({ label, style, compact, ...rest }: PrimaryButtonProps) {
+export function PrimaryButton({ label, style, compact, icon, ...rest }: PrimaryButtonProps) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
 
   return (
-    <Pressable style={[styles.wrap, accentGlow(colors, true), style]} {...rest}>
-      <AppText style={[styles.label, compact && styles.labelCompact]}>{label}</AppText>
+    <Pressable
+      style={({ pressed }) => [
+        styles.wrap,
+        accentGlow(colors, true),
+        pressed && styles.pressed,
+        style,
+      ]}
+      {...rest}
+    >
+      <View style={styles.inner}>
+        {icon ? (
+          <Ionicons name={icon} size={18} color={colors.onAccent} style={styles.icon} />
+        ) : null}
+        <AppText style={[styles.label, compact && styles.labelCompact]} suppressHighlighting>
+          {label}
+        </AppText>
+      </View>
     </Pressable>
   );
 }
@@ -27,19 +51,24 @@ export function PrimaryButton({ label, style, compact, ...rest }: PrimaryButtonP
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     wrap: {
-      backgroundColor: colors.orange,
       borderRadius: 999,
-      paddingVertical: 16,
+      backgroundColor: colors.orange,
+      overflow: 'hidden',
+    },
+    inner: {
+      minHeight: 52,
+      paddingVertical: 14,
       paddingHorizontal: 24,
+      flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
     },
+    pressed: { opacity: 0.92 },
+    icon: { marginRight: 8 },
     label: {
       color: colors.onAccent,
-      fontFamily: fonts.semiBold,
-      fontSize: 17,
+      fontFamily: fonts.displayMedium,
+      fontSize: 16,
     },
-    labelCompact: {
-      fontSize: 15,
-    },
+    labelCompact: { fontSize: 14 },
   });

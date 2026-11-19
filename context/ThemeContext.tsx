@@ -10,6 +10,7 @@ import {
 } from 'react';
 
 import { darkColors, lightColors, type ThemeColors } from '@/constants/colorSchemes';
+import { getDesignTokens, type DesignTokens } from '@/lib/design';
 import {
   loadThemePreference,
   saveThemePreference,
@@ -20,6 +21,7 @@ export type ResolvedColorScheme = 'light' | 'dark';
 
 type ThemeContextValue = {
   colors: ThemeColors;
+  tokens: DesignTokens;
   colorScheme: ResolvedColorScheme;
   preference: ThemePreference;
   setPreference: (next: ThemePreference) => void;
@@ -79,6 +81,7 @@ export function ThemeProvider({
     const isDark = colorScheme === 'dark';
     return {
       colors,
+      tokens: getDesignTokens(colorScheme, colors),
       colorScheme,
       preference,
       setPreference,

@@ -33,7 +33,7 @@ export function GlassTabBar({ state, descriptors, navigation }: {
   navigation: { emit: (e: unknown) => { defaultPrevented?: boolean }; navigate: (name: string) => void };
 }) {
   const styles = useThemedStyles(createStyles);
-  const { colors, blurTint } = useTheme();
+  const { colors, blurTint, tokens } = useTheme();
   const insets = useSafeAreaInsets();
   const bottom = Math.max(insets.bottom, spacing.sm);
   const { alertCount } = useFridge();
@@ -49,7 +49,8 @@ export function GlassTabBar({ state, descriptors, navigation }: {
   const renderTab = (route: { key: string; name: string }) => {
     const routeIndex = state.routes.findIndex((r) => r.key === route.key);
     const { options } = descriptors[route.key];
-    const label = options.title ?? route.name;
+    const label =
+      route.name === 'fridge' ? 'ตู้เย็น' : (options.title ?? route.name);
     const focused = state.index === routeIndex;
     const iconName = TAB_ICONS[route.name] ?? 'home';
     const icon = (focused ? iconName : `${iconName}-outline`) as keyof typeof Ionicons.glyphMap;
@@ -82,7 +83,7 @@ export function GlassTabBar({ state, descriptors, navigation }: {
             <Ionicons
               name={icon}
               size={21}
-              color={focused ? colors.orange : colors.inkMuted}
+              color={focused ? tokens.accentText : colors.inkMuted}
             />
           </View>
           {badge > 0 && (

@@ -23,7 +23,7 @@ type Props = {
 
 export function HomeFilterChips({ selected, onSelect }: Props) {
   const styles = useThemedStyles(createStyles);
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   return (
     <ScrollView
       horizontal
@@ -36,7 +36,11 @@ export function HomeFilterChips({ selected, onSelect }: Props) {
           <Pressable
             key={f.id}
             onPress={() => onSelect(f.id)}
-            style={[styles.chip, active && styles.chipActive, active && accentGlow(colors)]}
+            style={[
+              styles.chip,
+              active && styles.chipActive,
+              active && !isDark && accentGlow(colors),
+            ]}
           >
             <AppText
               variant="label"
