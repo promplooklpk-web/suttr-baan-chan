@@ -322,12 +322,15 @@ export default function PickerScreen() {
               style={[
                 styles.mealSegBtn,
                 meal === slot && styles.mealSegBtnOn,
-                meal === slot && accentGlow(colors),
               ]}
             >
               <AppText
                 variant="label"
-                style={{ color: meal === slot ? colors.onAccent : colors.inkMuted, fontSize: 14 }}
+                style={{
+                  color: meal === slot ? colors.ink : colors.inkMuted,
+                  fontFamily: meal === slot ? fonts.semiBold : fonts.medium,
+                  fontSize: 14,
+                }}
               >
                 {MEAL_SEGMENT[slot]}
               </AppText>
@@ -637,7 +640,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.pill,
   },
   mealSegBtnOn: {
-    backgroundColor: colors.orange,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
   },
   filterSummaryRow: {
     flexDirection: 'row',

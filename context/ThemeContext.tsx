@@ -13,6 +13,7 @@ import { darkColors, lightColors, type ThemeColors } from '@/constants/colorSche
 import { getDesignTokens, type DesignTokens } from '@/lib/design';
 import {
   loadThemePreference,
+  readThemePreferenceSync,
   saveThemePreference,
   type ThemePreference,
 } from '@/lib/themeStorage';
@@ -52,7 +53,10 @@ export function ThemeProvider({
   forcedColorScheme,
 }: ThemeProviderProps) {
   const systemScheme = useSystemColorScheme();
-  const [preference, setPreferenceState] = useState<ThemePreference>(initialPreference);
+  const [preference, setPreferenceState] = useState<ThemePreference>(() => {
+    if (forcedColorScheme != null) return initialPreference;
+    return readThemePreferenceSync() ?? initialPreference;
+  });
   useEffect(() => {
     if (forcedColorScheme != null) return;
     let cancelled = false;

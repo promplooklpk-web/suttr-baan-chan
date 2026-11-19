@@ -350,7 +350,13 @@ export default function RecipeEditScreen() {
                   onPress={() => setDifficulty(d)}
                   style={[styles.diffBtn, difficulty === d && styles.diffBtnOn]}
                 >
-                  <AppText variant="label" style={{ color: difficulty === d ? colors.surface : colors.ink }}>
+                  <AppText
+                    variant="label"
+                    style={{
+                      color: colors.ink,
+                      fontFamily: difficulty === d ? fonts.semiBold : fonts.medium,
+                    }}
+                  >
                     {label}
                   </AppText>
                 </Pressable>
@@ -593,15 +599,15 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   diffBtn: {
     flex: 1,
     paddingVertical: spacing.sm,
-    borderRadius: radius.md,
-    backgroundColor: colors.surface,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surface2,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: colors.border,
   },
   diffBtnOn: {
-    backgroundColor: colors.orange,
-    borderColor: colors.orange,
+    backgroundColor: colors.surface,
+    borderColor: colors.borderStrong,
   },
   sectionTitle: {
     marginTop: spacing.md,

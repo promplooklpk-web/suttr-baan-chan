@@ -1,7 +1,9 @@
 import { documentDirectory, getInfoAsync } from 'expo-file-system/legacy';
 import * as Crypto from 'expo-crypto';
 
-import { loadAllMealPlanDays } from '@/lib/mealPlanStorage';
+import { loadAllMealPlanDays, loadMealPlan } from '@/lib/mealPlanStorage';
+import { loadRecipes } from '@/lib/storage';
+import { webSeedEnabled, webSeedFridge } from '@/lib/webSeed';
 import { readJsonFile, writeJsonFileAtomic } from '@/lib/jsonFile';
 import { addAmounts, mergeItemKey } from '@/lib/shoppingUnitMerge';
 import { todayLocalIso } from '@/utils/localDate';
@@ -87,6 +89,15 @@ export function generateShoppingItems(
 }
 
 export async function loadShoppingList(): Promise<ShoppingListStore> {
+  if (webSeedEnabled()) {
+    const recipes = await loadRecipes();
+    const recipesById = new Map(recipes.map((r) => [r.id, r]));
+    const days = (await loadMealPlan()).days;
+    const fridge = webSeedFridge(recipes);
+    const items = generateShoppingItems(days, recipesById, fridge);
+    return { items, dismissedPlanKeys: [], updatedAt: new Date().toISOString() };
+  }
+
   const p = path();
   const info = await getInfoAsync(p);
   if (!info.exists) {

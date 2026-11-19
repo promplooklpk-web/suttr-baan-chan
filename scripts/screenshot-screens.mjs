@@ -1,5 +1,5 @@
 /**
- * Headless screenshots of the exported Expo web build (393×852, dark).
+ * Headless screenshots of the exported Expo web build (393×852, light + dark).
  * Usage: EXPO_PUBLIC_WEB_SEED=1 npx expo export --platform web && node scripts/screenshot-screens.mjs
  */
 import { mkdir } from 'node:fs/promises';
@@ -15,6 +15,7 @@ const distDir = path.join(root, 'dist');
 const outDir = process.env.SHOT_DIR ?? path.join(root, 'artifacts', 'screenshots');
 
 const RECIPE_ID = 'b4010001-4a20-4f80-a001-000000000001';
+const WEB_THEME_STORAGE_KEY = 'baan-chan-theme.json';
 
 /** @type {{ name: string; path: string; setup?: (page: import('@playwright/test').Page) => Promise<void> }[]} */
 const ROUTES = [
@@ -26,7 +27,7 @@ const ROUTES = [
   { name: 'recipe', path: `/recipe/${RECIPE_ID}` },
   { name: 'settings', path: '/settings' },
   { name: 'search', path: '/search' },
-  { name: 'recipe-edit', path: '/recipe/edit' },
+  { name: 'recipe-edit', path: `/recipe/edit?id=${RECIPE_ID}` },
   { name: 'add-recipe', path: '/recipe/edit' },
   { name: 'recipe-cook', path: `/recipe/cook/${RECIPE_ID}` },
   { name: 'tags', path: '/tags' },
@@ -149,6 +150,68 @@ async function waitForSeededHome(page) {
   );
 }
 
+async function waitForRecipeEdit(page) {
+  await page.waitForFunction(
+    () => /แก้ไขสูตร/.test(document.body.innerText) && !/เพิ่มสูตรใหม่/.test(document.body.innerText),
+    { timeout: 60_000 },
+  );
+}
+
+async function waitForCookMode(page) {
+  await page.waitForFunction(() => /ขั้นที่\s*1\//.test(document.body.innerText), { timeout: 60_000 });
+  await page.waitForFunction(
+    () => {
+      const imgs = [...document.querySelectorAll('img[src]')].filter((img) => {
+        const r = img.getBoundingClientRect();
+        return r.width > 80 && r.height > 80 && r.top < 700;
+      });
+      return imgs.length > 0;
+    },
+    { timeout: 60_000 },
+  );
+}
+
+async function assertLightBackground(page) {
+  await page.waitForFunction(
+    () => {
+      const hasPref = (() => {
+        try {
+          const raw = localStorage.getItem('baan-chan-theme.json');
+          return raw && JSON.parse(raw).preference === 'light';
+        } catch {
+          return false;
+        }
+      })();
+      const hasCream = (() => {
+        for (const el of document.querySelectorAll('div')) {
+          const box = el.getBoundingClientRect();
+          if (box.width < 280 || box.height < 500) continue;
+          const bg = getComputedStyle(el).backgroundColor;
+          const m = bg.match(/(\d+)/g);
+          if (!m || m.length < 3) continue;
+          const [r, g, b] = m.map(Number);
+          if (r > 210 && g > 210 && b > 205) return true;
+        }
+        return false;
+      })();
+      return hasPref && hasCream;
+    },
+    { timeout: 45_000 },
+  );
+}
+
+function installThemeInit(context, scheme) {
+  const preference = scheme === 'light' ? 'light' : 'dark';
+  return context.addInitScript((pref) => {
+    globalThis.__WEB_SEED__ = true;
+    try {
+      localStorage.setItem('baan-chan-theme.json', JSON.stringify({ preference: pref }));
+    } catch {
+      /* ignore */
+    }
+  }, preference);
+}
+
 async function main() {
   await mkdir(outDir, { recursive: true });
   const port = 4173;
@@ -166,9 +229,7 @@ async function main() {
       colorScheme: scheme,
     });
 
-    await context.addInitScript(() => {
-      globalThis.__WEB_SEED__ = true;
-    });
+    await installThemeInit(context, scheme);
 
     for (const route of ROUTES) {
       const page = await context.newPage();
@@ -177,11 +238,25 @@ async function main() {
       if (route.name === 'home') {
         await waitForSeededHome(page);
         await assertHomeRecipeCardHeights(page);
+      } else if (route.name === 'recipe-edit') {
+        await waitForRecipeEdit(page);
+      } else if (route.name === 'recipe-cook') {
+        await waitForCookMode(page);
+      } else if (route.name === 'import-preview') {
+        await page.waitForFunction(() => /นำเข้า|ซ้ำ|สูตรใหม่/.test(document.body.innerText), {
+          timeout: 30_000,
+        });
+      } else if (route.name === 'planner-shop') {
+        await page.waitForFunction(
+          () => document.body.innerText.length > 80 && !/ยังไม่มีรายการซื้อ/.test(document.body.innerText),
+          { timeout: 30_000 },
+        ).catch(() => undefined);
       } else {
         await page.waitForTimeout(2200);
       }
       if (route.setup) await route.setup(page);
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(800);
+      if (scheme === 'light') await assertLightBackground(page);
       const file = path.join(outDir, `${route.name}-${scheme}.png`);
       await page.screenshot({ path: file, fullPage: false });
       console.log(`wrote ${file}`);

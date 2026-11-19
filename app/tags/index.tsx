@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import {
@@ -103,6 +104,9 @@ export default function TagsManagementScreen() {
             </View>
           ) : (
             <View style={styles.row}>
+              <View style={styles.iconTile}>
+                <Ionicons name="pricetag" size={20} color={colors.inkMuted} />
+              </View>
               <Pressable
                 style={styles.tagPress}
                 onPress={() => router.push({ pathname: '/(tabs)/search', params: { tag: item } })}
@@ -121,11 +125,19 @@ export default function TagsManagementScreen() {
                   />
                 </View>
               </Pressable>
-              <Pressable onPress={() => startEdit(item)} style={styles.tagAction}>
-                <AppText style={{ color: colors.orange }}>แก้ไข</AppText>
+              <Pressable
+                onPress={() => startEdit(item)}
+                style={styles.iconBtn}
+                accessibilityLabel={`แก้ไขแท็ก ${item}`}
+              >
+                <Ionicons name="pencil-outline" size={18} color={colors.ink} />
               </Pressable>
-              <Pressable onPress={() => deleteTag(item)} style={styles.tagAction}>
-                <AppText style={{ color: colors.danger }}>ลบ</AppText>
+              <Pressable
+                onPress={() => deleteTag(item)}
+                style={[styles.iconBtn, styles.iconBtnDanger]}
+                accessibilityLabel={`ลบแท็ก ${item}`}
+              >
+                <Ionicons name="trash-outline" size={18} color={colors.danger} />
               </Pressable>
             </View>
           )}
@@ -147,13 +159,30 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  tagAction: {
-    minWidth: 44,
-    minHeight: 44,
+  row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  iconTile: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.md,
+    backgroundColor: colors.surface2,
+    borderWidth: 1,
+    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: spacing.sm,
+  },
+  iconBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.surface2,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconBtnDanger: {
+    backgroundColor: colors.surface2,
+    borderColor: colors.danger,
   },
   tagPress: { flex: 1, gap: 4 },
   usageBg: {

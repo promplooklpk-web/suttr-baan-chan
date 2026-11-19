@@ -2,6 +2,7 @@ import type JSZip from 'jszip';
 
 import type { RecipeExportEnvelope } from '@/types/export';
 import type { ImportPlan } from '@/lib/export/applyImport';
+import { getWebSeedPendingImport } from '@/lib/webSeedImport';
 
 let pendingEnvelope: RecipeExportEnvelope | null = null;
 let pendingPlans: ImportPlan[] | null = null;
@@ -30,7 +31,9 @@ export function getPendingImport(): {
   zipUri: string | null;
   skippedRecipeCount: number;
 } | null {
-  if (!pendingEnvelope || !pendingPlans) return null;
+  if (!pendingEnvelope || !pendingPlans) {
+    return getWebSeedPendingImport();
+  }
   return {
     envelope: pendingEnvelope,
     plans: pendingPlans,

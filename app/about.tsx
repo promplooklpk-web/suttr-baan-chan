@@ -1,3 +1,4 @@
+import { Image } from 'expo-image';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,6 +14,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
 
 const HERO_IMAGE = require('@/assets/seed/wl-grilled-chicken-breast.jpg');
+const APP_ICON = require('@/assets/images/icon.png');
 
 export default function AboutScreen() {
   const styles = useThemedStyles(createStyles);
@@ -31,7 +33,7 @@ export default function AboutScreen() {
         <PhotoGlassHero imageSource={HERO_IMAGE} panelLayout="center" height={176}>
           <View style={styles.heroInner}>
             <View style={[styles.iconTile, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <Ionicons name="restaurant-outline" size={28} color={tokens.accentText} />
+              <Image source={APP_ICON} style={styles.appIcon} contentFit="cover" />
             </View>
             <AppText variant="title">สูตรบ้านฉัน</AppText>
             <AppText variant="caption" muted>เวอร์ชัน 1.0.0</AppText>
@@ -92,7 +94,9 @@ const createStyles = (colors: ThemeColors) =>
       justifyContent: 'center',
       borderWidth: 1,
       marginBottom: spacing.xs,
+      overflow: 'hidden',
     },
+    appIcon: { width: 48, height: 48, borderRadius: 12 },
     pill: {
       paddingHorizontal: 12,
       paddingVertical: 4,

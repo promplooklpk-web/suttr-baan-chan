@@ -8,13 +8,16 @@ import {
   ScrollView,
   StyleSheet,
   View,
+  ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/AppText';
+import { Glass } from '@/components/Glass';
 import { GlassIconButton } from '@/components/GlassIconButton';
 import { GlassBottomBar } from '@/components/GlassBottomBar';
 import { ProgressRing } from '@/components/ProgressRing';
+import { RecipeCoverImage } from '@/components/RecipeCoverImage';
 import { formatTimerSeconds } from '@/lib/format';
 import { CookTimerBar, CookTimerBarSpacer } from '@/components/CookTimerBar';
 import { StepTimerChip } from '@/components/StepTimerChip';
@@ -36,7 +39,7 @@ export default function CookingModeScreen() {
   const { colors } = useTheme();
   const { id, servings: servingsParam } = useLocalSearchParams<{ id: string; servings?: string }>();
   const insets = useSafeAreaInsets();
-  const { getRecipe } = useRecipes();
+  const { getRecipe, loading: recipesLoading } = useRecipes();
   const { clearAllTimers } = useCookTimers();
   const recipe = getRecipe(id);
 
@@ -76,6 +79,20 @@ export default function CookingModeScreen() {
   const onTimerDone = useCallback(() => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined);
   }, []);
+
+  const stepTimerSeconds = useMemo(() => {
+    if (step?.timerSeconds && step.timerSeconds > 0) return step.timerSeconds;
+    if (stepIndex === 0 && (recipe?.cookMinutes ?? 0) > 0) return (recipe?.cookMinutes ?? 0) * 60;
+    return undefined;
+  }, [step, stepIndex, recipe?.cookMinutes]);
+
+  if (recipesLoading) {
+    return (
+      <View style={styles.missing}>
+        <ActivityIndicator color={colors.orange} />
+      </View>
+    );
+  }
 
   if (!recipe || !step) {
     return (
@@ -120,23 +137,37 @@ export default function CookingModeScreen() {
 
       <AppText variant="caption" muted style={styles.recipeTitle}>{recipe.title}</AppText>
 
-      <View style={styles.stepArea}>
-        <AppText style={styles.stepText}>{step.text}</AppText>
-        {step.timerSeconds != null && step.timerSeconds > 0 && (
-          <CookTimerBlock
-            timerKey={`${recipe.id}-${stepIndex}`}
-            timerSeconds={step.timerSeconds}
-            timerLabel={`${recipe.title} · ขั้น ${stepIndex + 1}`}
-            autoStart={autoStartTimers}
-            onComplete={onTimerDone}
-          />
-        )}
-        {stepIndex < steps.length - 1 && (
-          <AppText variant="caption" muted style={styles.nextPreview}>
-            ถัดไป: {steps[stepIndex + 1]?.text}
-          </AppText>
-        )}
-      </View>
+      <ScrollView
+        style={styles.stepScroll}
+        contentContainerStyle={styles.stepScrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <RecipeCoverImage recipe={recipe} style={styles.heroPhoto} rounded={radius.lg} iconSize={40} />
+        <Glass variant="card" style={styles.stepCard}>
+          <View style={styles.stepCardInner}>
+            <View style={[styles.stepBadge, { backgroundColor: colors.orange }]}>
+              <AppText variant="label" style={{ color: colors.onAccent }}>
+                {stepIndex + 1}
+              </AppText>
+            </View>
+            <AppText style={styles.stepTextInCard}>{step.text}</AppText>
+            {stepTimerSeconds != null && stepTimerSeconds > 0 ? (
+              <CookTimerBlock
+                timerKey={`${recipe.id}-${stepIndex}`}
+                timerSeconds={stepTimerSeconds}
+                timerLabel={`${recipe.title} · ขั้น ${stepIndex + 1}`}
+                autoStart={autoStartTimers}
+                onComplete={onTimerDone}
+              />
+            ) : null}
+            {stepIndex < steps.length - 1 ? (
+              <AppText variant="caption" muted style={styles.nextPreview}>
+                ถัดไป: {steps[stepIndex + 1]?.text}
+              </AppText>
+            ) : null}
+          </View>
+        </Glass>
+      </ScrollView>
 
       {showIngredients && (
         <ScrollView style={styles.ingPanel} contentContainerStyle={styles.ingContent}>
@@ -279,11 +310,22 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     backgroundColor: colors.surface2,
   },
   timerTextCol: { flex: 1, gap: spacing.xs },
-  recipeTitle: { marginBottom: spacing.lg },
-  stepArea: { flex: 1, justifyContent: 'center' },
-  stepText: {
-    fontSize: 28,
-    lineHeight: 40,
+  recipeTitle: { marginBottom: spacing.sm },
+  stepScroll: { flex: 1 },
+  stepScrollContent: { gap: spacing.md, paddingBottom: spacing.xl },
+  heroPhoto: { width: '100%', height: 160 },
+  stepCard: { width: '100%' },
+  stepCardInner: { padding: spacing.md, gap: spacing.md },
+  stepBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepTextInCard: {
+    fontSize: 18,
+    lineHeight: 28,
     fontFamily: fonts.semiBold,
     color: colors.ink,
   },
